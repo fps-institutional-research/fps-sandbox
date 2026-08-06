@@ -1,0 +1,209 @@
+""" This script authenticates with Blackbaud API and rotates the access and refresh tokens. """
+
+import os
+import json
+import time
+import socketserver
+import urllib.request
+import urllib.parse
+import http.server
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
+from google.cloud import secretmanager
+
+# --- Configurations ---
+GCP_PROJECT_ID = os.environ.get("GCP_PROJECT", "amazing-hub-484421-v9")
+
+# --- Secret Manager IDs ---
+SECRET_CLIENT_ID = "blackbaud-application-client-id"
+SECRET_CLIENT_SECRET = "blackbaud-application-client-secret"
+SECRET_SUBSCRIPTION_KEY = "blackbaud-api-subscription-key"
+BLACKBAUD_API_ACCESS_TOKEN = "blackbaud-api-access-token"
+BLACKBAUD_API_REFRESH_TOKEN = "blackbaud-api-refresh-token"
+
+# --- Secret Manager Helpers ---
+def access_secret_version(secret_id, version_id="latest"):
+    """
+    Accesses the payload for the given secret version if one exists.
+    """
+    client = secretmanager.SecretManagerServiceClient()
+    name = f"projects/{GCP_PROJECT_ID}/secrets/{secret_id}/versions/{version_id}"
+    response = client.access_secret_version(request={"name": name})
+    return response.payload.data.decode("UTF-8")
+
+def disable_previous_versions(secret_id, current_version_name):
+    """
+    Disables all versions of the given secret except the current one.
+    """
+    client = secretmanager.SecretManagerServiceClient()
+    parent = f"projects/{GCP_PROJECT_ID}/secrets/{secret_id}"
+    
+    for version in client.list_secret_versions(request={"parent": parent}):
+        # Don't disable the current version or already disabled/destroyed versions
+        if version.name != current_version_name and version.state == secretmanager.SecretVersion.State.ENABLED:
+            print(f"Disabling old secret version: {version.name}")
+            client.disable_secret_version(request={"name": version.name})
+
+def add_secret_version(secret_id, payload):
+    """
+    Adds a new secret version and disables all previous versions.
+    """
+    client = secretmanager.SecretManagerServiceClient()
+    parent = f"projects/{GCP_PROJECT_ID}/secrets/{secret_id}"
+    response = client.add_secret_version(
+        request={
+            "parent": parent,
+            "payload": {"data": payload.encode("UTF-8")},
+        }
+    )
+    print(f"Added secret version for {secret_id}: {response.name}")
+    
+    # Disable previous versions to ensure only the latest is active
+    disable_previous_versions(secret_id, response.name)
+    
+    return response
+
+# --- Blackbaud OAuth Class ---
+class BlackbaudOAuth:
+    """Handles OAuth 2.0 authentication flow for Blackbaud API."""
+    def __init__(self, client_id: str, client_secret: str, redirect_uri: str = "http://localhost:8080/callback"):
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self.redirect_uri = redirect_uri
+        self.auth_url = "https://oauth2.sky.blackbaud.com/authorization"
+        self.token_url = "https://oauth2.sky.blackbaud.com/token"
+        self.api_base = "https://api.sky.blackbaud.com"
+        self.access_token: str = None
+        self.refresh_token: str = None
+        
+    def get_authorization_url(self, subscription_key: str) -> str:
+        params = {'client_id': self.client_id, 'response_type': 'code', 'redirect_uri': self.redirect_uri, 'subscription_key': subscription_key}
+        return f"{self.auth_url}?{urllib.parse.urlencode(params)}"
+    
+    def exchange_code_for_token(self, authorization_code: str, subscription_key: str):
+        data = {'grant_type': 'authorization_code', 'code': authorization_code, 'client_id': self.client_id, 'client_secret': self.client_secret, 'redirect_uri': self.redirect_uri}
+        headers = {'Content-Type': 'application/x-www-form-urlencoded', 'Bb-Api-Subscription-Key': subscription_key}
+        req = urllib.request.Request(self.token_url, data=urllib.parse.urlencode(data).encode('utf-8'), headers=headers)
+        with urllib.request.urlopen(req) as response:
+            token_data = json.loads(response.read().decode())
+            self._update_token_state(token_data)
+            return token_data
+    
+    def _update_token_state(self, token_data):
+        self.access_token = token_data.get('access_token')
+        if 'refresh_token' in token_data: self.refresh_token = token_data.get('refresh_token')
+
+    def make_authenticated_request(self, endpoint: str, subscription_key: str) -> dict:
+        url = f"{self.api_base}{endpoint}"
+        headers = {'Authorization': f'Bearer {self.access_token}', 'Bb-Api-Subscription-Key': subscription_key}
+        req = urllib.request.Request(url, headers=headers)
+        with urllib.request.urlopen(req) as response:
+            return json.loads(response.read().decode())
+
+# --- OAuth Callback Handler ---
+class OAuthCallbackHandler(http.server.SimpleHTTPRequestHandler):
+    def __init__(self, *args, auth_code_callback=None, **kwargs):
+        self.auth_code_callback = auth_code_callback
+        super().__init__(*args, **kwargs)
+    def do_GET(self):
+        if self.path.startswith('/callback'):
+            params = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
+            if 'code' in params:
+                if self.auth_code_callback: self.auth_code_callback(params['code'][0])
+                self.send_response(200); self.end_headers()
+                self.wfile.write(b"Success! Close this window.")
+        else: self.send_response(404); self.end_headers()
+    def log_message(self, format, *args): pass
+
+
+def authenticate_automation(client_id, client_secret, subscription_key, redirect_uri="http://localhost:8080/callback"):
+    oauth = BlackbaudOAuth(client_id, client_secret, redirect_uri)
+
+    auth_url = oauth.get_authorization_url(subscription_key)
+    
+    chrome_options = Options()
+    chrome_options.add_argument("--incognito")
+    driver = webdriver.Chrome(options=chrome_options)
+    driver.get(auth_url)
+    
+    auth_code = None
+    def handle_callback(code): nonlocal auth_code; auth_code = code
+
+    try:
+        wait = WebDriverWait(driver, 10)
+        print("\n--- Semi-Automated Login Flow ---")
+        # Step 1: SSO Toggle
+        print("Waiting for SSO page...")
+        sso_continue_button = wait.until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "[data-bbauto-field='email-continue-button']"))
+        )
+        sso_continue_button.click()
+        
+        # STOP and wait for user to finish login
+        print("\nACTION REQUIRED: Please log in using the browser window (Email -> Google SSO -> MFA).")
+        print("The script will automatically detect and click the 'Authorize' button once it appears.")
+        
+        # We use a long timeout (300s) to give the user time to log in manually.
+        # We use a specific XPath to ensure we only click the actual "Authorize" button,
+        # skipping "Sign In" or "Continue" buttons on previous screens.
+        long_wait = WebDriverWait(driver, 300)
+        authorize_xpath = "//button[contains(normalize-space(), 'Authorize')]"
+        authorize_btn = long_wait.until(EC.element_to_be_clickable((By.XPATH, authorize_xpath)))
+
+        port = urllib.parse.urlparse(redirect_uri).port or 8080
+        handler = lambda *a, **k: OAuthCallbackHandler(*a, auth_code_callback=handle_callback, **k)
+        with socketserver.TCPServer(("", port), handler) as httpd:
+            print("Clicking 'Authorize' and waiting for callback...")
+            httpd.timeout = 60
+            authorize_btn.click()
+            httpd.handle_request()
+            
+        time.sleep(2)
+        print("Automation flow successfully completed!")
+        
+    except Exception as e:
+        print(f"Automation error: {e}")
+    finally:
+        driver.quit()
+
+    if not auth_code:
+        raise Exception("Authorization code not received during automation flow.")
+        
+    print("Exchanging authorization code for tokens...")
+    oauth.exchange_code_for_token(auth_code, subscription_key)
+    return oauth
+
+# --- Main Function ---
+def main():
+    print(f"Starting local API authentication using OAuth (Project: {GCP_PROJECT_ID})")
+    try:
+        print("Fetching API credentials from Secret Manager...")
+        cid = access_secret_version(SECRET_CLIENT_ID)
+        sec = access_secret_version(SECRET_CLIENT_SECRET)
+        sub = access_secret_version(SECRET_SUBSCRIPTION_KEY)
+        
+        oauth_client = authenticate_automation(cid, sec, sub)
+        
+        print("\nMaking test request...")
+        res = oauth_client.make_authenticated_request('/school/v1/athletics/locations', sub)
+        print("Success! Response length:", len(res['value']))
+
+        print("\nUploading new tokens to Secret Manager...")
+        if oauth_client.access_token:
+            print("Publishing new access token...")
+            add_secret_version(BLACKBAUD_API_ACCESS_TOKEN, oauth_client.access_token)
+        
+        if oauth_client.refresh_token:
+            print("Publishing new refresh token...")
+            add_secret_version(BLACKBAUD_API_REFRESH_TOKEN, oauth_client.refresh_token)
+        
+        print("--- Token Rotation Completed Successfully ---")
+        
+    except Exception as e:
+        print(f"Failed: {e}")
+
+if __name__ == "__main__":
+    main()

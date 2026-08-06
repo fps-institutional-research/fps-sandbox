@@ -1,0 +1,10 @@
+README.md
+pyproject.toml
+src/fps_insights.egg-info/PKG-INFO
+src/fps_insights.egg-info/SOURCES.txt
+src/fps_insights.egg-info/dependency_links.txt
+src/fps_insights.egg-info/requires.txt
+src/fps_insights.egg-info/top_level.txt
+src/sky_api_custom_auth/__init__.py
+src/sky_api_custom_auth/auth.py
+src/sky_api_custom_auth/client.py

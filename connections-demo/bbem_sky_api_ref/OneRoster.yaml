@@ -1,0 +1,3505 @@
+openapi: 3.0.1
+info:
+  title: OneRoster
+  description: 'OneRoster v1.1 API. For details on the OneRoster Version 1.1 Specification, <a href="https://www.imsglobal.org/oneroster-v11-final-specification">click here</a>. The <a href="https://developer.blackbaud.com/skyapi/bbem/oneroster/authorization">Authorization</a> page provides steps to setup and test these endpoints.'
+  version: v1p1
+servers:
+  - url: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1
+paths:
+  /academicSessions:
+    get:
+      tags:
+        - Academics
+      summary: AcademicSessions all
+      description: Returns a collection of academic sessions.
+      operationId: getAllAcademicSessions
+      responses:
+        '200':
+          description: OK - It was possible to read the collection.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademicSessionsOutputModel'
+              example:
+                academicSessions:
+                  - title: 1st Semester
+                    startDate: '2022-09-01'
+                    endDate: '2022-12-24'
+                    type: term
+                    parent:
+                      sourcedId: as-syr-222-2023
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/link_to_parent
+                      type: academicSession
+                    children:
+                      - sourcedId: as-grp-222-1234
+                        href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/link_to_child
+                        type: academicSession
+                    schoolYear: '2023'
+                    sourcedId: as-trm-222-1234
+                    status: active
+                    dateLastModified: '2022-09-26T09:45:00.0000000+00:00'
+                  - title: 2st Quarter
+                    startDate: '2022-10-01'
+                    endDate: '2022-12-24'
+                    type: gradingPeriod
+                    parent:
+                      sourcedId: as-trm-222-1234
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/link_to_parent
+                      type: academicSession
+                    schoolYear: '2023'
+                    sourcedId: as-grp-222-2345
+                    status: active
+                    dateLastModified: '2022-09-26T09:45:00.0000000+00:00'
+  '/academicSessions/{id}':
+    get:
+      tags:
+        - Academics
+      summary: AcademicSession by id
+      description: Returns a specific academic session.
+      operationId: getAcademicSession
+      parameters:
+        - name: id
+          in: path
+          description: sourcedId for the academic session
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK - It was possible to read the collection.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademicSessionOutputModel'
+              example:
+                academicSession:
+                  title: 1st Semester
+                  startDate: '2022-09-01'
+                  endDate: '2022-12-24'
+                  type: term
+                  parent:
+                    sourcedId: as-syr-222-2023
+                    href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/link_to_parent
+                    type: academicSession
+                  children:
+                    - sourcedId: as-grp-222-1234
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/link_to_child
+                      type: academicSession
+                  schoolYear: '2023'
+                  sourcedId: as-trm-222-1234
+                  status: active
+                  dateLastModified: '2022-09-26T09:45:00.0000000+00:00'
+  /terms:
+    get:
+      tags:
+        - Academics
+      summary: Terms all
+      description: Returns a collection of terms.
+      operationId: getAllTerms
+      responses:
+        '200':
+          description: OK - It was possible to read the collection.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademicSessionsOutputModel'
+              example:
+                academicSessions:
+                  - title: 1st Semester
+                    startDate: '2022-09-01'
+                    endDate: '2022-12-24'
+                    type: term
+                    parent:
+                      sourcedId: as-syr-222-2023
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/link_to_parent
+                      type: academicSession
+                    children:
+                      - sourcedId: as-grp-222-1234
+                        href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/link_to_child
+                        type: academicSession
+                    schoolYear: '2023'
+                    sourcedId: as-trm-222-1234
+                    status: active
+                    dateLastModified: '2022-09-26T09:45:00.0000000+00:00'
+                  - title: 2nd Semester
+                    startDate: '2023-01-01'
+                    endDate: '2023-06-30'
+                    type: term
+                    parent:
+                      sourcedId: as-syr-222-2023
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/link_to_parent
+                      type: academicSession
+                    children:
+                      - sourcedId: as-grp-222-1234
+                        href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/link_to_child
+                        type: academicSession
+                    schoolYear: '2023'
+                    sourcedId: as-trm-222-1235
+                    status: active
+                    dateLastModified: '2022-09-26T09:45:00.0000000+00:00'
+  '/terms/{id}':
+    get:
+      tags:
+        - Academics
+      summary: Term by id
+      description: Returns a specific term.
+      operationId: getTerm
+      parameters:
+        - name: id
+          in: path
+          description: sourcedId for the term
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK - It was possible to read the collection.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademicSessionOutputModel'
+              example:
+                academicSession:
+                  title: 1st Semester
+                  startDate: '2022-09-01'
+                  endDate: '2022-12-24'
+                  type: term
+                  parent:
+                    sourcedId: as-syr-222-2023
+                    href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/link_to_parent
+                    type: academicSession
+                  children:
+                    - sourcedId: as-grp-222-1234
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/link_to_child
+                      type: academicSession
+                  schoolYear: '2023'
+                  sourcedId: as-trm-222-1234
+                  status: active
+                  dateLastModified: '2022-09-26T09:45:00.0000000+00:00'
+  /gradingPeriods:
+    get:
+      tags:
+        - Academics
+      summary: GradingPeriods all
+      description: Returns a collection of grading periods.
+      operationId: getAllGradingPeriods
+      responses:
+        '200':
+          description: OK - It was possible to read the collection.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademicSessionsOutputModel'
+              example:
+                academicSessions:
+                  - title: 2st Quarter
+                    startDate: '2022-10-01'
+                    endDate: '2022-12-24'
+                    type: gradingPeriod
+                    parent:
+                      sourcedId: as-trm-222-1234
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/link_to_parent
+                      type: academicSession
+                    schoolYear: '2023'
+                    sourcedId: as-grp-222-2345
+                    status: active
+                    dateLastModified: '2022-09-26T09:45:00.0000000+00:00'
+                  - title: 3rd Quarter
+                    startDate: '2023-01-02'
+                    endDate: '2023-03-31'
+                    type: gradingPeriod
+                    parent:
+                      sourcedId: as-trm-222-1235
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/link_to_parent
+                      type: academicSession
+                    schoolYear: '2023'
+                    sourcedId: as-grp-222-2346
+                    status: active
+                    dateLastModified: '2022-09-26T09:45:00.0000000+00:00'
+  '/gradingPeriods/{id}':
+    get:
+      tags:
+        - Academics
+      summary: GradingPeriod by id
+      description: Returns a specific grading period.
+      operationId: getGradingPeriod
+      parameters:
+        - name: id
+          in: path
+          description: sourcedId for the grading period
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK - It was possible to read the collection.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademicSessionOutputModel'
+              example:
+                academicSession:
+                  title: 2st Quarter
+                  startDate: '2022-10-01'
+                  endDate: '2022-12-24'
+                  type: gradingPeriod
+                  parent:
+                    sourcedId: as-trm-222-1234
+                    href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/link_to_parent
+                    type: academicSession
+                  schoolYear: '2023'
+                  sourcedId: as-grp-222-2345
+                  status: active
+                  dateLastModified: '2022-09-26T09:45:00.0000000+00:00'
+  /categories:
+    get:
+      tags:
+        - Categories
+      summary: Categories all
+      description: Returns a collection of categories.
+      operationId: getAllCategories
+      responses:
+        '200':
+          description: OK - It was possible to read the collection.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoriesOutputModel'
+              example:
+                categories:
+                  - title: Homework
+                    sourcedId: lic-222-543
+                    status: active
+                    dateLastModified: '2022-09-26T01:30:00.0000000+00:00'
+                  - title: Project
+                    sourcedId: lic-222-544
+                    status: active
+                    dateLastModified: '2022-09-26T01:30:00.0000000+00:00'
+  '/categories/{id}':
+    get:
+      tags:
+        - Categories
+      summary: Category by id
+      description: Returns a specific category.
+      operationId: getCategory
+      parameters:
+        - name: id
+          in: path
+          description: sourcedId for the category
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK - It was possible to read the resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryOutputModel'
+              example:
+                category:
+                  title: Homework
+                  sourcedId: lic-222-543
+                  status: active
+                  dateLastModified: '2022-09-26T01:30:00.0000000+00:00'
+    put:
+      tags:
+        - Categories
+      summary: Category create/update
+      description: Returns the category object that was created or updated.
+      operationId: putCategory
+      parameters:
+        - name: id
+          in: path
+          description: sourcedId for the category
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: input model for a category
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryInputModel'
+            example:
+              category:
+                title: Homework
+                sourcedId: lic-222-sourcedId
+                status: active
+                dateLastModified: '2022-09-26T01:30:00.0000000+00:00'
+      responses:
+        '201':
+          description: OK - It was possible to read the resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryOutputModel'
+              example:
+                category:
+                  title: Homework
+                  sourcedId: lic-222-543
+                  status: active
+                  dateLastModified: '2022-09-26T01:30:00.0000000+00:00'
+  /classes:
+    get:
+      tags:
+        - Classes
+      summary: Classes all
+      description: Returns a collection of classes.
+      operationId: getAllClasses
+      responses:
+        '200':
+          description: OK - It was possible to read the collection.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassesOutputModel'
+              example:
+                classes:
+                  - title: Introduction to Physics
+                    classCode: Phys 100 - 1
+                    classType: Scheduled
+                    location: Room 2-B
+                    grades:
+                      - '10'
+                      - '11'
+                    subjects:
+                      - Science
+                    course:
+                      sourcedId: crs-222-2023-456-12345
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/course/crs-222-2023-456-12345
+                      type: course
+                    school:
+                      sourcedId: org-sch-222-456
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                      type: org
+                    terms:
+                      - sourcedId: as-trm-222-1234
+                        href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/academicSessions/as-trm-222-1234
+                        type: academicSession
+                    periods:
+                      - B
+                    sourcedId: cls-222-123456
+                    status: active
+                    dateLastModified: '2022-09-26T01:30:00.0000000+00:00'
+                    metadata:
+                      department_0: org-dpt-222-3456
+                      lead_section: cls-222-123456
+                  - title: History - 2
+                    classCode: '2'
+                    classType: scheduled
+                    location: Room 18-C
+                    grades:
+                      - '09'
+                      - '10'
+                      - '11'
+                    subjects:
+                      - History
+                    course:
+                      sourcedId: crs-222-2023-456-23456
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/course/crs-222-2023-456-23456
+                      type: course
+                    school:
+                      sourcedId: org-sch-222-456
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                      type: org
+                    terms:
+                      - sourcedId: as-trm-222-1234
+                        href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/academicSessions/as-trm-22-1234
+                        type: academicSession
+                    periods:
+                      - D
+                    sourcedId: cls-222-123478
+                    status: active
+                    dateLastModified: '2022-09-26T01:30:00.0000000+00:00'
+                    metadata:
+                      department_0: org-dpt-222-3456
+                      lead_section: cls-222-123477
+  '/classes/{id}':
+    get:
+      tags:
+        - Classes
+      summary: Class by id
+      description: Returns a specific class.
+      operationId: getClass
+      parameters:
+        - name: id
+          in: path
+          description: sourcedId for the class
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK - It was possible to read the resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassOutputModel'
+              example:
+                class:
+                  title: Introduction to Physics
+                  classCode: Phys 100 - 1
+                  classType: Scheduled
+                  location: Room 2B
+                  grades:
+                    - '10'
+                    - '11'
+                  subjects:
+                    - Science
+                  course:
+                    sourcedId: crs-222-2023-456-12345
+                    href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/course/crs-222-2023-456-12345
+                    type: course
+                  school:
+                    sourcedId: org-sch-222-456
+                    href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                    type: org
+                  terms:
+                    - sourcedId: as-trm-222-1234
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/academicSessions/as-trm-22-1234
+                      type: academicSession
+                  periods:
+                    - B
+                  sourcedId: cls-222-123456
+                  status: active
+                  dateLastModified: '2022-09-26T01:30:00.0000000+00:00'
+                  metadata:
+                    department_0: org-dpt-222-3456
+                    lead_section: cls-222-123456
+  /courses:
+    get:
+      tags:
+        - Courses
+      summary: Courses all
+      description: Returns a collection of courses.
+      operationId: getAllCourses
+      responses:
+        '200':
+          description: OK - It was possible to read the collection.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoursesOutputModel'
+              example:
+                courses:
+                  - title: Introduction to Physics
+                    schoolYear:
+                      sourcedId: as-syr-222-2023
+                      href: https://edu.nxt.blackbaud.com/ims/oneroster/v11/academicSessions/as-syr-222-2023
+                      type: academicSession
+                    courseCode: Phys 100
+                    grades:
+                      - '09'
+                      - '10'
+                    subjects:
+                      - Science
+                    org:
+                      sourcedId: org-sch-222-456
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                      type: org
+                    sourcedId: crs-222-456-12345
+                    status: active
+                    dateLastModified: '2022-09-26T01:30:00.0000000+00:00'
+                    metadata:
+                      department_0: org-dpt-222-3456
+                  - title: History
+                    schoolYear:
+                      sourcedId: as-syr-222-2023
+                      href: https://edu.nxt.blackbaud.com/ims/oneroster/v11/academicSessions/as-syr-222-2023
+                      type: academicSession
+                    courseCode: '2'
+                    grades:
+                      - '09'
+                      - '10'
+                      - '11'
+                    subjects:
+                      - History
+                    org:
+                      sourcedId: org-sch-222-456
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                      type: org
+                    sourcedId: crs-222-123654
+                    status: active
+                    dateLastModified: '2022-09-26T01:30:00.0000000+00:00'
+                    metadata:
+                      department_0: org-dpt-222-4567
+  '/courses/{id}':
+    get:
+      tags:
+        - Courses
+      summary: Course by id
+      description: Returns a specific course.
+      operationId: getCourse
+      parameters:
+        - name: id
+          in: path
+          description: sourcedId for the course
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK - It was possible to read the resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseOutputModel'
+              example:
+                course:
+                  title: Introduction to Physics
+                  schoolYear:
+                    sourcedId: as-syr-222-2023
+                    href: https://edu.nxt.blackbaud.com/ims/oneroster/v11/academicSessions/as-syr-222-2023
+                    type: academicSession
+                  courseCode: Phys 100
+                  grades:
+                    - '09'
+                    - '10'
+                  subjects:
+                    - Science
+                  org:
+                    sourcedId: org-sch-222-456
+                    href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                    type: org
+                  sourcedId: crs-222-456-12345
+                  status: active
+                  dateLastModified: '2022-09-26T01:30:00.0000000+00:00'
+                  metadata:
+                    department_0: org-dpt-222-3456
+  /enrollments:
+    get:
+      tags:
+        - Enrollments
+      summary: Enrollments all
+      description: Returns a collection of enrollments.
+      operationId: getAllEnrollments
+      responses:
+        '200':
+          description: OK - It was possible to read the collection.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrollmentsOutputModel'
+              example:
+                enrollments:
+                  - user:
+                      sourcedId: usr-222-987654
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/users/usr-222-987654
+                      type: user
+                    class:
+                      sourcedId: cls-222-12345
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/classes/cls-22-12345
+                      type: class
+                    school:
+                      sourcedId: org-sch-222-456
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                      type: org
+                    role: student
+                    primary: 'false'
+                    beginDate: '2022-03-15T01:30:00.0000000+00:00'
+                    endDate: '2022-06-15T01:30:00.0000000+00:00'
+                    sourcedId: enr-s-222-12345-987654
+                    status: active
+                    dateLastModified: '2022-03-15T01:30:00.0000000+00:00'
+                  - user:
+                      sourcedId: usr-222-123456
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/users/usr-222-123456
+                      type: user
+                    class:
+                      sourcedId: cls-222-12345
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/classes/cls-22-12345
+                      type: class
+                    school:
+                      sourcedId: org-sch-222-456
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                      type: org
+                    role: teacher
+                    primary: 'true'
+                    beginDate: '2022-03-15T01:30:00.0000000+00:00'
+                    endDate: '2022-06-15T01:30:00.0000000+00:00'
+                    sourcedId: enr-t-222-12345-123456
+                    status: active
+                    dateLastModified: '2022-03-15T01:30:00.0000000+00:00'
+  '/enrollments/{id}':
+    get:
+      tags:
+        - Enrollments
+      summary: Enrollment by id
+      description: Returns a specific enrollment.
+      operationId: getEnrollment
+      parameters:
+        - name: id
+          in: path
+          description: sourcedId for the enrollment
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK - It was possible to read the resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrollmentOutputModel'
+              example:
+                enrollment:
+                  user:
+                    sourcedId: usr-222-987654
+                    href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/users/usr-222-987654
+                    type: user
+                  class:
+                    sourcedId: cls-222-12345
+                    href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/classes/cls-22-12345
+                    type: class
+                  school:
+                    sourcedId: org-sch-222-456
+                    href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                    type: org
+                  role: student
+                  primary: 'false'
+                  beginDate: '2022-09-26T01:30:00.0000000+00:00'
+                  endDate: '2022-12-26T01:30:00.0000000+00:00'
+                  sourcedId: enr-s-222-12345-987654
+                  status: active
+                  dateLastModified: '2022-09-26T01:30:00.0000000+00:00'
+  /lineItems:
+    get:
+      tags:
+        - LineItems
+      summary: LineItems all
+      description: Returns a collection of lineItems.
+      operationId: getAllLineItems
+      responses:
+        '200':
+          description: OK - It was possible to read the collection.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LineItemsOutputModel'
+              example:
+                lineItems:
+                  - title: Assignment Title 1
+                    description: Assignment Description for Assignment 1
+                    assignDate: '2022-09-26T01:30:00.0000000+00:00'
+                    dueDate: '2022-09-29T01:30:00.0000000+00:00'
+                    class:
+                      sourcedId: cls-222-12345
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/classes/cls-222-12345
+                      type: class
+                    category:
+                      sourcedId: lic-222-345
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/categories/lic-222-345
+                      type: category
+                    gradingPeriod:
+                      sourcedId: as-grp-222-6789
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/gradingperiods/as-grp-222-6789
+                      type: academicSession
+                    resultValueMin: 0
+                    resultValueMax: 10
+                    sourcedId: external-lineitem-sourcedId
+                    status: active
+                    dateLastModified: '2022-09-26T01:30:00.0000000+00:00'
+                  - title: Assignment Title 2
+                    description: Assignment Description for Assignment 2
+                    assignDate: '2022-09-26T01:30:00.0000000+00:00'
+                    dueDate: '2022-09-29T01:30:00.0000000+00:00'
+                    class:
+                      sourcedId: cls-222-12345
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/classes/cls-222-12345
+                      type: class
+                    category:
+                      sourcedId: lic-222-345
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/categories/lic-222-345
+                      type: category
+                    gradingPeriod:
+                      sourcedId: as-grp-222-6789
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/gradingperiods/as-grp-222-6789
+                      type: academicSession
+                    resultValueMin: 0
+                    resultValueMax: 10
+                    sourcedId: external-lineitem-sourcedId
+                    status: active
+                    dateLastModified: '2022-09-26T01:30:00.0000000+00:00'
+  '/lineItems/{id}':
+    get:
+      tags:
+        - LineItems
+      summary: LineItem by id
+      description: Returns a specific lineItem.
+      operationId: getLineItem
+      parameters:
+        - name: id
+          in: path
+          description: sourcedId for the lineItem
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK - It was possible to read the resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LineItemOutputModel'
+              example:
+                lineItem:
+                  title: Assignment Title 1
+                  description: Assignment Description for Assignment 1
+                  assignDate: '2022-09-26T01:30:00.0000000+00:00'
+                  dueDate: '2022-09-29T01:30:00.0000000+00:00'
+                  class:
+                    sourcedId: cls-222-12345
+                    href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/classes/cls-222-12345
+                    type: class
+                  category:
+                    sourcedId: lic-222-345
+                    href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/categories/lic-222-345
+                    type: category
+                  gradingPeriod:
+                    sourcedId: as-grp-222-6789
+                    href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/gradingperiods/as-grp-222-6789
+                    type: academicSession
+                  resultValueMin: 0
+                  resultValueMax: 10
+                  sourcedId: external-lineitem-sourcedId
+                  status: active
+                  dateLastModified: '2022-09-26T01:30:00.0000000+00:00'
+    put:
+      tags:
+        - LineItems
+      summary: LineItem create/update
+      description: Returns the lineItem object that was created or updated.
+      operationId: putLineItem
+      parameters:
+        - name: id
+          in: path
+          description: sourcedId for the lineItem
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: input model for the lineItem
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LineItemInputModel'
+            example:
+              lineItem:
+                title: Assignment Title 1
+                description: Assignment Description for Assignment 1
+                assignDate: '2022-09-26T01:30:00.0000000+00:00'
+                dueDate: '2022-09-29T01:30:00.0000000+00:00'
+                class:
+                  sourcedId: cls-222-12345
+                  href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/classes/cls-222-12345
+                  type: class
+                category:
+                  sourcedId: lic-222-345
+                  href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/categories/lic-222-345
+                  type: category
+                gradingPeriod:
+                  sourcedId: as-grp-222-6789
+                  href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/gradingperiods/as-grp-222-6789
+                  type: academicSession
+                resultValueMin: 0
+                resultValueMax: 10
+                sourcedId: external-lineitem-sourcedId
+                status: active
+                dateLastModified: '2022-09-26T01:30:00.0000000+00:00'
+      responses:
+        '201':
+          description: OK - It was possible to read the resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LineItemOutputModel'
+              example:
+                lineItem:
+                  title: Assignment Title 1
+                  description: Assignment Description for Assignment 1
+                  assignDate: '2022-09-26T01:30:00.0000000+00:00'
+                  dueDate: '2022-09-29T01:30:00.0000000+00:00'
+                  class:
+                    sourcedId: cls-222-12345
+                    href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/classes/cls-222-12345
+                    type: class
+                  category:
+                    sourcedId: lic-222-345
+                    href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/categories/lic-222-345
+                    type: category
+                  gradingPeriod:
+                    sourcedId: as-grp-222-6789
+                    href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/gradingperiods/as-grp-222-6789
+                    type: academicSession
+                  resultValueMin: 0
+                  resultValueMax: 10
+                  sourcedId: external-lineitem-sourcedId
+                  status: active
+                  dateLastModified: '2022-09-26T01:30:00.0000000+00:00'
+    delete:
+      tags:
+        - LineItems
+      summary: LineItem delete (PREVIEW)
+      description: "Deletes the specified line item sourcedId.\n\n***This endpoint is in PREVIEW and may be changed or removed at any time.***"
+      operationId: deleteLineItem
+      parameters:
+        - name: id
+          in: path
+          description: sourcedId for the line item
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK - Resource has been deleted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LineItemOutputModel'
+              example:
+                lineItem:
+                  title: Assignment Title 1
+                  description: Assignment Description for Assignment 1
+                  assignDate: '2022-09-26T01:30:00.0000000+00:00'
+                  dueDate: '2022-09-29T01:30:00.0000000+00:00'
+                  class:
+                    sourcedId: cls-222-12345
+                    href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/classes/cls-222-12345
+                    type: class
+                  category:
+                    sourcedId: lic-222-345
+                    href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/categories/lic-222-345
+                    type: category
+                  gradingPeriod:
+                    sourcedId: as-grp-222-6789
+                    href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/gradingperiods/as-grp-222-6789
+                    type: academicSession
+                  resultValueMin: 0
+                  resultValueMax: 10
+                  sourcedId: external-lineitem-sourcedId
+                  status: active
+                  dateLastModified: '2022-09-26T01:30:00.0000000+00:00'
+  /orgs:
+    get:
+      tags:
+        - Orgs
+      summary: Orgs all
+      description: Returns a collection of organizations.
+      operationId: getAllOrgs
+      responses:
+        '200':
+          description: OK - It was possible to read the collection.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrgsOutputModel'
+              example:
+                orgs:
+                  - name: Upper School
+                    type: school
+                    identifier: US
+                    children:
+                      - sourcedId: org-dpt-222-456
+                        href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-dpt-222-456
+                        type: department
+                    sourcedId: org-sch-222-3456
+                    status: active
+                    dateLastModified: '2023-01-10T09:15:00.0000000+00:00'
+                    metadata:
+                      address1: 1234 Elm Street
+                      address2: Building 101
+                      address3: Main Campus
+                      city: Manchester
+                      state: NH
+                      postCode: 03101-1001
+                      gradeRange: '09, 10, 11, 12'
+                  - name: US History
+                    type: department
+                    identifier: US History
+                    sourcedId: org_sch-222-7654
+                    status: active
+                    dateLastModified: '2023-01-10T09:15:00.0000000+00:00'
+  '/orgs/{id}':
+    get:
+      tags:
+        - Orgs
+      summary: Org by id
+      description: Returns a specific org.
+      operationId: getOrg
+      parameters:
+        - name: id
+          in: path
+          description: sourcedId for the org
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK - It was possible to read the resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrgOutputModel'
+              example:
+                org:
+                  name: Upper School
+                  type: school
+                  identifier: US
+                  children:
+                    - sourcedId: org-dpt-222-456
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-dpt-222-456
+                      type: department
+                  sourcedId: org-sch-222-3456
+                  status: active
+                  dateLastModified: '2023-01-10T09:15:00.0000000+00:00'
+                  metadata:
+                    address1: 1234 Elm Street
+                    address2: Building 101
+                    address3: Main Campus
+                    city: Manchester
+                    state: NH
+                    postCode: 03101-1001
+                    gradeRange: '09, 10, 11, 12'
+  /results:
+    get:
+      tags:
+        - Results
+      summary: Results all
+      description: Returns a collection of results.
+      operationId: getAllResults
+      responses:
+        '200':
+          description: OK - It was possible to read the collection.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultsOutputModelSvc'
+              example:
+                results:
+                  - scoreStatus: fully graded
+                    scoreDate: '2022-03-15T01:30:00.0000000+00:00'
+                    score: 88
+                    comment: Result comment
+                    lineItem:
+                      sourcedId: <external-lineitem-id>
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/lineitems/<external-lineitem-ID>
+                      type: lineItem
+                    student:
+                      sourcedId: usr-222-12345678
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/users/cls-222-12345678
+                      type: user
+                    sourcedId: <external-result-ID>
+                    status: active
+                    dateLastModified: '2022-03-15T01:30:00.0000000+00:00'
+                  - scoreStatus: fully graded
+                    scoreDate: '2022-03-15T01:30:00.0000000+00:00'
+                    score: 88
+                    comment: Result comment
+                    lineItem:
+                      sourcedId: <external-lineitem-id>
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/lineitems/<external-lineitem-ID>
+                      type: lineItem
+                    student:
+                      sourcedId: usr-222-12345677
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/users/cls-222-12345677
+                      type: user
+                    sourcedId: <external-result-ID>
+                    status: active
+                    dateLastModified: '2022-03-15T01:30:00.0000000+00:00'
+  '/results/{id}':
+    get:
+      tags:
+        - Results
+      summary: Result by id
+      description: Returns a specific result.
+      operationId: getResult
+      parameters:
+        - name: id
+          in: path
+          description: sourcedId for the result
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK - It was possible to read the resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultOutputModelSvc'
+              example:
+                result:
+                  scoreStatus: fully graded
+                  scoreDate: '2022-09-26T01:30:00.0000000+00:00'
+                  score: 88
+                  comment: Result comment
+                  lineItem:
+                    sourcedId: <external-lineitem-id>
+                    href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/lineitems/<external-lineitem-ID>
+                    type: lineItem
+                  student:
+                    sourcedId: usr-222-12345678
+                    href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/users/cls-222-12345678
+                    type: user
+                  sourcedId: <external-result-ID>
+                  status: active
+                  dateLastModified: '2022-09-26T01:30:00.0000000+00:00'
+    put:
+      tags:
+        - Results
+      summary: Result create/update
+      description: Returns the result object that was created or updated.
+      operationId: putResult
+      parameters:
+        - name: id
+          in: path
+          description: sourcedId for the result
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: input model for the result
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResultInputModelSvc'
+            example:
+              result:
+                scoreStatus: fully graded
+                scoreDate: '2022-09-26T01:30:00.0000000+00:00'
+                score: 88
+                comment: Result comment
+                lineItem:
+                  sourcedId: <external-lineitem-id>
+                  href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/lineitems/<external-lineitem-ID>
+                  type: lineItem
+                student:
+                  sourcedId: usr-222-12345678
+                  href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/users/cls-222-12345678
+                  type: user
+                sourcedId: <external-result-ID>
+                status: active
+                dateLastModified: '2022-09-26T01:30:00.0000000+00:00'
+      responses:
+        '201':
+          description: OK - It was possible to read the resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultOutputModelSvc'
+              example:
+                result:
+                  scoreStatus: fully graded
+                  scoreDate: '2022-09-26T01:30:00.0000000+00:00'
+                  score: 88
+                  comment: Result comment
+                  lineItem:
+                    sourcedId: <external-lineitem-id>
+                    href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/lineitems/<external-lineitem-ID>
+                    type: lineItem
+                  student:
+                    sourcedId: usr-222-12345678
+                    href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/users/cls-222-12345678
+                    type: user
+                  sourcedId: <external-result-ID>
+                  status: active
+                  dateLastModified: '2022-09-26T01:30:00.0000000+00:00'
+    delete:
+      tags:
+        - Results
+      summary: Result delete
+      description: Deletes the specified result sourcedId.
+      operationId: deleteResult
+      parameters:
+        - name: id
+          in: path
+          description: sourcedId for the result
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK - Resource has been deleted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultsOutputModelSvc'
+              example:
+                results:
+                  - scoreStatus: string
+                    scoreDate: string
+                    score: 0
+                    comment: string
+                    lineItem:
+                      sourcedId: string
+                      href: string
+                      type: string
+                    student:
+                      sourcedId: string
+                      href: string
+                      type: string
+                    sourcedId: string
+                    status: string
+                    dateLastModified: string
+                    metadata: { }
+                status_info_set:
+                  - imsx_codeMajor: string
+                    imsx_severity: string
+                    imsx_messageRefIdentifier: string
+                    imsx_operationRefIdentifier: string
+                    imsx_description: string
+                    imsx_codeMinor: string
+  /schools:
+    get:
+      tags:
+        - Schools
+      summary: Schools all
+      description: Returns a collection of schools.
+      operationId: getAllSchools
+      responses:
+        '200':
+          description: OK - It was possible to read the collection.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrgsOutputModel'
+              example:
+                orgs:
+                  - name: Upper School
+                    type: school
+                    identifier: US
+                    children:
+                      - sourcedId: org-dpt-222-456
+                        href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-dpt-222-456
+                        type: department
+                    sourcedId: org-sch-222-3456
+                    status: active
+                    dateLastModified: '2023-01-10T09:15:00.0000000+00:00'
+                    metadata:
+                      address1: 1234 Elm Street
+                      address2: Building 101
+                      address3: Main Campus
+                      city: Manchester
+                      state: NH
+                      postCode: 03101-1001
+                      gradeRange: '09, 10, 11, 12'
+                  - name: Middle School
+                    type: school
+                    identifier: MS
+                    children:
+                      - sourcedId: org-dpt-222-456
+                        href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-dpt-222-456
+                        type: department
+                    sourcedId: org-sch-222-3456
+                    status: active
+                    dateLastModified: '2023-01-10T09:15:00.0000000+00:00'
+                    metadata:
+                      address1: 456 Birch Street
+                      address2: Building 200
+                      address3: South Campus
+                      city: Manchester
+                      state: NH
+                      postCode: 03101-1001
+                      gradeRange: '2008-06-07'
+  '/schools/{id}':
+    get:
+      tags:
+        - Schools
+      summary: School by id
+      description: Returns a specific school.
+      operationId: getSchool
+      parameters:
+        - name: id
+          in: path
+          description: sourcedId for the school
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK - It was possible to read the resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrgOutputModel'
+              example:
+                org:
+                  name: Upper School
+                  type: school
+                  identifier: US
+                  children:
+                    - sourcedId: org-dpt-222-456
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-dpt-222-456
+                      type: department
+                  sourcedId: org-sch-222-3456
+                  status: active
+                  dateLastModified: '2023-01-10T09:15:00.0000000+00:00'
+                  metadata:
+                    address1: 1234 Elm Street
+                    address2: Building 101
+                    address3: Main Campus
+                    city: Manchester
+                    state: NH
+                    postCode: 03101-1001
+                    gradeRange: '09, 10, 11, 12'
+  /users:
+    get:
+      tags:
+        - Users
+      summary: Users all
+      description: Returns a collection of user data.
+      operationId: getAllUsers
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersOutputModel'
+              example:
+                users:
+                  - username: john.doe@myschool.com
+                    enabledUser: 'true'
+                    givenName: John
+                    familyName: Doe
+                    middleName: Michael
+                    role: teacher
+                    identifier: '123456'
+                    email: john.doe@myschool.com
+                    sms: '6037778888'
+                    phone: '6032221111'
+                    orgs:
+                      - sourcedId: org-sch-222-456
+                        href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                        type: org
+                    sourcedId: usr-222-123456
+                    status: active
+                    dateLastModified: '2022-12-12T11:00:00.0000000+00:00'
+                    metadata:
+                      stateId: NH-987-654
+                      address1: 5555 Main Street
+                      address2: Apartment 255
+                      city: Nashua
+                      state: NH
+                      postCode: 03060-6006
+                      title: Dean of Curricula
+                      deceased: 'false'
+                  - username: mary.jones@myschool.com
+                    userIds:
+                      - type: stateId
+                        identifier: NH-345-678
+                      - type: StudentId
+                        identifier: '100021'
+                    enabledUser: 'true'
+                    givenName: Mary
+                    familyName: Jones
+                    middleName: Jane
+                    role: student
+                    identifier: '66778899'
+                    email: mary.jones@myschool.com
+                    sms: '6031234567'
+                    phone: '6031234567'
+                    agents:
+                      - sourcedId: usr-p-222-66778900
+                        href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/users/ousr-p-222-66778900
+                        type: user
+                    orgs:
+                      - sourcedId: org-sch-222-456
+                        href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                        type: org
+                    grades:
+                      - '12'
+                    sourcedId: usr-222-66778899
+                    status: active
+                    dateLastModified: '2022-12-12T11:00:00.0000000+00:00'
+                    metadata:
+                      grade: 12th Grade
+                      stateId: NH-345-678
+                      address1: 1234 Elm Street
+                      address2: Apartment 3C
+                      address3: basement
+                      city: Manchester
+                      state: NH
+                      postCode: 03101-1001
+                      microsoft.userFlags: 'iep,ell,freeLunch'
+                      title: Head of Admissions
+                      deceased: 'true'
+                  - username: thomas.jones@myschool.com
+                    enabledUser: 'true'
+                    givenName: Thomas
+                    familyName: Jones
+                    middleName: Paul
+                    role: parent
+                    identifier: '66778900'
+                    email: thomas.jones@testemail.com
+                    sms: '6039876543'
+                    phone: '6039876543'
+                    agents:
+                      - sourcedId: usr-p-222-66778899
+                        href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/users/ousr-p-222-66778899
+                        type: user
+                    orgs:
+                      - sourcedId: org-sch-222-456
+                        href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                        type: org
+                    sourcedId: usr-222-66778900
+                    status: active
+                    dateLastModified: '2022-12-12T11:00:00.0000000+00:00'
+                    metadata:
+                      stateId: NH-345-678
+                      address1: 1234 Elm Street
+                      address2: Apartment 3C
+                      address3: basement
+                      city: Manchester
+                      state: NH
+                      postCode: 03101-1001
+                      title: Professor of Luminate
+                      deceased: 'false'
+  '/users/{id}':
+    get:
+      tags:
+        - Users
+      summary: User by id
+      description: Returns a single user for the specified ```id```.
+      operationId: getUser
+      parameters:
+        - name: id
+          in: path
+          description: sourcedId for the user
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserOutputModel'
+              example:
+                user:
+                  username: john.doe@myschool.com
+                  enabledUser: 'true'
+                  givenName: John
+                  familyName: Doe
+                  middleName: Michael
+                  role: teacher
+                  identifier: '123456'
+                  email: john.doe@myschool.com
+                  sms: '6037778888'
+                  phone: '6032221111'
+                  orgs:
+                    - sourcedId: org-sch-222-456
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                      type: org
+                  sourcedId: usr-222-123456
+                  status: active
+                  dateLastModified: '2022-12-12T11:00:00.0000000+00:00'
+                  metadata:
+                    stateId: NH-987-654
+                    address1: 5555 Main Street
+                    address2: Apartment 255
+                    city: Nashua
+                    state: NH
+                    postCode: 03060-6006
+                    title: Professor of Luminate
+                    deceased: 'false'
+  /teachers:
+    get:
+      tags:
+        - Users
+      summary: Teachers all
+      description: "Returns a collection of teacher user data. \n\r\nRoles returned include:\r\n<ul><li>Teacher</li><li>Pending Teacher</li></ul>"
+      operationId: getAllTeachers
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersOutputModel'
+              example:
+                users:
+                  - username: john.doe@myschool.com
+                    enabledUser: 'true'
+                    givenName: John
+                    familyName: Doe
+                    middleName: Michael
+                    role: teacher
+                    identifier: '123456'
+                    email: john.doe@myschool.com
+                    sms: '6037778888'
+                    phone: '6032221111'
+                    orgs:
+                      - sourcedId: org-sch-222-456
+                        href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                        type: org
+                    sourcedId: usr-222-123456
+                    status: active
+                    dateLastModified: '2022-12-12T11:00:00.0000000+00:00'
+                    metadata:
+                      stateId: NH-987-654
+                      address1: 5555 Main Street
+                      address2: Apartment 255
+                      city: Nashua
+                      state: NH
+                      postCode: 03060-6006
+                      title: Dean of Curricula
+                  - username: jane.doe@myschool.com
+                    enabledUser: 'true'
+                    givenName: Jane
+                    familyName: Doe
+                    role: teacher
+                    identifier: '654321'
+                    email: jane.doe@myschool.com
+                    sms: '6179998888'
+                    phone: '6173334444'
+                    orgs:
+                      - sourcedId: org-sch-222-456
+                        href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                        type: org
+                    sourcedId: usr-222-654321
+                    status: active
+                    dateLastModified: '2022-12-12T11:00:00.0000000+00:00'
+                    metadata:
+                      stateId: NH-987-654
+                      address1: 321 Washington Street
+                      city: Lowell
+                      state: MA
+                      postCode: 03111-7007
+                      title: Head of Admissions
+  '/teachers/{id}':
+    get:
+      tags:
+        - Users
+      summary: Teacher by id
+      description: "Returns a single teacher user for the specified ```id```. \n\r\nRoles returned include:\r\n<ul><li>Teacher</li><li>Pending Teacher</li></ul>"
+      operationId: getTeacher
+      parameters:
+        - name: id
+          in: path
+          description: sourcedId for the teacher
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserOutputModel'
+              example:
+                user:
+                  username: john.doe@myschool.com
+                  enabledUser: 'true'
+                  givenName: John
+                  familyName: Doe
+                  middleName: Michael
+                  role: teacher
+                  identifier: '123456'
+                  email: john.doe@myschool.com
+                  sms: '6037778888'
+                  phone: '6032221111'
+                  orgs:
+                    - sourcedId: org-sch-222-456
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                      type: org
+                  sourcedId: usr-222-123456
+                  status: active
+                  dateLastModified: '2022-12-12T11:00:00.0000000+00:00'
+                  metadata:
+                    stateId: NH-987-654
+                    address1: 5555 Main Street
+                    address2: Apartment 255
+                    city: Nashua
+                    state: NH
+                    postCode: 03060-6006
+                    title: Head of Admissions
+  /students:
+    get:
+      tags:
+        - Users
+      summary: Students all
+      description: Returns a collection of student user data.
+      operationId: getAllStudents
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersOutputModel'
+              example:
+                users:
+                  - username: mary.jones@myschool.com
+                    userIds:
+                      - type: stateId
+                        identifier: NH-345-678
+                      - type: StudentId
+                        identifier: '100021'
+                    enabledUser: 'true'
+                    givenName: Mary
+                    familyName: Jones
+                    middleName: Jane
+                    role: student
+                    identifier: '66778899'
+                    email: mary.jones@myschool.com
+                    sms: '6031234567'
+                    phone: '6031234567'
+                    agents:
+                      - sourcedId: usr-p-222-66778900
+                        href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/users/ousr-p-222-66778900
+                        type: user
+                    orgs:
+                      - sourcedId: org-sch-222-456
+                        href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                        type: org
+                    grades:
+                      - '12'
+                    sourcedId: usr-222-66778899
+                    status: active
+                    dateLastModified: '2022-12-12T11:00:00.0000000+00:00'
+                    metadata:
+                      grade: 12th Grade
+                      stateId: NH-345-678
+                      address1: 1234 Elm Street
+                      address2: Apartment 3C
+                      address3: basement
+                      city: Manchester
+                      state: NH
+                      postCode: 03101-1001
+                      microsoft.userFlags: 'iep,ell,freeLunch'
+                      title: Sr. Customer Support Analyst
+                  - username: jim.smith@myschool.com
+                    enabledUser: 'true'
+                    givenName: Jim
+                    familyName: Smith
+                    role: student
+                    identifier: '987654'
+                    email: jim.smith@myschool.com
+                    orgs:
+                      - sourcedId: org-sch-222-456
+                        href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                        type: org
+                    grades:
+                      - '11'
+                    sourcedId: usr-222-987654
+                    status: active
+                    dateLastModified: '2022-12-12T11:00:00.0000000+00:00'
+                    metadata:
+                      grade: 11th Grade
+                      microsoft.userFlags: reducedLunch
+                      title: Salesperson
+  '/students/{id}':
+    get:
+      tags:
+        - Users
+      summary: Student by id
+      description: "Returns a single student user for the specified ```id```. \n"
+      operationId: getStudent
+      parameters:
+        - name: id
+          in: path
+          description: sourcedId for the student
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserOutputModel'
+              example:
+                user:
+                  username: mary.jones@myschool.com
+                  userIds:
+                    - type: stateId
+                      identifier: NH-345-678
+                    - type: StudentId
+                      identifier: '100021'
+                  enabledUser: 'true'
+                  givenName: Mary
+                  familyName: Jones
+                  middleName: Jane
+                  role: student
+                  identifier: '66778899'
+                  email: mary.jones@myschool.com
+                  sms: '6031234567'
+                  phone: '6031234567'
+                  agents:
+                    - sourcedId: usr-p-222-66778900
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/users/ousr-p-222-66778900
+                      type: user
+                  orgs:
+                    - sourcedId: org-sch-222-456
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                      type: org
+                  grades:
+                    - '12'
+                  sourcedId: usr-222-66778899
+                  status: active
+                  dateLastModified: '2022-12-12T11:00:00.0000000+00:00'
+                  metadata:
+                    grade: 12th Grade
+                    stateId: NH-345-678
+                    address1: 1234 Elm Street
+                    address2: Apartment 3C
+                    address3: basement
+                    city: Manchester
+                    state: NH
+                    postCode: 03101-1001
+                    microsoft.userFlags: 'iep,ell,freeLunch'
+                    title: Salesperson
+  '/classes/{class_id}/lineItems':
+    get:
+      tags:
+        - Classes
+      summary: LineItems for a class
+      description: Returns a collection of lineItems for the specified ```class_id```.
+      operationId: getLineItemsForClass
+      parameters:
+        - name: class_id
+          in: path
+          description: sourcedId for the class
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK - It was possible to read the resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LineItemsOutputModel'
+              example:
+                lineItems:
+                  - title: Assignment Title 1
+                    description: Assignment Description for Assignment 1
+                    assignDate: '2022-09-26T01:30:00.0000000+00:00'
+                    dueDate: '2022-09-29T01:30:00.0000000+00:00'
+                    class:
+                      sourcedId: cls-222-12345
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/classes/cls-222-12345
+                      type: class
+                    category:
+                      sourcedId: lic-222-345
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/categories/lic-222-345
+                      type: category
+                    gradingPeriod:
+                      sourcedId: as-grp-222-6789
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/gradingperiods/as-grp-222-6789
+                      type: academicSession
+                    resultValueMin: 0
+                    resultValueMax: 10
+                    sourcedId: external-lineitem-sourcedId
+                    status: active
+                    dateLastModified: '2022-09-26T01:30:00.0000000+00:00'
+                  - title: Assignment Title 2
+                    description: Assignment Description for Assignment 2
+                    assignDate: '2022-09-26T01:30:00.0000000+00:00'
+                    dueDate: '2022-09-29T01:30:00.0000000+00:00'
+                    class:
+                      sourcedId: cls-222-12345
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/classes/cls-222-12345
+                      type: class
+                    category:
+                      sourcedId: lic-222-345
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/categories/lic-222-345
+                      type: category
+                    gradingPeriod:
+                      sourcedId: as-grp-222-6789
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/gradingperiods/as-grp-222-6789
+                      type: academicSession
+                    resultValueMin: 0
+                    resultValueMax: 10
+                    sourcedId: external-lineitem-sourcedId
+                    status: active
+                    dateLastModified: '2022-09-26T01:30:00.0000000+00:00'
+  '/classes/{class_id}/results':
+    get:
+      tags:
+        - Results
+      summary: Results for a class
+      description: Returns a collection of results for a specified ```class_id```.
+      operationId: getResultsForClass
+      parameters:
+        - name: class_id
+          in: path
+          description: sourcedId for the class
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK - It was possible to read the resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultsOutputModelSvc'
+              example:
+                results:
+                  - scoreStatus: fully graded
+                    scoreDate: '2022-03-15T01:30:00.0000000+00:00'
+                    score: 88
+                    comment: Result comment
+                    lineItem:
+                      sourcedId: <external-lineitem-id>
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/lineitems/<external-lineitem-ID>
+                      type: lineItem
+                    student:
+                      sourcedId: usr-222-12345678
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/users/cls-222-12345678
+                      type: user
+                    sourcedId: <external-result-ID>
+                    status: active
+                    dateLastModified: '2022-03-15T01:30:00.0000000+00:00'
+                  - scoreStatus: fully graded
+                    scoreDate: '2022-03-15T01:30:00.0000000+00:00'
+                    score: 88
+                    comment: Result comment
+                    lineItem:
+                      sourcedId: <external-lineitem-id>
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/lineitems/<external-lineitem-ID>
+                      type: lineItem
+                    student:
+                      sourcedId: usr-222-12345677
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/users/cls-222-12345677
+                      type: user
+                    sourcedId: <external-result-ID>
+                    status: active
+                    dateLastModified: '2022-03-15T01:30:00.0000000+00:00'
+  '/classes/{class_id}/lineItems/{li_id}/results':
+    get:
+      tags:
+        - Results
+      summary: Results for a lineItem for a class
+      description: Returns a collection of results for the specified ```class_id``` and ```li_id```.
+      operationId: getResultsForLineItemForClass
+      parameters:
+        - name: class_id
+          in: path
+          description: sourcedId for the class
+          required: true
+          schema:
+            type: string
+        - name: li_id
+          in: path
+          description: sourcedId for the lineItem
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK - It was possible to read the resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultsOutputModelSvc'
+              example:
+                results:
+                  - scoreStatus: fully graded
+                    scoreDate: '2022-03-15T01:30:00.0000000+00:00'
+                    score: 88
+                    comment: Result comment
+                    lineItem:
+                      sourcedId: <external-lineitem-id>
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/lineitems/<external-lineitem-ID>
+                      type: lineItem
+                    student:
+                      sourcedId: usr-222-12345678
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/users/cls-222-12345678
+                      type: user
+                    sourcedId: <external-result-ID>
+                    status: active
+                    dateLastModified: '2022-03-15T01:30:00.0000000+00:00'
+                  - scoreStatus: fully graded
+                    scoreDate: '2022-03-15T01:30:00.0000000+00:00'
+                    score: 88
+                    comment: Result comment
+                    lineItem:
+                      sourcedId: <external-lineitem-id>
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/lineitems/<external-lineitem-ID>
+                      type: lineItem
+                    student:
+                      sourcedId: usr-222-12345677
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/users/cls-222-12345677
+                      type: user
+                    sourcedId: <external-result-ID>
+                    status: active
+                    dateLastModified: '2022-03-15T01:30:00.0000000+00:00'
+  '/classes/{class_id}/students/{student_id}/results':
+    get:
+      tags:
+        - Results
+      summary: Results for a student for a class
+      description: Returns a collection of results for a specified ```class_id``` and ```student_id```.
+      operationId: getResultsForStudentForClass
+      parameters:
+        - name: class_id
+          in: path
+          description: sourcedId for the class
+          required: true
+          schema:
+            type: string
+        - name: student_id
+          in: path
+          description: sourcedId for the student
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK - It was possible to read the resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultsOutputModelSvc'
+              example:
+                results:
+                  - scoreStatus: fully graded
+                    scoreDate: '2022-03-15T01:30:00.0000000+00:00'
+                    score: 88
+                    comment: Result comment
+                    lineItem:
+                      sourcedId: <external-lineitem-id>
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/lineitems/<external-lineitem-ID>
+                      type: lineItem
+                    student:
+                      sourcedId: usr-222-12345678
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/users/cls-222-12345678
+                      type: user
+                    sourcedId: <external-result-ID>
+                    status: active
+                    dateLastModified: '2022-03-15T01:30:00.0000000+00:00'
+                  - scoreStatus: fully graded
+                    scoreDate: '2022-03-15T01:30:00.0000000+00:00'
+                    score: 88
+                    comment: Result comment
+                    lineItem:
+                      sourcedId: <external-lineitem-id>
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/lineitems/<external-lineitem-ID>
+                      type: lineItem
+                    student:
+                      sourcedId: usr-222-12345677
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/users/cls-222-12345677
+                      type: user
+                    sourcedId: <external-result-ID>
+                    status: active
+                    dateLastModified: '2022-03-15T01:30:00.0000000+00:00'
+  '/schools/{school_id}/classes':
+    get:
+      tags:
+        - Classes
+      summary: Classes for a school
+      description: Returns a collection of classes for the specified ```school_id```.
+      operationId: getClassesForSchool
+      parameters:
+        - name: school_id
+          in: path
+          description: sourcedId for the school
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK - It was possible to read the resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassOutputModel'
+              example:
+                class:
+                  title: Introduction to Physics
+                  classCode: Phys 100 - 1
+                  classType: Scheduled
+                  location: Room 2B
+                  grades:
+                    - '10'
+                    - '11'
+                  subjects:
+                    - Science
+                  course:
+                    sourcedId: crs-222-2023-456-12345
+                    href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/course/crs-222-2023-456-12345
+                    type: course
+                  school:
+                    sourcedId: org-sch-222-456
+                    href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                    type: org
+                  terms:
+                    - sourcedId: as-trm-222-1234
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/academicSessions/as-trm-22-1234
+                      type: academicSession
+                  periods:
+                    - B
+                  sourcedId: cls-222-123456
+                  status: active
+                  dateLastModified: '2022-09-26T01:30:00.0000000+00:00'
+                  metadata:
+                    department_0: org-dpt-222-3456
+                    lead_section: cls-222-123456
+  '/schools/{school_id}/teachers':
+    get:
+      tags:
+        - Users
+      summary: Teachers for school
+      description: "Returns a collection of teacher user data for the specified ```school_id```. \n\r\nRoles returned include:\r\n<ul><li>Teacher</li><li>Pending Teacher</li></ul>"
+      operationId: getTeachersForSchool
+      parameters:
+        - name: school_id
+          in: path
+          description: sourcedId for the school
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersOutputModel'
+              example:
+                users:
+                  - username: john.doe@myschool.com
+                    enabledUser: 'true'
+                    givenName: John
+                    familyName: Doe
+                    middleName: Michael
+                    role: teacher
+                    identifier: '123456'
+                    email: john.doe@myschool.com
+                    sms: '6037778888'
+                    phone: '6032221111'
+                    orgs:
+                      - sourcedId: org-sch-222-456
+                        href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                        type: org
+                    sourcedId: usr-222-123456
+                    status: active
+                    dateLastModified: '2022-12-12T11:00:00.0000000+00:00'
+                    metadata:
+                      stateId: NH-987-654
+                      address1: 5555 Main Street
+                      address2: Apartment 255
+                      city: Nashua
+                      state: NH
+                      postCode: 03060-6006
+                      title: Dean of Curricula
+                  - username: jane.doe@myschool.com
+                    enabledUser: 'true'
+                    givenName: Jane
+                    familyName: Doe
+                    role: teacher
+                    identifier: '654321'
+                    email: jane.doe@myschool.com
+                    sms: '6179998888'
+                    phone: '6173334444'
+                    orgs:
+                      - sourcedId: org-sch-222-456
+                        href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                        type: org
+                    sourcedId: usr-222-654321
+                    status: active
+                    dateLastModified: '2022-12-12T11:00:00.0000000+00:00'
+                    metadata:
+                      stateId: NH-987-654
+                      address1: 321 Washington Street
+                      city: Lowell
+                      state: MA
+                      postCode: 03111-7007
+                      title: Head of Admissions
+  '/schools/{school_id}/students':
+    get:
+      tags:
+        - Users
+      summary: Students for school
+      description: Returns a collection of student user data for the specified ```school_id```.
+      operationId: getStudentsForSchool
+      parameters:
+        - name: school_id
+          in: path
+          description: sourcedId for the school
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersOutputModel'
+              example:
+                users:
+                  - username: mary.jones@myschool.com
+                    userIds:
+                      - type: stateId
+                        identifier: NH-345-678
+                      - type: StudentId
+                        identifier: '100021'
+                    enabledUser: 'true'
+                    givenName: Mary
+                    familyName: Jones
+                    middleName: Jane
+                    role: student
+                    identifier: '66778899'
+                    email: mary.jones@myschool.com
+                    sms: '6031234567'
+                    phone: '6031234567'
+                    agents:
+                      - sourcedId: usr-p-222-66778900
+                        href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/users/ousr-p-222-66778900
+                        type: user
+                    orgs:
+                      - sourcedId: org-sch-222-456
+                        href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                        type: org
+                    grades:
+                      - '12'
+                    sourcedId: usr-222-66778899
+                    status: active
+                    dateLastModified: '2022-12-12T11:00:00.0000000+00:00'
+                    metadata:
+                      grade: 12th Grade
+                      stateId: NH-345-678
+                      address1: 1234 Elm Street
+                      address2: Apartment 3C
+                      address3: basement
+                      city: Manchester
+                      state: NH
+                      postCode: 03101-1001
+                      microsoft.userFlags: 'iep,ell,freeLunch'
+                      title: Sr. Customer Support Analyst
+                  - username: jim.smith@myschool.com
+                    enabledUser: 'true'
+                    givenName: Jim
+                    familyName: Smith
+                    role: student
+                    identifier: '987654'
+                    email: jim.smith@myschool.com
+                    orgs:
+                      - sourcedId: org-sch-222-456
+                        href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                        type: org
+                    grades:
+                      - '11'
+                    sourcedId: usr-222-987654
+                    status: active
+                    dateLastModified: '2022-12-12T11:00:00.0000000+00:00'
+                    metadata:
+                      grade: 11th Grade
+                      microsoft.userFlags: reducedLunch
+                      title: Salesperson
+  '/schools/{school_id}/enrollments':
+    get:
+      tags:
+        - Enrollments
+      summary: Enrollments for a school
+      description: Returns a collection of enrollments for the specified ```school_id```.
+      operationId: getEnrollmentsForSchool
+      parameters:
+        - name: school_id
+          in: path
+          description: sourcedId for the school
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK - It was possible to read the collection.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrollmentsOutputModel'
+              example:
+                enrollments:
+                  - user:
+                      sourcedId: usr-222-987654
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/users/usr-222-987654
+                      type: user
+                    class:
+                      sourcedId: cls-222-12345
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/classes/cls-22-12345
+                      type: class
+                    school:
+                      sourcedId: org-sch-222-456
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                      type: org
+                    role: student
+                    primary: 'false'
+                    beginDate: '2022-03-15T01:30:00.0000000+00:00'
+                    endDate: '2022-06-15T01:30:00.0000000+00:00'
+                    sourcedId: enr-s-222-12345-987654
+                    status: active
+                    dateLastModified: '2022-03-15T01:30:00.0000000+00:00'
+                  - user:
+                      sourcedId: usr-222-123456
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/users/usr-222-123456
+                      type: user
+                    class:
+                      sourcedId: cls-222-12345
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/classes/cls-22-12345
+                      type: class
+                    school:
+                      sourcedId: org-sch-222-456
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                      type: org
+                    role: teacher
+                    primary: 'true'
+                    beginDate: '2022-03-15T01:30:00.0000000+00:00'
+                    endDate: '2022-06-15T01:30:00.0000000+00:00'
+                    sourcedId: enr-t-222-12345-123456
+                    status: active
+                    dateLastModified: '2022-03-15T01:30:00.0000000+00:00'
+  '/teachers/{teacher_id}/classes':
+    get:
+      tags:
+        - Classes
+      summary: Classes for a teacher
+      description: Returns a collection of classes for the specified ```teacher_id```.
+      operationId: getClassesForTeacher
+      parameters:
+        - name: teacher_id
+          in: path
+          description: sourcedId for the teacher
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK - It was possible to read the resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassOutputModel'
+              example:
+                class:
+                  title: Introduction to Physics
+                  classCode: Phys 100 - 1
+                  classType: Scheduled
+                  location: Room 2B
+                  grades:
+                    - '10'
+                    - '11'
+                  subjects:
+                    - Science
+                  course:
+                    sourcedId: crs-222-2023-456-12345
+                    href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/course/crs-222-2023-456-12345
+                    type: course
+                  school:
+                    sourcedId: org-sch-222-456
+                    href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                    type: org
+                  terms:
+                    - sourcedId: as-trm-222-1234
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/academicSessions/as-trm-22-1234
+                      type: academicSession
+                  periods:
+                    - B
+                  sourcedId: cls-222-123456
+                  status: active
+                  dateLastModified: '2022-09-26T01:30:00.0000000+00:00'
+                  metadata:
+                    department_0: org-dpt-222-3456
+                    lead_section: cls-222-123456
+  '/classes/{class_id}/teachers':
+    get:
+      tags:
+        - Users
+      summary: Teachers for class
+      description: "Returns a collection of teacher user data for the specified ```class_id```. \n\r\nRoles returned include:\r\n<ul><li>Teacher</li><li>Pending Teacher</li></ul>"
+      operationId: getTeachersForClass
+      parameters:
+        - name: class_id
+          in: path
+          description: sourcedId for the class
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersOutputModel'
+              example:
+                users:
+                  - username: john.doe@myschool.com
+                    enabledUser: 'true'
+                    givenName: John
+                    familyName: Doe
+                    middleName: Michael
+                    role: teacher
+                    identifier: '123456'
+                    email: john.doe@myschool.com
+                    sms: '6037778888'
+                    phone: '6032221111'
+                    orgs:
+                      - sourcedId: org-sch-222-456
+                        href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                        type: org
+                    sourcedId: usr-222-123456
+                    status: active
+                    dateLastModified: '2022-12-12T11:00:00.0000000+00:00'
+                    metadata:
+                      stateId: NH-987-654
+                      address1: 5555 Main Street
+                      address2: Apartment 255
+                      city: Nashua
+                      state: NH
+                      postCode: 03060-6006
+                      title: Dean of Curricula
+                  - username: jane.doe@myschool.com
+                    enabledUser: 'true'
+                    givenName: Jane
+                    familyName: Doe
+                    role: teacher
+                    identifier: '654321'
+                    email: jane.doe@myschool.com
+                    sms: '6179998888'
+                    phone: '6173334444'
+                    orgs:
+                      - sourcedId: org-sch-222-456
+                        href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                        type: org
+                    sourcedId: usr-222-654321
+                    status: active
+                    dateLastModified: '2022-12-12T11:00:00.0000000+00:00'
+                    metadata:
+                      stateId: NH-987-654
+                      address1: 321 Washington Street
+                      city: Lowell
+                      state: MA
+                      postCode: 03111-7007
+                      title: Head of Admissions
+  '/classes/{class_id}/students':
+    get:
+      tags:
+        - Users
+      summary: Students for class
+      description: Returns a collection of student user data for the specified ```class_id```.
+      operationId: getStudentsForClass
+      parameters:
+        - name: class_id
+          in: path
+          description: sourcedId for the class
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersOutputModel'
+              example:
+                users:
+                  - username: mary.jones@myschool.com
+                    userIds:
+                      - type: stateId
+                        identifier: NH-345-678
+                      - type: StudentId
+                        identifier: '100021'
+                    enabledUser: 'true'
+                    givenName: Mary
+                    familyName: Jones
+                    middleName: Jane
+                    role: student
+                    identifier: '66778899'
+                    email: mary.jones@myschool.com
+                    sms: '6031234567'
+                    phone: '6031234567'
+                    agents:
+                      - sourcedId: usr-p-222-66778900
+                        href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/users/ousr-p-222-66778900
+                        type: user
+                    orgs:
+                      - sourcedId: org-sch-222-456
+                        href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                        type: org
+                    grades:
+                      - '12'
+                    sourcedId: usr-222-66778899
+                    status: active
+                    dateLastModified: '2022-12-12T11:00:00.0000000+00:00'
+                    metadata:
+                      grade: 12th Grade
+                      stateId: NH-345-678
+                      address1: 1234 Elm Street
+                      address2: Apartment 3C
+                      address3: basement
+                      city: Manchester
+                      state: NH
+                      postCode: 03101-1001
+                      microsoft.userFlags: 'iep,ell,freeLunch'
+                      title: Sr. Customer Support Analyst
+                  - username: jim.smith@myschool.com
+                    enabledUser: 'true'
+                    givenName: Jim
+                    familyName: Smith
+                    role: student
+                    identifier: '987654'
+                    email: jim.smith@myschool.com
+                    orgs:
+                      - sourcedId: org-sch-222-456
+                        href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                        type: org
+                    grades:
+                      - '11'
+                    sourcedId: usr-222-987654
+                    status: active
+                    dateLastModified: '2022-12-12T11:00:00.0000000+00:00'
+                    metadata:
+                      grade: 11th Grade
+                      microsoft.userFlags: reducedLunch
+                      title: Salesperson
+  '/schools/{school_id}/terms':
+    get:
+      tags:
+        - Academics
+      summary: Terms for school
+      description: Returns a collection of terms for the specified ```school_id```.
+      operationId: getTermsForSchool
+      parameters:
+        - name: school_id
+          in: path
+          description: sourcedId for the school
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK - It was possible to read the collection.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademicSessionsOutputModel'
+              example:
+                academicSessions:
+                  - title: 1st Semester
+                    startDate: '2022-09-01'
+                    endDate: '2022-12-24'
+                    type: term
+                    parent:
+                      sourcedId: as-syr-222-2023
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/link_to_parent
+                      type: academicSession
+                    children:
+                      - sourcedId: as-grp-222-1234
+                        href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/link_to_child
+                        type: academicSession
+                    schoolYear: '2023'
+                    sourcedId: as-trm-222-1234
+                    status: active
+                    dateLastModified: '2022-09-26T09:45:00.0000000+00:00'
+                  - title: 2nd Semester
+                    startDate: '2023-01-01'
+                    endDate: '2023-06-30'
+                    type: term
+                    parent:
+                      sourcedId: as-syr-222-2023
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/link_to_parent
+                      type: academicSession
+                    children:
+                      - sourcedId: as-grp-222-1234
+                        href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/link_to_child
+                        type: academicSession
+                    schoolYear: '2023'
+                    sourcedId: as-trm-222-1235
+                    status: active
+                    dateLastModified: '2022-09-26T09:45:00.0000000+00:00'
+  '/terms/{term_id}/gradingPeriods':
+    get:
+      tags:
+        - Academics
+      summary: GradingPeriods for term
+      description: Returns a collection of grading periods for the specified ```term_id```
+      operationId: getGradingPeriodsForTerm
+      parameters:
+        - name: term_id
+          in: path
+          description: sourcedId for the term
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK - It was possible to read the collection.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademicSessionsOutputModel'
+              example:
+                academicSessions:
+                  - title: 2st Quarter
+                    startDate: '2022-10-01'
+                    endDate: '2022-12-24'
+                    type: gradingPeriod
+                    parent:
+                      sourcedId: as-trm-222-1234
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/link_to_parent
+                      type: academicSession
+                    schoolYear: '2023'
+                    sourcedId: as-grp-222-2345
+                    status: active
+                    dateLastModified: '2022-09-26T09:45:00.0000000+00:00'
+                  - title: 3rd Quarter
+                    startDate: '2023-01-02'
+                    endDate: '2023-03-31'
+                    type: gradingPeriod
+                    parent:
+                      sourcedId: as-trm-222-1235
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/link_to_parent
+                      type: academicSession
+                    schoolYear: '2023'
+                    sourcedId: as-grp-222-2346
+                    status: active
+                    dateLastModified: '2022-09-26T09:45:00.0000000+00:00'
+  '/schools/{school_id}/courses':
+    get:
+      tags:
+        - Courses
+      summary: Courses for school
+      description: Returns a collection of courses for the specified ```school_id```.
+      operationId: getCoursesForSchool
+      parameters:
+        - name: school_id
+          in: path
+          description: sourcedId for the teacher
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK - It was possible to read the collection.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoursesOutputModel'
+              example:
+                courses:
+                  - title: Introduction to Physics
+                    schoolYear:
+                      sourcedId: as-syr-222-2023
+                      href: https://edu.nxt.blackbaud.com/ims/oneroster/v11/academicSessions/as-syr-222-2023
+                      type: academicSession
+                    courseCode: Phys 100
+                    grades:
+                      - '09'
+                      - '10'
+                    subjects:
+                      - Science
+                    org:
+                      sourcedId: org-sch-222-456
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                      type: org
+                    sourcedId: crs-222-456-12345
+                    status: active
+                    dateLastModified: '2022-09-26T01:30:00.0000000+00:00'
+                    metadata:
+                      department_0: org-dpt-222-3456
+                  - title: History
+                    schoolYear:
+                      sourcedId: as-syr-222-2023
+                      href: https://edu.nxt.blackbaud.com/ims/oneroster/v11/academicSessions/as-syr-222-2023
+                      type: academicSession
+                    courseCode: '2'
+                    grades:
+                      - '09'
+                      - '10'
+                      - '11'
+                    subjects:
+                      - History
+                    org:
+                      sourcedId: org-sch-222-456
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                      type: org
+                    sourcedId: crs-222-123654
+                    status: active
+                    dateLastModified: '2022-09-26T01:30:00.0000000+00:00'
+                    metadata:
+                      department_0: org-dpt-222-4567
+  /demographics:
+    get:
+      tags:
+        - Users
+      summary: Demographics all
+      description: Returns a collection of user's demographic data.
+      operationId: getAllDemographics
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DemographicsOutputModel'
+              example:
+                demographics:
+                  - birthDate: '2006-07-26'
+                    sex: male
+                    americanIndianOrAlaskaNative: 'false'
+                    asian: 'false'
+                    blackOrAfricanAmerican: 'false'
+                    nativeHawaiianOrOtherPacificIslander: 'false'
+                    white: 'true'
+                    demographicRaceTwoOrMoreRaces: 'false'
+                    hispanicOrLatinoEthnicity: 'false'
+                    cityOfBirth: Concord
+                    sourcedId: usr-222-66778899
+                    status: active
+                    dateLastModified: '2023-08-01T11:00:00.0000000+00:00'
+                    metadata:
+                      iepStatus: 'true'
+                      ellStatus: 'false'
+                      frlStatus: Reduced
+                  - birthDate: '2006-08-01'
+                    sex: female
+                    americanIndianOrAlaskaNative: 'false'
+                    asian: 'true'
+                    blackOrAfricanAmerican: 'false'
+                    nativeHawaiianOrOtherPacificIslander: 'false'
+                    white: 'true'
+                    demographicRaceTwoOrMoreRaces: 'true'
+                    hispanicOrLatinoEthnicity: 'false'
+                    cityOfBirth: Boston
+                    sourcedId: usr-222-66778896
+                    status: active
+                    dateLastModified: '2023-08-01T11:00:00.0000000+00:00'
+                    metadata:
+                      iepStatus: 'false'
+                      ellStatus: 'true'
+                      frlStatus: Free
+  '/demographics/{id}':
+    get:
+      tags:
+        - Users
+      summary: Demographics by id
+      description: Returns a single user's demographic data for the specified ```id```..
+      operationId: getDemographics
+      parameters:
+        - name: id
+          in: path
+          description: sourcedId for the user
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DemographicOutputModel'
+              example:
+                demographic:
+                  birthDate: '2006-07-26'
+                  sex: male
+                  americanIndianOrAlaskaNative: 'false'
+                  asian: 'false'
+                  blackOrAfricanAmerican: 'false'
+                  nativeHawaiianOrOtherPacificIslander: 'false'
+                  white: 'true'
+                  demographicRaceTwoOrMoreRaces: 'false'
+                  hispanicOrLatinoEthnicity: 'false'
+                  cityOfBirth: Concord
+                  sourcedId: usr-222-66778899
+                  status: active
+                  dateLastModified: '2023-08-01T11:00:00.0000000+00:00'
+                  metadata:
+                    iepStatus: 'true'
+                    ellStatus: 'false'
+                    frlStatus: Reduced
+  '/classes/{class_id}/categories':
+    get:
+      tags:
+        - Categories
+      summary: Categories for a class
+      description: Returns a collection of categories for a specified ```class_id```.
+      operationId: getCategoriesForClass
+      parameters:
+        - name: class_id
+          in: path
+          description: sourcedId for the category
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK - It was possible to read the resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoriesOutputModel'
+              example:
+                categories:
+                  - title: Homework
+                    sourcedId: lic-222-543
+                    status: active
+                    dateLastModified: '2022-09-26T01:30:00.0000000+00:00'
+                  - title: Project
+                    sourcedId: lic-222-544
+                    status: active
+                    dateLastModified: '2022-09-26T01:30:00.0000000+00:00'
+  '/schools/{school_id}/classes/{class_id}/enrollments':
+    get:
+      tags:
+        - Enrollments
+      summary: Enrollments for a class in a school
+      description: Returns a collection of enrollments for the specified ```class_id``` in the ```school_id```.
+      operationId: getEnrollmentsForClassInSchool
+      parameters:
+        - name: school_id
+          in: path
+          description: sourcedId for the school
+          required: true
+          schema:
+            type: string
+        - name: class_id
+          in: path
+          description: sourcedId for the class
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK - It was possible to read the collection.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrollmentsOutputModel'
+              example:
+                enrollments:
+                  - user:
+                      sourcedId: usr-222-987654
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/users/usr-222-987654
+                      type: user
+                    class:
+                      sourcedId: cls-222-12345
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/classes/cls-22-12345
+                      type: class
+                    school:
+                      sourcedId: org-sch-222-456
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                      type: org
+                    role: student
+                    primary: 'false'
+                    beginDate: '2022-03-15T01:30:00.0000000+00:00'
+                    endDate: '2022-06-15T01:30:00.0000000+00:00'
+                    sourcedId: enr-s-222-12345-987654
+                    status: active
+                    dateLastModified: '2022-03-15T01:30:00.0000000+00:00'
+                  - user:
+                      sourcedId: usr-222-123456
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/users/usr-222-123456
+                      type: user
+                    class:
+                      sourcedId: cls-222-12345
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/classes/cls-22-12345
+                      type: class
+                    school:
+                      sourcedId: org-sch-222-456
+                      href: https://api.sky.blackbaud.com/afe-rostr/ims/oneroster/v1p1/orgs/org-sch-222-456
+                      type: org
+                    role: teacher
+                    primary: 'true'
+                    beginDate: '2022-03-15T01:30:00.0000000+00:00'
+                    endDate: '2022-06-15T01:30:00.0000000+00:00'
+                    sourcedId: enr-t-222-12345-123456
+                    status: active
+                    dateLastModified: '2022-03-15T01:30:00.0000000+00:00'
+components:
+  schemas:
+    AcademicSessionModel:
+      type: object
+      properties:
+        title:
+          type: string
+          nullable: true
+        startDate:
+          type: string
+          nullable: true
+        endDate:
+          type: string
+          nullable: true
+        type:
+          type: string
+          nullable: true
+        parent:
+          $ref: '#/components/schemas/GuidRefModel'
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/GuidRefModel'
+          nullable: true
+        schoolYear:
+          type: string
+          nullable: true
+        sourcedId:
+          type: string
+          nullable: true
+        status:
+          type: string
+          nullable: true
+        dateLastModified:
+          type: string
+          format: date-time
+          nullable: true
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+      additionalProperties: false
+    AcademicSessionOutputModel:
+      type: object
+      properties:
+        academicSession:
+          $ref: '#/components/schemas/AcademicSessionModel'
+        statusInfoSet:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatusInfoModel'
+          nullable: true
+      additionalProperties: false
+    AcademicSessionsOutputModel:
+      type: object
+      properties:
+        academicSessions:
+          type: array
+          items:
+            $ref: '#/components/schemas/AcademicSessionModel'
+          nullable: true
+        statusInfoSet:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatusInfoModel'
+          nullable: true
+      additionalProperties: false
+    CategoriesOutputModel:
+      type: object
+      properties:
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategoryModel'
+          nullable: true
+        statusInfoSet:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatusInfoModel'
+          nullable: true
+      additionalProperties: false
+    CategoryInputModel:
+      type: object
+      properties:
+        category:
+          $ref: '#/components/schemas/CategoryModel'
+      additionalProperties: false
+    CategoryModel:
+      type: object
+      properties:
+        title:
+          type: string
+          nullable: true
+        sourcedId:
+          type: string
+          nullable: true
+        status:
+          type: string
+          nullable: true
+        dateLastModified:
+          type: string
+          format: date-time
+          nullable: true
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+      additionalProperties: false
+    CategoryOutputModel:
+      type: object
+      properties:
+        category:
+          $ref: '#/components/schemas/CategoryModel'
+        statusInfoSet:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatusInfoModel'
+          nullable: true
+      additionalProperties: false
+    ClassModel:
+      type: object
+      properties:
+        title:
+          type: string
+          nullable: true
+        classCode:
+          type: string
+          nullable: true
+        classType:
+          type: string
+          nullable: true
+        location:
+          type: string
+          nullable: true
+        grades:
+          type: array
+          items:
+            type: string
+          nullable: true
+        subjects:
+          type: array
+          items:
+            type: string
+          nullable: true
+        course:
+          $ref: '#/components/schemas/GuidRefModel'
+        school:
+          $ref: '#/components/schemas/GuidRefModel'
+        terms:
+          type: array
+          items:
+            $ref: '#/components/schemas/GuidRefModel'
+          nullable: true
+        subjectCodes:
+          type: array
+          items:
+            type: string
+          nullable: true
+        periods:
+          type: array
+          items:
+            type: string
+          nullable: true
+        resources:
+          type: array
+          items:
+            $ref: '#/components/schemas/GuidRefModel'
+          nullable: true
+        sourcedId:
+          type: string
+          nullable: true
+        status:
+          type: string
+          nullable: true
+        dateLastModified:
+          type: string
+          format: date-time
+          nullable: true
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+      additionalProperties: false
+    ClassOutputModel:
+      type: object
+      properties:
+        class:
+          $ref: '#/components/schemas/ClassModel'
+        statusInfoSet:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatusInfoModel'
+          nullable: true
+      additionalProperties: false
+    ClassesOutputModel:
+      type: object
+      properties:
+        classes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClassModel'
+          nullable: true
+        statusInfoSet:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatusInfoModel'
+          nullable: true
+      additionalProperties: false
+    CourseModel:
+      type: object
+      properties:
+        title:
+          type: string
+          nullable: true
+        schoolYear:
+          $ref: '#/components/schemas/GuidRefModel'
+        courseCode:
+          type: string
+          nullable: true
+        grades:
+          type: array
+          items:
+            type: string
+          nullable: true
+        subjects:
+          type: array
+          items:
+            type: string
+          nullable: true
+        org:
+          $ref: '#/components/schemas/GuidRefModel'
+        subjectCodes:
+          type: array
+          items:
+            type: string
+          nullable: true
+        resources:
+          type: array
+          items:
+            $ref: '#/components/schemas/GuidRefModel'
+          nullable: true
+        sourcedId:
+          type: string
+          nullable: true
+        status:
+          type: string
+          nullable: true
+        dateLastModified:
+          type: string
+          format: date-time
+          nullable: true
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+      additionalProperties: false
+    CourseOutputModel:
+      type: object
+      properties:
+        course:
+          $ref: '#/components/schemas/CourseModel'
+        statusInfoSet:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatusInfoModel'
+          nullable: true
+      additionalProperties: false
+    CoursesOutputModel:
+      type: object
+      properties:
+        courses:
+          type: array
+          items:
+            $ref: '#/components/schemas/CourseModel'
+          nullable: true
+        statusInfoSet:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatusInfoModel'
+          nullable: true
+      additionalProperties: false
+    DemographicOutputModel:
+      type: object
+      properties:
+        demographic:
+          $ref: '#/components/schemas/ORDemographicModel'
+      additionalProperties: false
+    DemographicsOutputModel:
+      type: object
+      properties:
+        demographics:
+          type: array
+          items:
+            $ref: '#/components/schemas/ORDemographicModel'
+          nullable: true
+        statusInfoSet:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatusInfoModel'
+          nullable: true
+      additionalProperties: false
+    EnrollmentModel:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/GuidRefModel'
+        class:
+          $ref: '#/components/schemas/GuidRefModel'
+        school:
+          $ref: '#/components/schemas/GuidRefModel'
+        role:
+          type: string
+          nullable: true
+        primary:
+          type: boolean
+          nullable: true
+        beginDate:
+          type: string
+          nullable: true
+        endDate:
+          type: string
+          nullable: true
+        sourcedId:
+          type: string
+          nullable: true
+        status:
+          type: string
+          nullable: true
+        dateLastModified:
+          type: string
+          format: date-time
+          nullable: true
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+      additionalProperties: false
+    EnrollmentOutputModel:
+      type: object
+      properties:
+        enrollment:
+          $ref: '#/components/schemas/EnrollmentModel'
+        statusInfoSet:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatusInfoModel'
+          nullable: true
+      additionalProperties: false
+    EnrollmentsOutputModel:
+      type: object
+      properties:
+        enrollments:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnrollmentModel'
+          nullable: true
+        statusInfoSet:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatusInfoModel'
+          nullable: true
+      additionalProperties: false
+    GuidRefModel:
+      type: object
+      properties:
+        sourcedId:
+          type: string
+          nullable: true
+        href:
+          type: string
+          nullable: true
+        type:
+          type: string
+          nullable: true
+      additionalProperties: false
+    LineItemInputModel:
+      type: object
+      properties:
+        lineItem:
+          $ref: '#/components/schemas/LineItemModel'
+      additionalProperties: false
+    LineItemModel:
+      type: object
+      properties:
+        title:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        assignDate:
+          type: string
+          format: date-time
+          nullable: true
+        dueDate:
+          type: string
+          format: date-time
+          nullable: true
+        class:
+          $ref: '#/components/schemas/GuidRefModel'
+        category:
+          $ref: '#/components/schemas/GuidRefModel'
+        gradingPeriod:
+          $ref: '#/components/schemas/GuidRefModel'
+        resultValueMin:
+          type: number
+          format: double
+          nullable: true
+        resultValueMax:
+          type: number
+          format: double
+          nullable: true
+        sourcedId:
+          type: string
+          nullable: true
+        status:
+          type: string
+          nullable: true
+        dateLastModified:
+          type: string
+          format: date-time
+          nullable: true
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+      additionalProperties: false
+    LineItemOutputModel:
+      type: object
+      properties:
+        lineItem:
+          $ref: '#/components/schemas/LineItemModel'
+        statusInfoSet:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatusInfoModel'
+          nullable: true
+      additionalProperties: false
+    LineItemsOutputModel:
+      type: object
+      properties:
+        lineItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/LineItemModel'
+          nullable: true
+        statusInfoSet:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatusInfoModel'
+          nullable: true
+      additionalProperties: false
+    ORDemographicModel:
+      type: object
+      properties:
+        birthDate:
+          type: string
+          nullable: true
+        sex:
+          type: string
+          nullable: true
+        americanIndianOrAlaskaNative:
+          type: boolean
+          nullable: true
+        asian:
+          type: boolean
+          nullable: true
+        blackOrAfricanAmerican:
+          type: boolean
+          nullable: true
+        nativeHawaiianOrOtherPacificIslander:
+          type: boolean
+          nullable: true
+        white:
+          type: boolean
+          nullable: true
+        demographicRaceTwoOrMoreRaces:
+          type: boolean
+          nullable: true
+        hispanicOrLatinoEthnicity:
+          type: boolean
+          nullable: true
+        countryOfBirthCode:
+          type: string
+          nullable: true
+        stateOfBirthAbbreviation:
+          type: string
+          nullable: true
+        cityOfBirth:
+          type: string
+          nullable: true
+        publicSchoolResidenceStatus:
+          type: string
+          nullable: true
+        sourcedId:
+          type: string
+          nullable: true
+        status:
+          type: string
+          nullable: true
+        dateLastModified:
+          type: string
+          format: date-time
+          nullable: true
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+      additionalProperties: false
+    ORUserModel:
+      type: object
+      properties:
+        username:
+          type: string
+          nullable: true
+        userIds:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserIdModel'
+          nullable: true
+        enabledUser:
+          type: boolean
+          nullable: true
+        givenName:
+          type: string
+          nullable: true
+        familyName:
+          type: string
+          nullable: true
+        middleName:
+          type: string
+          nullable: true
+        role:
+          type: string
+          nullable: true
+        identifier:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        sms:
+          type: string
+          nullable: true
+        phone:
+          type: string
+          nullable: true
+        agents:
+          type: array
+          items:
+            $ref: '#/components/schemas/GuidRefModel'
+          nullable: true
+        orgs:
+          type: array
+          items:
+            $ref: '#/components/schemas/GuidRefModel'
+          nullable: true
+        grades:
+          type: array
+          items:
+            type: string
+          nullable: true
+        password:
+          type: string
+          nullable: true
+        sourcedId:
+          type: string
+          nullable: true
+        status:
+          type: string
+          nullable: true
+        dateLastModified:
+          type: string
+          format: date-time
+          nullable: true
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+      additionalProperties: false
+    OrgModel:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        type:
+          type: string
+          nullable: true
+        identifier:
+          type: string
+          nullable: true
+        parent:
+          $ref: '#/components/schemas/GuidRefModel'
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/GuidRefModel'
+          nullable: true
+        sourcedId:
+          type: string
+          nullable: true
+        status:
+          type: string
+          nullable: true
+        dateLastModified:
+          type: string
+          format: date-time
+          nullable: true
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+      additionalProperties: false
+    OrgOutputModel:
+      type: object
+      properties:
+        org:
+          $ref: '#/components/schemas/OrgModel'
+        statusInfoSet:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatusInfoModel'
+          nullable: true
+      additionalProperties: false
+    OrgsOutputModel:
+      type: object
+      properties:
+        orgs:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrgModel'
+          nullable: true
+        statusInfoSet:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatusInfoModel'
+          nullable: true
+      additionalProperties: false
+    ResultInputModelSvc:
+      type: object
+      properties:
+        result:
+          $ref: '#/components/schemas/ResultModelSvc'
+      additionalProperties: false
+      description: Results input model
+    ResultModelSvc:
+      type: object
+      properties:
+        scoreStatus:
+          type: string
+          description: Score status
+          nullable: true
+        scoreDate:
+          type: string
+          description: Score date
+          format: date-time
+          nullable: true
+        score:
+          type: number
+          description: Score
+          format: double
+          nullable: true
+        comment:
+          type: string
+          description: Comment
+          nullable: true
+        lineItem:
+          $ref: '#/components/schemas/GuidRefModel'
+        student:
+          $ref: '#/components/schemas/GuidRefModel'
+        sourcedId:
+          type: string
+          description: Unique identifier for the instance
+          nullable: true
+        status:
+          type: string
+          description: Status for the instance
+          nullable: true
+        dateLastModified:
+          type: string
+          description: Date and time the instance was last modified
+          format: date-time
+          nullable: true
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+          description: Extension properties for the instance
+          nullable: true
+      additionalProperties: false
+      description: Results model
+    ResultOutputModelSvc:
+      type: object
+      properties:
+        result:
+          $ref: '#/components/schemas/ResultModelSvc'
+        status_info_set:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatusInfoModel'
+          description: List of status messages
+          nullable: true
+      additionalProperties: false
+      description: Result
+    ResultsOutputModelSvc:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResultModelSvc'
+          description: Results
+          nullable: true
+        status_info_set:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatusInfoModel'
+          description: List of status messages
+          nullable: true
+      additionalProperties: false
+      description: Result
+    StatusInfoModel:
+      type: object
+      properties:
+        imsx_codeMajor:
+          type: string
+          nullable: true
+        imsx_severity:
+          type: string
+          nullable: true
+        imsx_messageRefIdentifier:
+          type: string
+          nullable: true
+        imsx_operationRefIdentifier:
+          type: string
+          nullable: true
+        imsx_description:
+          type: string
+          nullable: true
+        imsx_codeMinor:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UserIdModel:
+      type: object
+      properties:
+        type:
+          type: string
+          nullable: true
+        identifier:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UserOutputModel:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/ORUserModel'
+        statusInfoSet:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatusInfoModel'
+          nullable: true
+      additionalProperties: false
+    UsersOutputModel:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/ORUserModel'
+          nullable: true
+        statusInfoSet:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatusInfoModel'
+          nullable: true
+      additionalProperties: false

@@ -1,0 +1,22 @@
+import requests
+from requests.auth import HTTPBasicAuth
+
+url = "https://oauth2.sky.blackbaud.com/token"
+client_id = "a056ca6b-a3a8-4ac7-b325-997666306e52"
+client_secret = "eyJhbGciOiJSUzI1NiIsImtpZCI6IjREVjZzVkxIM0FtU1JTbUZqMk04Wm5wWHU3WSIsInR5cCI6IkpXVCJ9.eyJhcHBsaWNhdGlvbmlkIjoiYTA1NmNhNmItYTNhOC00YWM3LWIzMjUtOTk3NjY2MzA2ZTUyIiwibW9kZSI6IkZ1bGwiLCJncmFudGF1dGhvcml0eSI6IkNvbm5lY3Rpb24iLCJlbnZpcm9ubWVudG5hbWUiOiJGcmFuY2lzIFBhcmtlciBTY2hvb2wgU0lTIiwiZW52aXJvbm1lbnRpZCI6InAtdnVBZFpFaWp2MGFSQ1ZkNzM4ODZZZyIsImxlZ2FsZW50aXR5aWQiOiJwLVhsSHV6enhPTVV1Vkk0MDZUNnAwdnciLCJsZWdhbGVudGl0eW5hbWUiOiJGcmFuY2lzIFBhcmtlciBTY2hvb2wiLCJ6b25lIjoicC11c2EwMSIsIm5hbWVpZCI6IjAxYTUyNDA4LTk0M2ItNGMxYS05Mzc5LTgwMzFkZGZlOTM5OCIsImp0aSI6IjdjNjViMGIwLWVmZDQtNGExOS1iYWE3LTY1ODM5NzljOWFhNiIsImV4cCI6MTc0OTY3OTM5MSwiaWF0IjoxNzQ5Njc1NzkxLCJpc3MiOiJodHRwczovL29hdXRoMi5za3kuYmxhY2tiYXVkLmNvbS8iLCJhdWQiOiJibGFja2JhdWQifQ.iLVQcLRayykRziVROv6KVsfZ_jDDmUtaNgNTr_RUrMoNDMYoLlv08G_hNupD9Gs8H-P4xYnFGvvXeWARcCOk9NmTA2bLqLvPWjylRyIBAfq-ECXrsbULj0nExzBYlz6JUqKy8qYnRhz3mwvEVvSGUEwOjm1KOT3ma6E43cAkx3A3uCn4ya5amO4HFyhxmsQBPFKLH8uESfc3Dp3RgxRM5tW1CCFyRFPlMuKww2W-nfIUHaE7wlviAKOeZGRrQB3NBvJcFRDL-2kk5XmHAt9O2SI5Ljk5GEA2dALdzhU3qkmL4r-7IFGdTykjtaXvOJ_0rCAUjxe-vDld0NlGgpgEKg"
+scope = "scopename"
+
+data = {
+    "grant_type": "client_credentials",
+    "scope": scope
+}
+
+response = requests.post(
+    url,
+    data=data,
+    auth=HTTPBasicAuth(client_id, client_secret),
+    headers={"Content-Type": "application/x-www-form-urlencoded"}
+)
+
+print(response.status_code)
+print(response.json())

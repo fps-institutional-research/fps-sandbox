@@ -1,0 +1,112 @@
+Metadata-Version: 2.4
+Name: fps-insights
+Version: 0.1.0
+Summary: Blackbaud SKY API SDK for FPS Insights
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: python-dotenv
+Requires-Dist: pyotp
+Requires-Dist: selenium
+
+# Blackbaud SKY API Custom Authentication
+
+This module provides OAuth 2.0 authentication for the Blackbaud SKY API using Python. It supports both interactive (browser-based) and fully automated (Selenium-based) authentication flows.
+
+## Setup
+
+### 1. Register Your Application
+
+Before using this module, you need to:
+1. Register your application in the [Blackbaud Developer Portal](https://developer.sky.blackbaud.com/)
+2. Obtain your `client_id` and `client_secret`
+3. Register a redirect URI (default: `http://localhost:8080/callback`)
+4. Get your API subscription key
+
+### 2. Set Environment Variables
+
+Create a `.env` file in the project directory with your credentials:
+
+```bash
+BB_CLIENT_ID=your-client-id
+BB_CLIENT_SECRET=your-client-secret
+BB_API_SUBSCRIPTION_KEY=your-subscription-key
+
+# Optional: For automated (Selenium) login
+SERVICE_EMAIL=your-service-account-email
+SERVICE_PW=your-service-account-password
+SERVICE_TOTP=your-totp-secret-key
+```
+
+## Installation
+
+Install the package in editable mode:
+
+```bash
+pip install -e .
+```
+
+## Usage
+
+### Interactive Authentication
+
+This flow opens a browser window for you to log in manually.
+
+```python
+import os
+from dotenv import load_dotenv
+from sky_api_custom_auth import authenticate_interactive
+
+load_dotenv()
+
+CLIENT_ID = os.environ.get('BB_CLIENT_ID')
+CLIENT_SECRET = os.environ.get('BB_CLIENT_SECRET')
+SUBSCRIPTION_KEY = os.environ.get('BB_API_SUBSCRIPTION_KEY')
+
+# Authenticate (opens browser for user authorization)
+oauth_client = authenticate_interactive(CLIENT_ID, CLIENT_SECRET, SUBSCRIPTION_KEY)
+
+# Make authenticated API requests
+response = oauth_client.make_authenticated_request(
+    '/school/v1/athletics/departments',
+    SUBSCRIPTION_KEY
+)
+```
+
+### Automated Authentication (Selenium)
+
+This flow uses Selenium to automatically log in, handling Google SSO and TOTP.
+
+```python
+import os
+from dotenv import load_dotenv
+from sky_api_custom_auth import authenticate_automation
+
+load_dotenv()
+
+CLIENT_ID = os.environ.get('BB_CLIENT_ID')
+CLIENT_SECRET = os.environ.get('BB_CLIENT_SECRET')
+SUBSCRIPTION_KEY = os.environ.get('BB_API_SUBSCRIPTION_KEY')
+
+# Authenticate (automated login using Selenium)
+oauth_client = authenticate_automation(CLIENT_ID, CLIENT_SECRET, SUBSCRIPTION_KEY)
+
+# Make authenticated API requests
+response = oauth_client.make_authenticated_request(
+    '/school/v1/athletics/locations',
+    SUBSCRIPTION_KEY
+)
+```
+
+## Features
+
+- **OAuth 2.0 Authorization Code Flow**: Full implementation including code exchange.
+- **Automatic Token Refresh**: Automatically refreshes access tokens using refresh tokens.
+- **Token Persistence**: Saves tokens to `data/blackbaud_tokens.json` for reuse across sessions.
+- **Automated Login**: Selenium-based flow handles Google SSO and MFA (TOTP).
+- **Interactive Login**: Starts a local callback server to capture the authorization code.
+
+## Security Notes
+
+- Never commit tokens or credentials to version control.
+- The `data/blackbaud_tokens.json` file contains sensitive tokens - add it to your `.gitignore`.
+- Keep your `SERVICE_PW` and `SERVICE_TOTP` secure in environment variables.

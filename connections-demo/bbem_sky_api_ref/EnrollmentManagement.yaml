@@ -1,0 +1,5086 @@
+openapi: 3.0.1
+info:
+  title: Enrollment Management
+  description: Blackbaud Education Management API for Enrollment Management
+  version: '1.0'
+servers:
+  - url: https://api.sky.blackbaud.com/afe-edems
+paths:
+  /v1/candidates:
+    get:
+      tags:
+        - Candidates
+      summary: Candidate list (Get)
+      description: "Returns a collection of admission candidates.\n\r\nRequires the following role in the Education Management system:\r\n<ul><li>Admissions Manager</li><li>Admissions Staff</li><li>Platform Manager</li><li>SKY API Data Sync</li></ul>"
+      operationId: V1CandidatesGet
+      parameters:
+        - name: school_year
+          in: query
+          description: Specify the ID or label of a school year to limit results to candidates for that entry year. Defaults to current admissions year.
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Specify the ID or description of the candidate status to limit results to candidates with that status.
+          schema:
+            type: string
+        - name: modified_date
+          in: query
+          description: 'Specify a date to limit results to candidates modified on or after that date. Use ISO-8601 date format: 2025-04-30'
+          schema:
+            type: string
+            format: date-time
+        - name: size
+          in: query
+          description: The number of records per page (Default record size is 3000).
+          schema:
+            type: integer
+            format: int32
+            default: 3000
+        - name: page
+          in: query
+          description: The page of results to start from (Default start page is 1).
+          schema:
+            type: integer
+            format: int32
+            default: 1
+        - name: school_level
+          in: query
+          description: Provide the ID of the school level to limit results to candidates for that school level.
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CandidateReadCollection'
+              example:
+                count: 1
+                value:
+                  - user:
+                      id: 1
+                      first_name: John
+                      last_name: Smith
+                      middle_name: Quincy
+                      preferred_name: Jack
+                      prefix: Mr.
+                      suffix: Jr.
+                      email: john@example.com
+                      cc_email: john2@example.com
+                      gender:
+                        abbreviation: M
+                        id: 1
+                        description: Male
+                      pronouns:
+                        id: 1
+                        description: He/Him
+                      ethnicity:
+                        id: 1
+                        description: Korean
+                      is_international: false
+                      boarding_or_day: D
+                      school_program:
+                        id: 1
+                        description: College Prep
+                      race:
+                        - id: 1
+                          description: Asian
+                    entering_year:
+                      id: 1
+                      description: 2025 - 2026
+                    entering_grade:
+                      abbreviation: 9th
+                      id: 1
+                      description: Ninth Grade
+                    role:
+                      id: 1
+                      description: Candidate
+                    candidate_status: Active
+                    status:
+                      date: '2024-03-31T12:00:00.0000000+00:00'
+                      id: 1
+                      description: Under Review
+                    school_decision:
+                      id: 1
+                      decision:
+                        id: 1
+                        description: Accepted with conditions
+                        type:
+                          id: 1
+                          description: Sample Value
+                      date: '2024-03-31T12:00:00.0000000+00:00'
+                      publish_date: '2024-03-31T12:00:00.0000000+00:00'
+                      expire_date: '2024-04-30T12:00:00.0000000+00:00'
+                      comment: A schooled comment
+                      candidate_response:
+                        id: 1
+                        response:
+                          description: Declined due to finances
+                          type:
+                            id: 1
+                            description: Sample Value
+                        date: '2024-03-31T12:00:00.0000000+00:00'
+                        decline_reason:
+                          id: 1
+                          description: Sample Value
+                        chosen_school:
+                          id: 1
+                          description: Sample Value
+                    family_photo:
+                      url: somesite/photos/john.jpg
+                      keep_private: false
+                    inquiry:
+                      id: 1
+                      form:
+                        id: 1
+                        description: API Form
+                      source:
+                        id: 1
+                        description: Sample value
+                      date_submitted: '2024-03-03T12:00:00.0000000+00:00'
+                      date_processed: '2024-03-03T12:00:00.0000000+00:00'
+                    referral:
+                      id: 1
+                      description: Friend
+                      comment: A friend at the school
+                    has_i20_form: false
+                    languages_at_home: 'English, Korean'
+                    requested_financial_aid: false
+                    has_iep: false
+                    has_504_plan: false
+                    has_private_evaluation: false
+                    bbtm_family_id: 1
+                    created_by: Created by User
+                    created: '2024-03-01T12:00:00.0000000+00:00'
+                    modified_by: Modified by User
+                    modified: '2024-03-03T12:00:00.0000000+00:00'
+                    reapply:
+                      has_previously_applied: true
+                      school_comment: A schooled comment
+                      candidate_comment: A candid comment
+                    skipped_grade:
+                      has_skipped_grade: true
+                      school_comment: A schooled comment
+                      candidate_comment: A candid comment
+                    withdrawn:
+                      has_withdrawn: true
+                      school_comment: A schooled comment
+                      candidate_comment: A candid comment
+                    special_concerns:
+                      has_special_concerns: true
+                      school_comment: A schooled comment
+                      candidate_comment: A candid comment
+                    educational_support:
+                      has_educational_support: true
+                      documentational_url: somesite/files/edu_supp.doc
+                      school_comment: A schooled comment
+                      candidate_comment: A candid comment
+                    tutoring:
+                      requires_tutoring: true
+                      reason: At remedial math levels
+                    application:
+                      id: 1
+                      form:
+                        id: 1
+                        description: API Form
+                      date_submitted: '2024-03-31T12:00:00.0000000+00:00'
+                      date_processed: '2024-03-31T12:00:00.0000000+00:00'
+                    relationships:
+                      - id: 1
+                        type: Parent
+                        user:
+                          id: 1
+                          first_name: John
+                          last_name: Smith
+                          preferred_name: Jack
+                          email: johnsr@example.com
+                    admissions_staff:
+                      id: 1
+                      prefix: Mr.
+                      first_name: Kianna
+                      middle_name: Mark
+                      last_name: Reed
+                      suffix: Jr.
+                      preferred_name: ''
+                      preferred_last_name: Reed
+                      maiden_name: ''
+                      email: kianna@example.com
+                    consultant:
+                      id: 1
+                      prefix: Mrs.
+                      first_name: Sally
+                      middle_name: ''
+                      last_name: Greene
+                      suffix: Sr.
+                      preferred_name: Sally
+                      preferred_last_name: ''
+                      maiden_name: ''
+                      email: sally@example.com
+                    sending_school:
+                      id: 1
+                      school:
+                        id: 1
+                        name: Lowcountry Montessori
+                      type:
+                        id: 1
+                        description: Early Education
+                      grade_level:
+                        abbreviation: 3rd
+                        id: 1
+                        description: Third grade
+                      date_from: '2022-03-31T12:00:00.0000000+00:00'
+                      date_to: '2024-03-31T12:00:00.0000000+00:00'
+                    events:
+                      - id: 1
+                        name: Open House
+                        start_time: '2024-03-31T12:00:00.0000000+00:00'
+                        is_registered: true
+                        attended: false
+                        comment: An eventful comment
+                    interviews:
+                      - id: 1
+                        start_time: '2024-03-31T12:00:00.0000000+00:00'
+                        end_time: '2024-03-31T12:00:00.0000000+00:00'
+                        interviewer_other: John Bridges
+                        rating: 10
+                        is_rescheduled: false
+                        comment: A candid comment
+                    visits:
+                      - id: 1
+                        start_time: '2024-03-31T12:00:00.0000000+00:00'
+                        end_time: '2024-03-31T12:00:00.0000000+00:00'
+                        guide_other: John Bridges
+                        is_rescheduled: false
+                        comment: A candid comment
+                    candidate_checklist:
+                      id: 1
+                      name: Standard Checklist
+                    custom_fields_text:
+                      - field_identifier: text_field_7
+                        field_name: Favorite color
+                        field_value: Burnt sienna
+                    custom_fields_date:
+                      - field_identifier: date_field_7
+                        field_name: Favorite day
+                        field_value: '2023-03-29'
+                    custom_fields_defined:
+                      - field_identifier: defined_field_7
+                        field_name: T-shirt size
+                        field_value: Medium
+    post:
+      tags:
+        - Candidates
+      summary: Candidate (Create)
+      description: "Creates a candidate record for the user for a specified school year.\n\r\nRequires the following role in the Education Management system:\r\n<ul><li>Admissions Manager</li><li>Admissions Staff</li><li>Platform Manager</li><li>SKY API Data Sync</li></ul>"
+      operationId: V1CandidatesPost
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCandidateRequest'
+            example:
+              user_id: 1
+              entering_year: 2024 - 2025
+              entering_grade: 1st grade
+              checklist_type: 1
+      responses:
+        '200':
+          description: Returns user id on success
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int32
+              example: 0
+  '/v1/studentchecklists/{student_id}':
+    get:
+      tags:
+        - StudentChecklists
+      summary: Student checklist list - single student (Get)
+      description: "Returns a student's checklists and their steps for a specified year.\n\r\nRequires the following role in the Education Management system:\r\n<ul><li>Admissions Manager</li><li>Admissions Staff</li></ul>"
+      operationId: V1StudentchecklistsByStudent_idGet
+      parameters:
+        - name: student_id
+          in: path
+          description: The ID of the student
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: school_year
+          in: query
+          description: The ID or label of the school year. Defaults to current admissions year.
+          schema:
+            type: string
+        - name: student_checklist_type_id
+          in: query
+          description: The ID of student checklist type
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentChecklistsResponse'
+              example:
+                - checklist:
+                    id: 1
+                    type:
+                      id: 1
+                      name: Re-enrollment
+                      is_inactive: false
+                      is_archived: false
+                      school_year:
+                        id: 1
+                        description: 2024 - 2025
+                  steps:
+                    - id: 1
+                      type:
+                        id: 1
+                        name: Update medical history
+                        type: Medical form
+                        description: Provide necessary medical info
+                        due_date: '2022-03-31T12:00:00.0000000+00:00'
+                        is_inactive: false
+                        is_required: false
+                        link: www.example.com
+                        link_text: Medical form
+                        file: filename.doc
+                      status: Awaiting
+                      date_completed: '2022-03-31T12:00:00.0000000+00:00'
+                      file: med_history.pdf
+                      comment: Comment
+  '/v1/studentchecklists/{student_id}/{student_checklist_id}/steps/{step_id}':
+    patch:
+      tags:
+        - StudentChecklists
+      summary: Student checklist step (Edit)
+      description: "Updates a step on a student checklist.\n\r\nRequires the following role in the Education Management system:\r\n<ul><li>Admissions Manager</li><li>Admissions Staff</li></ul>"
+      operationId: V1StudentchecklistsByStudent_idByStudent_checklist_idStepsByStep_idPatch
+      parameters:
+        - name: student_id
+          in: path
+          description: The ID of the student
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: step_id
+          in: path
+          description: The ID of the student�s instance of the checklist step
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: student_checklist_id
+          in: path
+          description: The ID of the student's instance of the student checklist
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        description: The step model to update
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentChecklistStepUpdate'
+            example:
+              status: Submitted
+              date_completed: '2025-08-31T12:00:00.0000000+00:00'
+              comment: A stependous comment
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int32
+              example: 0
+  /v1/types/candidatestatuses:
+    get:
+      tags:
+        - Types
+      summary: Candidate status type list (Get)
+      description: "Returns a collection of admission statuses.\n\r\nRequires one of the following roles in the Education Management system:\r\n<ul><li>Admissions Manager</li><li>Admissions Staff</li><li>Platform Manager</li><li>SKY API Data Sync</li></ul>"
+      operationId: V1TypesCandidatestatusesGet
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CandidateStatusReadCollection'
+              example:
+                count: 1
+                value:
+                  - id: 1
+                    description: Applied
+                    next_status:
+                      id: 2
+                      description: Under Review
+  /v1/types/checkliststatuses:
+    get:
+      tags:
+        - Types
+      summary: Candidate checklist status type list (Get)
+      description: "Returns a collection of admissions checklist statuses.\n\r\nRequires the following role in the Education Management system:\r\n<ul><li>Admissions Manager</li><li>Admissions Staff</li><li>Platform Manager</li><li>SKY API Data Sync</li></ul>"
+      operationId: V1TypesCheckliststatusesGet
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChecklistStatusReadCollection'
+              example:
+                count: 1
+                value:
+                  - id: 1
+                    description: Waiting
+                    ordinal: 1
+  /v1/types/studentchecklisttypes:
+    get:
+      tags:
+        - Types
+      summary: Student checklist type list (Get)
+      description: "Returns the student checklists defined in the system.\n\r\nRequires the following role in the Education Management system:\r\n<ul><li>Admissions Manager</li><li>Admissions Staff</li></ul>"
+      operationId: V1TypesStudentchecklisttypesGet
+      parameters:
+        - name: school_year
+          in: query
+          description: Set to the ID or label of a school year to limit results to that year. Defaults to current admissions year.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentChecklistTypeWithStepsCollection'
+              example:
+                count: 1
+                value:
+                  - id: 1
+                    name: Re-enrollment
+                    is_inactive: false
+                    is_archived: false
+                    school_year:
+                      id: 1
+                      description: 2024 - 2025
+                    steps:
+                      - id: 1
+                        name: Name
+                        type: Type
+                        description: Description
+                        is_inactive: false
+                        is_required: true
+                        link: Link
+                        link_text: LinkText
+                        file: File
+  '/v1/types/studentchecklisttypes/{student_checklist_type_id}':
+    get:
+      tags:
+        - Types
+      summary: Student checklist type (Get)
+      description: "Returns a student checklist for the checklist.\n\r\nRequires the following role in the Education Management system:\r\n<ul><li>Admissions Manager</li><li>Admissions Staff</li></ul>"
+      operationId: V1TypesStudentchecklisttypesByStudent_checklist_type_idGet
+      parameters:
+        - name: student_checklist_type_id
+          in: path
+          description: The ID of the student checklist type
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentChecklistTypeWithSteps'
+              example:
+                id: 1
+                name: Re-enrollment
+                is_inactive: false
+                is_archived: false
+                school_year:
+                  id: 1
+                  description: 2024 - 2025
+                steps:
+                  - id: 1
+                    name: Name
+                    type: Type
+                    description: Description
+                    is_inactive: false
+                    is_required: true
+                    link: Link
+                    link_text: LinkText
+                    file: File
+  /v1/types/checklistTypes:
+    get:
+      tags:
+        - Types
+      summary: Candidate checklist type list (Get)
+      description: "Returns a collection of checklist types.\n\r\nRequires the following role in the Education Management system:\r\n<ul><li>Admissions Manager</li><li>Admissions Staff</li></ul>"
+      operationId: V1TypesChecklistTypesGet
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChecklistTypeReadCollection'
+              example:
+                count: 1
+                value:
+                  - id: 1
+                    name: Standard Candidate Checklist
+                    is_inactive: false
+                    is_archived: false
+  '/v1/types/checklistTypes/{checklist_type_id}':
+    get:
+      tags:
+        - Types
+      summary: Candidate checklist type (Get)
+      description: "Returns a checklist and the steps defined for the checklist.\n\r\nRequires the following role in the Education Management system:\r\n<ul><li>Admissions Manager</li><li>Admissions Staff</li></ul>"
+      operationId: V1TypesChecklistTypesByChecklist_type_idGet
+      parameters:
+        - name: checklist_type_id
+          in: path
+          description: The ID of the checklist type
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChecklistTypeWithStepsRead'
+              example:
+                id: 1
+                name: Standard Candidate Checklist
+                is_inactive: false
+                is_archived: false
+                steps:
+                  - id: 1
+                    name: Math recommendation
+                    type: Recommendation
+                    milestone: Application
+                    due_date_default: '2015-08-31T12:00:00.0000000+00:00'
+                    publishing_options:
+                      use_options: true
+                      name: Math Teacher Appraisal
+                      description: Feedback on the maths
+                      link: www.example.com/recs
+                      file: www.example.com/recs/sample.doc
+  '/v1/tests/{candidate_id}':
+    post:
+      tags:
+        - Tests
+      summary: Test (Create)
+      description: "Add test for candidate.\n\r\nRequires one of the following roles in the Education Management system:\r\n<ul><li>Admissions Manager</li><li>Admissions Staff</li></ul>"
+      operationId: V1TestsByCandidate_idPost
+      parameters:
+        - name: candidate_id
+          in: path
+          description: The user ID of the candidate
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        description: The request containing the test details.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CandidateTestAdd'
+            example:
+              type: ISEE
+              test_date: '2024-06-20T12:00:00.0000000+00:00'
+              registered_date: '2024-06-20T12:00:00.0000000+00:00'
+              location: Brannon Center � auditiorium
+              proctor_by: 1
+              proctor_by_other: Joanne Smith
+              was_rescheduled: false
+              did_not_show: false
+              score: 1200
+              comment: A testy subject.
+              attachment:
+                temp_name: x1z9_hin334922xd_a91e.pdf
+                original_name: MyFile.pdf
+              sub_tests:
+                - type: Verbal Reasoning
+                  score: 150.5
+                  percentile: 99.9
+                  scale: 300
+                  stanie: 10.5
+      responses:
+        '200':
+          description: Returns test score id on success
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int32
+              example: 0
+  /v1/inquiries:
+    post:
+      tags:
+        - Inquiries
+      summary: Inquiry (Create)
+      description: "Create an inquiry.\n\r\nRequires the following role in the Education Management system:\r\n<ul><li>Admissions Manager</li><li>Admissions Staff</li></ul>"
+      operationId: V1InquiriesPost
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInquiryRequest'
+            example:
+              candidate:
+                first_name: John
+                last_name: Smith
+                middle_name: Holmes
+                preferred_name: Jack
+                prefix: Mr.
+                suffix: Jr.
+                gender: Male
+                birthdate: '2015-05-31T12:00:00.0000000+00:00'
+                home_address:
+                  addressline1: 123 Main St
+                  addressline2: Apt 4B
+                  addressline3: ''
+                  city: Anytown
+                  state: CA
+                  province: ''
+                  zipcode: '12345'
+                  region: West
+                  country: USA
+                home_number: 555-1234
+                business_number: 555-5678
+                email: jsmith@example.com
+                races:
+                  - White
+                  - Asian
+                ethnicity: Korean
+                citizenship: Korea
+                boarding_or_day: D
+                is_international: false
+                school_program: 5-Day Program
+                religion: Hindu
+                languages_at_home:
+                  - language: English
+                  - language: Korean
+                person_inquiring:
+                  name: Suwen Cho
+                  relationship_type: Mother
+              entering:
+                school_year: 2026-2027
+                grade_level: Ninth
+                session: Fall Session
+              households:
+                - address_same_as_student: true
+                  home_address:
+                    addressline1: 123 Main St
+                    addressline2: Apt 4B
+                    addressline3: ''
+                    city: Anytown
+                    state: CA
+                    province: ''
+                    zipcode: '12345'
+                    region: West
+                    country: USA
+                  home_phone: 555-1234
+                  resides_with: true
+                  relationship1:
+                    relationship_to_student: parent
+                    is_custodial_parent: true
+                    user:
+                      first_name: Jane
+                      middle_name: Ellen
+                      last_name: Smith
+                      preferred_name: Janie
+                      email: janesmith@gmail.com
+                      prefix: Mrs.
+                      suffix: esquire
+                      gender: Female
+                      pronouns: She/Her/Hers
+                      living_status: Married
+                      wireless_phone: 555-1234
+                      business:
+                        job_title: Product Manager
+                        name: Blackbaud
+                        business_phone: 555-1234
+                        business_fax: 555-1234
+                        business_address:
+                          addressline1: 123 Main St
+                          addressline2: Apt 4B
+                          addressline3: ''
+                          city: Anytown
+                          state: CA
+                          province: ''
+                          zipcode: '12345'
+                          region: West
+                          country: USA
+                  relationship2:
+                    relationship_to_student: parent
+                    is_custodial_parent: true
+                    user:
+                      first_name: Jane
+                      middle_name: Ellen
+                      last_name: Smith
+                      preferred_name: Janie
+                      email: janesmith@gmail.com
+                      prefix: Mrs.
+                      suffix: esquire
+                      gender: Female
+                      pronouns: She/Her/Hers
+                      living_status: Married
+                      wireless_phone: 555-1234
+                      business:
+                        job_title: Product Manager
+                        name: Blackbaud
+                        business_phone: 555-1234
+                        business_fax: 555-1234
+                        business_address:
+                          addressline1: 123 Main St
+                          addressline2: Apt 4B
+                          addressline3: ''
+                          city: Anytown
+                          state: CA
+                          province: ''
+                          zipcode: '12345'
+                          region: West
+                          country: USA
+              interests:
+                - type: Blitzball
+                  importance: 5
+                  proficiency: 5
+                  requests_contact: true
+                  candidate_comments: A candid comment
+              current_school:
+                school: Mailahst School
+                other_name: The Mailahst School for Military Endeavors
+                current_grade: 8th
+                city: Springfield
+                state: IL
+                country: United States
+                gpa: 3.4
+              referral:
+                type: Friend
+                text: A friend at the school
+                referrers:
+                  - is_existing_family: true
+                    family_name: Jones
+                    notes: Super nice guy
+              requests_financial_aid: true
+              custom_fields_text:
+                - field_identifier: text_field_7
+                  field_name: Favorite color
+                  field_value: Burnt sienna
+              custom_fields_date:
+                - field_identifier: date_field_7
+                  field_name: Favorite day
+                  field_value: '2023-03-29'
+              custom_fields_defined:
+                - field_identifier: defined_field_7
+                  field_name: T-shirt size
+                  field_value: Medium
+      responses:
+        '200':
+          description: Returns inquiry id on success
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int32
+              example: 0
+    get:
+      tags:
+        - Inquiries
+      summary: Inquiry list (Get)
+      description: "Returns list of inquiry and its data.\n\r\nRequires the following role in the Education Management system:\r\n<ul><li>Admissions Manager</li><li>Admissions Staff</li></ul>"
+      operationId: V1InquiriesGet
+      parameters:
+        - name: entering_year
+          in: query
+          description: The ID or label of the school year.
+          schema:
+            type: string
+        - name: as_of_date
+          in: query
+          description: 'Set to a date to limit results to inquiries submitted on or after that date. Use ISO 8601 date format: 2023-04-30'
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Returns list of inquiry and its data.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InquiryRead'
+              example:
+                count: 1
+                value:
+                  - id: 1
+                    date_submitted: '2015-05-31T12:00:00.0000000+00:00'
+                    date_processed: '2015-05-31T12:00:00.0000000+00:00'
+                    user_id: 1
+                    candidate:
+                      first_name: John
+                      last_name: Smith
+                      middle_name: Holmes
+                      preferred_name: Jack
+                      prefix: Mr.
+                      suffix: Jr.
+                      gender:
+                        abbreviation: M
+                        id: 1
+                        description: Male
+                      pronouns:
+                        id: 1
+                        description: He/Him/His
+                      birthdate: '2015-05-31T12:00:00.0000000+00:00'
+                      home_address:
+                        addressline1: 123 Main St
+                        addressline2: Apt 4B
+                        addressline3: ''
+                        city: Anytown
+                        state: CA
+                        province: ''
+                        zipcode: '12345'
+                        region: West
+                        country: USA
+                      home_number: 555-1234
+                      business_number: 555-5678
+                      email: jsmith@example.com
+                      races:
+                        - id: 1
+                          description: White
+                      ethnicity:
+                        id: 1
+                        description: Korean
+                      citizenship:
+                        id: 1
+                        description: Korea
+                      boarding_or_day: D
+                      is_international: false
+                      school_program:
+                        id: 1
+                        description: 5-Day Program
+                      religion:
+                        id: 1
+                        description: Christian
+                      languages_at_home:
+                        - id: 1
+                          description: English
+                        - id: 2
+                          description: Korean
+                      person_inquiring:
+                        name: Suwen Cho
+                        relationship_type:
+                          id: 1
+                          description: Mother
+                    form:
+                      id: 1
+                      description: Api Form
+                    entering_year:
+                      school_year:
+                        id: 1
+                        description: 2024 - 2025
+                      grade_level:
+                        abbreviation: '9'
+                        id: 1
+                        description: Ninth
+                      school_level:
+                        id: 1
+                        description: Upper school
+                      session:
+                        id: 1
+                        description: Fall Session
+                    households:
+                      - address_same_as_student: true
+                        home_address:
+                          addressline1: 123 Main St
+                          addressline2: Apt 4B
+                          addressline3: ''
+                          city: Anytown
+                          state: CA
+                          province: ''
+                          zipcode: '12345'
+                          region: West
+                          country: USA
+                        home_phone: 555-1234
+                        resides_with: true
+                        relationship1:
+                          type: Parent
+                          is_custodial_parent: true
+                          user:
+                            first_name: John
+                            middle_name: Holmes
+                            last_name: Smith
+                            preferred_name: Jack
+                            email: johnsmith@gmail.com
+                            prefix: Mr.
+                            suffix: Jr.
+                            gender:
+                              abbreviation: M
+                              id: 1
+                              description: Male
+                            pronouns:
+                              id: 1
+                              description: He/Him/His
+                            living_status:
+                              id: 1
+                              description: Single
+                            wireless_phone: 555-1234
+                            business:
+                              job_title: Product Manager
+                              name: Blackbaud
+                              business_phone: 555-1234
+                              business_fax: 555-1234
+                              business_address:
+                                addressline1: 123 Main St
+                                addressline2: Apt 4B
+                                addressline3: ''
+                                city: Anytown
+                                state: CA
+                                province: ''
+                                zipcode: '12345'
+                                region: West
+                                country: USA
+                        relationship2:
+                          type: Parent
+                          is_custodial_parent: true
+                          user:
+                            first_name: John
+                            middle_name: Holmes
+                            last_name: Smith
+                            preferred_name: Jack
+                            email: johnsmith@gmail.com
+                            prefix: Mr.
+                            suffix: Jr.
+                            gender:
+                              abbreviation: M
+                              id: 1
+                              description: Male
+                            pronouns:
+                              id: 1
+                              description: He/Him/His
+                            living_status:
+                              id: 1
+                              description: Single
+                            wireless_phone: 555-1234
+                            business:
+                              job_title: Product Manager
+                              name: Blackbaud
+                              business_phone: 555-1234
+                              business_fax: 555-1234
+                              business_address:
+                                addressline1: 123 Main St
+                                addressline2: Apt 4B
+                                addressline3: ''
+                                city: Anytown
+                                state: CA
+                                province: ''
+                                zipcode: '12345'
+                                region: West
+                                country: USA
+                    current_school:
+                      school:
+                        id: 5664
+                        description: Advanced  Academy
+                      other_name: The Mailahst School for Military Endeavors
+                      current_grade:
+                        abbreviation: 9th
+                        id: 1
+                        description: Ninth Grade
+                      city: Springfield
+                      state: IL
+                      province: ''
+                      country: United States
+                      gpa: 3.4
+                    referral:
+                      type: Friend
+                      text: A friend at the school
+                      referrers:
+                        - is_existing_family: true
+                          family_name: Jones
+                          notes: Super nice guy.
+                    requests_financial_aid: false
+                    interests:
+                      - candidate_comments: A candid comment
+                        importance: 5
+                        proficiency: 5
+                        requests_contact: true
+                        type:
+                          id: 2
+                          description: Basketball
+                    custom_text_fields:
+                      - identifier: text_field_1
+                        name: Bus Number
+                        value: '106'
+                    custom_date_fields:
+                      - identifier: date_field_1
+                        name: Confirmation date
+                        value: '2022-05-31T05:30:00.0000000+00:00'
+                    custom_defined_fields:
+                      - identifier: defined_field_1
+                        name: Tee-shirt size
+                        value: X-large
+  '/v1/candidatestatuses/{candidate_id}':
+    get:
+      tags:
+        - CandidateStatuses
+      summary: Candidate status change list - single candidate (Get)
+      description: "Returns the status history for a candidate.\n\r\nRequires the following role in the Education Management system:\r\n<ul><li>Admissions Manager</li><li>Admissions Staff</li></ul>"
+      operationId: V1CandidatestatusesByCandidate_idGet
+      parameters:
+        - name: candidate_id
+          in: path
+          description: The user ID of the candidate.
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: school_year
+          in: query
+          description: The ID or label of the entering school year. Defaults to current admissions year.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CandidateStatusChangeCollection'
+              example:
+                count: 1
+                value:
+                  - candidate:
+                      id: 1
+                      prefix: Mr.
+                      first_name: Kianna
+                      middle_name: Mark
+                      last_name: Reed
+                      suffix: Jr.
+                      preferred_name: ''
+                      preferred_last_name: Reed
+                      maiden_name: ''
+                      email: kianna@example.com
+                    type:
+                      id: 1
+                      description: Inquiry
+                    date: '2024-03-31T12:00:00.0000000+00:00'
+  /v1/tests:
+    get:
+      tags:
+        - Tests
+      summary: Test list (Get)
+      description: "Returns tests scores for candidates.\n\r\nRequires the following role in the Education Management system:\r\n<ul><li>Admissions Manager</li><li>Admissions Staff</li></ul>"
+      operationId: V1TestsGet
+      parameters:
+        - name: size
+          in: query
+          description: The number of records per page (Default record size is 100).
+          schema:
+            type: integer
+            format: int32
+            default: 100
+        - name: page
+          in: query
+          description: The page of results to start from (Default start page is 1).
+          schema:
+            type: integer
+            format: int32
+            default: 1
+        - name: test_type
+          in: query
+          description: Provide the ID or name of a test type to limit results to that test type.
+          schema:
+            type: string
+        - name: start_date
+          in: query
+          description: Limits results to tests with a test date on or after the specified date. Use ISO 8601 date format.
+          schema:
+            type: string
+            format: date-time
+        - name: end_date
+          in: query
+          description: Limits results to tests with a test date on or before the specified date. Use ISO 8601 date format.
+          schema:
+            type: string
+            format: date-time
+        - name: last_modified
+          in: query
+          description: Limits results to tests created or modified after the specified date.
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CandidateTestReadCollection'
+              example:
+                count: 1
+                value:
+                  - id: 1
+                    user:
+                      id: 1
+                      prefix: Mrs.
+                      first_name: Sally
+                      middle_name: ''
+                      last_name: Greene
+                      suffix: Jr.
+                      preferred_name: Sally
+                      preferred_last_name: L
+                      maiden_name: ''
+                      email: sally@example.com
+                    type:
+                      id: 11
+                      description: Test1
+                    test_date: '2024-08-31T12:00:00.0000000+00:00'
+                    registered_date: '2024-08-31T12:00:00.0000000+00:00'
+                    location: Brannon Center � auditiorium
+                    proctor_by:
+                      id: 1
+                      prefix: Mr.
+                      first_name: Kianna
+                      middle_name: Mark
+                      last_name: Reed
+                      suffix: Jr.
+                      preferred_name: ''
+                      preferred_last_name: Reed
+                      maiden_name: ''
+                      email: kianna@example.com
+                    proctor_by_other: Joanne Smith
+                    was_rescheduled: false
+                    did_not_show: false
+                    score: 1200
+                    comment: A testy subject
+                    sub_tests:
+                      - type:
+                          id: 111
+                          description: SubTest1
+                        score: 150.5
+                        percentile: 99.5
+                        scale: 300
+                        stanine: 10.5
+                    last_modified: '2024-08-31T12:00:00.0000000+00:00'
+  /v1/candidatestatuses:
+    get:
+      tags:
+        - CandidateStatuses
+      summary: Candidate status change list (Get)
+      description: "Returns the candidate status changes for a year.\n\r\nRequires the following role in the Education Management system:\r\n<ul><li>Admissions Manager</li><li>Admissions Staff</li></ul>"
+      operationId: V1CandidatestatusesGet
+      parameters:
+        - name: school_year
+          in: query
+          description: The ID or label of the entering school year. Defaults to current admissions year.
+          schema:
+            type: string
+        - name: status_type
+          in: query
+          description: The ID or description of a candidate status type. Limits results to status changes of that type.
+          schema:
+            type: string
+        - name: start_date
+          in: query
+          description: Limits results to status changes occurring on or after the specified date.
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CandidateStatusChangeCollection'
+              example:
+                count: 1
+                value:
+                  - candidate:
+                      id: 1
+                      prefix: Mr.
+                      first_name: Kianna
+                      middle_name: Mark
+                      last_name: Reed
+                      suffix: Jr.
+                      preferred_name: ''
+                      preferred_last_name: Reed
+                      maiden_name: ''
+                      email: kianna@example.com
+                    type:
+                      id: 1
+                      description: Inquiry
+                    date: '2024-03-31T12:00:00.0000000+00:00'
+  '/v1/candidates/{candidate_id}':
+    patch:
+      tags:
+        - Candidates
+      summary: Candidate (Edit)
+      description: "Updates candidate information for the specified entering year.\n\r\nRequires the following role in the Education Management system:\r\n<ul><li>Admissions Manager</li><li>Admissions Staff</li></ul>"
+      operationId: V1CandidatesByCandidate_idPatch
+      parameters:
+        - name: candidate_id
+          in: path
+          description: The user ID of the candidate.
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: school_year
+          in: query
+          description: The ID or description of the school year the candidate is entering. Defaults to current admission year.
+          schema:
+            type: string
+      requestBody:
+        description: The candidate details to update.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CandidateUpdateRequest'
+            example:
+              entering_year: 2024 - 2025
+              entering_grade: Ninth grade
+              status: active
+              inactive_status_reason: Denied Acceptance
+              staff_id: 1
+              consultants:
+                - 1
+              has_i20_form: false
+              source: Recruiter
+              referral: Friend
+              referral_text: A friend at the school
+              languages_at_home: 'English, Korean'
+              requested_financial_aid: false
+              has_iep: false
+              has504: false
+              has_private_evaluation: false
+              reapply:
+                has_previously_applied: true
+                school_comment: A schooled comment
+                candidate_comment: A candid comment
+              skipped_grade:
+                has_skipped_grade: true
+                school_comment: A schooled comment
+                candidate_comment: A candid comment
+              withdrawn:
+                has_withdrawn: true
+                school_comment: A schooled comment
+                candidate_comment: A candid comment
+              special_concerns:
+                has_special_concerns: true
+                school_comment: A schooled comment
+                candidate_comment: A candid comment
+              tutoring:
+                requires_tutoring: true
+                reason: At remedial math levels
+              custom_fields_text:
+                - field_identifier: text_field_7
+                  field_name: Favorite color
+                  field_value: Burnt sienna
+              custom_fields_date:
+                - field_identifier: date_field_7
+                  field_name: Favorite day
+                  field_value: '2023-03-29'
+              custom_fields_defined:
+                - field_identifier: defined_field_7
+                  field_name: T-shirt size
+                  field_value: Medium
+      responses:
+        '200':
+          description: Returns user id on success
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int32
+              example: 0
+    get:
+      tags:
+        - Candidates
+      summary: Candidate (Get)
+      description: "Returns a candidate's information for a specific year. Defaults to the current admissions year.\n\r\nRequires the following role in the Education Management system:\r\n<ul><li>Admissions Manager</li><li>Admissions Staff</li></ul>"
+      operationId: V1CandidatesByCandidate_idGet
+      parameters:
+        - name: candidate_id
+          in: path
+          description: The user ID of the candidate
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: school_year
+          in: query
+          description: The ID or description for the school year. Defaults to the current admissions year.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CandidateRead'
+              example:
+                user:
+                  id: 1
+                  first_name: John
+                  last_name: Smith
+                  middle_name: Quincy
+                  preferred_name: Jack
+                  prefix: Mr.
+                  suffix: Jr.
+                  email: john@example.com
+                  cc_email: john2@example.com
+                  gender:
+                    abbreviation: M
+                    id: 1
+                    description: Male
+                  pronouns:
+                    id: 1
+                    description: He/Him
+                  ethnicity:
+                    id: 1
+                    description: Korean
+                  is_international: false
+                  boarding_or_day: D
+                  school_program:
+                    id: 1
+                    description: College Prep
+                  race:
+                    - id: 1
+                      description: Asian
+                entering_year:
+                  id: 1
+                  description: 2025 - 2026
+                entering_grade:
+                  abbreviation: 9th
+                  id: 1
+                  description: Ninth Grade
+                role:
+                  id: 1
+                  description: Candidate
+                status:
+                  date: '2024-03-31T12:00:00.0000000+00:00'
+                  id: 1
+                  description: Under Review
+                school_decision:
+                  id: 1
+                  decision:
+                    id: 1
+                    description: Accepted with conditions
+                    type:
+                      id: 1
+                      description: Sample Value
+                  date: '2024-03-31T12:00:00.0000000+00:00'
+                  publish_date: '2024-03-31T12:00:00.0000000+00:00'
+                  expire_date: '2024-04-30T12:00:00.0000000+00:00'
+                  comment: A schooled comment
+                  candidate_response:
+                    id: 1
+                    response:
+                      description: Declined due to finances
+                      type:
+                        id: 1
+                        description: Sample Value
+                    date: '2024-03-31T12:00:00.0000000+00:00'
+                    decline_reason:
+                      id: 1
+                      description: Sample Value
+                    chosen_school:
+                      id: 1
+                      description: Sample Value
+                family_photo:
+                  url: somesite/photos/john.jpg
+                  keep_private: false
+                inquiry:
+                  id: 1
+                  form:
+                    id: 1
+                    description: API Form
+                  source:
+                    id: 1
+                    description: Sample value
+                  date_submitted: '2024-03-03T12:00:00.0000000+00:00'
+                  date_processed: '2024-03-03T12:00:00.0000000+00:00'
+                referral:
+                  id: 1
+                  description: Friend
+                  comment: A friend at the school
+                has_i20_form: false
+                languages_at_home: 'English, Korean'
+                requested_financial_aid: false
+                has_iep: false
+                has_504_plan: false
+                has_private_evaluation: false
+                bbtm_family_id: 1
+                created_by: Created by User
+                created: '2024-03-01T12:00:00.0000000+00:00'
+                modified_by: Modified by User
+                modified: '2024-03-03T12:00:00.0000000+00:00'
+                reapply:
+                  has_previously_applied: true
+                  school_comment: A schooled comment
+                  candidate_comment: A candid comment
+                skipped_grade:
+                  has_skipped_grade: true
+                  school_comment: A schooled comment
+                  candidate_comment: A candid comment
+                withdrawn:
+                  has_withdrawn: true
+                  school_comment: A schooled comment
+                  candidate_comment: A candid comment
+                special_concerns:
+                  has_special_concerns: true
+                  school_comment: A schooled comment
+                  candidate_comment: A candid comment
+                educational_support:
+                  has_educational_support: true
+                  documentational_url: somesite/files/edu_supp.doc
+                  school_comment: A schooled comment
+                  candidate_comment: A candid comment
+                tutoring:
+                  requires_tutoring: true
+                  reason: At remedial math levels
+                application:
+                  id: 1
+                  form:
+                    id: 1
+                    description: API Form
+                  date_submitted: '2024-03-31T12:00:00.0000000+00:00'
+                  date_processed: '2024-03-31T12:00:00.0000000+00:00'
+                relationships:
+                  - id: 1
+                    type: Parent
+                    user:
+                      id: 1
+                      first_name: John
+                      last_name: Smith
+                      preferred_name: Jack
+                      email: johnsr@example.com
+                admissions_staff:
+                  id: 1
+                  prefix: Mr.
+                  first_name: Kianna
+                  middle_name: Mark
+                  last_name: Reed
+                  suffix: Jr.
+                  preferred_name: ''
+                  preferred_last_name: Reed
+                  maiden_name: ''
+                  email: kianna@example.com
+                consultant:
+                  id: 1
+                  prefix: Mrs.
+                  first_name: Sally
+                  middle_name: ''
+                  last_name: Greene
+                  suffix: Sr.
+                  preferred_name: Sally
+                  preferred_last_name: ''
+                  maiden_name: ''
+                  email: sally@example.com
+                sending_school:
+                  id: 1
+                  school:
+                    id: 1
+                    name: Lowcountry Montessori
+                  type:
+                    id: 1
+                    description: Early Education
+                  grade_level:
+                    abbreviation: 3rd
+                    id: 1
+                    description: Third grade
+                  date_from: '2022-03-31T12:00:00.0000000+00:00'
+                  date_to: '2024-03-31T12:00:00.0000000+00:00'
+                events:
+                  - id: 1
+                    name: Open House
+                    start_time: '2024-03-31T12:00:00.0000000+00:00'
+                    is_registered: true
+                    attended: false
+                    comment: An eventful comment
+                interviews:
+                  - id: 1
+                    start_time: '2024-03-31T12:00:00.0000000+00:00'
+                    end_time: '2024-03-31T12:00:00.0000000+00:00'
+                    interviewer_other: John Bridges
+                    rating: 10
+                    is_rescheduled: false
+                    comment: A candid comment
+                visits:
+                  - id: 1
+                    start_time: '2024-03-31T12:00:00.0000000+00:00'
+                    end_time: '2024-03-31T12:00:00.0000000+00:00'
+                    guide_other: John Bridges
+                    is_rescheduled: false
+                    comment: A candid comment
+                candidate_checklist:
+                  id: 1
+                  name: Standard Checklist
+                custom_fields_text:
+                  - field_identifier: text_field_7
+                    field_name: Favorite color
+                    field_value: Burnt sienna
+                custom_fields_date:
+                  - field_identifier: date_field_7
+                    field_name: Favorite day
+                    field_value: '2023-03-29'
+                custom_fields_defined:
+                  - field_identifier: defined_field_7
+                    field_name: T-shirt size
+                    field_value: Medium
+  '/v1/inquiries/{inquiry_id}':
+    get:
+      tags:
+        - Inquiries
+      summary: Inquiry (Get)
+      description: "Returns an inquiry and its data.\n\r\nRequires the following role in the Education Management system:\r\n<ul><li>Admissions Manager</li><li>Admissions Staff</li></ul>"
+      operationId: V1InquiriesByInquiry_idGet
+      parameters:
+        - name: inquiry_id
+          in: path
+          description: The ID of the inquiry.
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Returns an inquiry and its data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InquiryRead'
+              example:
+                id: 1
+                date_submitted: '2015-05-31T12:00:00.0000000+00:00'
+                date_processed: '2015-05-31T12:00:00.0000000+00:00'
+                user_id: 1
+                candidate:
+                  first_name: John
+                  last_name: Smith
+                  middle_name: Holmes
+                  preferred_name: Jack
+                  prefix: Mr.
+                  suffix: Jr.
+                  gender:
+                    abbreviation: M
+                    id: 1
+                    description: Male
+                  pronouns:
+                    id: 1
+                    description: He/Him/His
+                  birthdate: '2015-05-31T12:00:00.0000000+00:00'
+                  home_address:
+                    addressline1: 123 Main St
+                    addressline2: Apt 4B
+                    addressline3: ''
+                    city: Anytown
+                    state: CA
+                    province: ''
+                    zipcode: '12345'
+                    region: West
+                    country: USA
+                  home_number: 555-1234
+                  business_number: 555-5678
+                  email: jsmith@example.com
+                  races:
+                    - id: 1
+                      description: White
+                  ethnicity:
+                    id: 1
+                    description: Korean
+                  citizenship:
+                    id: 1
+                    description: Korea
+                  boarding_or_day: D
+                  is_international: false
+                  school_program:
+                    id: 1
+                    description: 5-Day Program
+                  religion:
+                    id: 1
+                    description: Christian
+                  languages_at_home:
+                    - id: 1
+                      description: English
+                    - id: 2
+                      description: Korean
+                  person_inquiring:
+                    name: Suwen Cho
+                    relationship_type:
+                      id: 1
+                      description: Mother
+                form:
+                  id: 1
+                  description: Api Form
+                entering_year:
+                  school_year:
+                    id: 1
+                    description: 2024 - 2025
+                  grade_level:
+                    abbreviation: '9'
+                    id: 1
+                    description: Ninth
+                  school_level:
+                    id: 1
+                    description: Upper school
+                  session:
+                    id: 1
+                    description: Fall Session
+                households:
+                  - address_same_as_student: true
+                    home_address:
+                      addressline1: 123 Main St
+                      addressline2: Apt 4B
+                      addressline3: ''
+                      city: Anytown
+                      state: CA
+                      province: ''
+                      zipcode: '12345'
+                      region: West
+                      country: USA
+                    home_phone: 555-1234
+                    resides_with: true
+                    relationship1:
+                      type: Parent
+                      is_custodial_parent: true
+                      user:
+                        first_name: John
+                        middle_name: Holmes
+                        last_name: Smith
+                        preferred_name: Jack
+                        email: johnsmith@gmail.com
+                        prefix: Mr.
+                        suffix: Jr.
+                        gender:
+                          abbreviation: M
+                          id: 1
+                          description: Male
+                        pronouns:
+                          id: 1
+                          description: He/Him/His
+                        living_status:
+                          id: 1
+                          description: Single
+                        wireless_phone: 555-1234
+                        business:
+                          job_title: Product Manager
+                          name: Blackbaud
+                          business_phone: 555-1234
+                          business_fax: 555-1234
+                          business_address:
+                            addressline1: 123 Main St
+                            addressline2: Apt 4B
+                            addressline3: ''
+                            city: Anytown
+                            state: CA
+                            province: ''
+                            zipcode: '12345'
+                            region: West
+                            country: USA
+                    relationship2:
+                      type: Parent
+                      is_custodial_parent: true
+                      user:
+                        first_name: John
+                        middle_name: Holmes
+                        last_name: Smith
+                        preferred_name: Jack
+                        email: johnsmith@gmail.com
+                        prefix: Mr.
+                        suffix: Jr.
+                        gender:
+                          abbreviation: M
+                          id: 1
+                          description: Male
+                        pronouns:
+                          id: 1
+                          description: He/Him/His
+                        living_status:
+                          id: 1
+                          description: Single
+                        wireless_phone: 555-1234
+                        business:
+                          job_title: Product Manager
+                          name: Blackbaud
+                          business_phone: 555-1234
+                          business_fax: 555-1234
+                          business_address:
+                            addressline1: 123 Main St
+                            addressline2: Apt 4B
+                            addressline3: ''
+                            city: Anytown
+                            state: CA
+                            province: ''
+                            zipcode: '12345'
+                            region: West
+                            country: USA
+                current_school:
+                  school:
+                    id: 5664
+                    description: Advanced  Academy
+                  other_name: The Mailahst School for Military Endeavors
+                  current_grade:
+                    abbreviation: 9th
+                    id: 1
+                    description: Ninth Grade
+                  city: Springfield
+                  state: IL
+                  province: ''
+                  country: United States
+                  gpa: 3.4
+                referral:
+                  type: Friend
+                  text: A friend at the school
+                  referrers:
+                    - is_existing_family: true
+                      family_name: Jones
+                      notes: Super nice guy.
+                requests_financial_aid: false
+                interests:
+                  - candidate_comments: A candid comment
+                    importance: 5
+                    proficiency: 5
+                    requests_contact: true
+                    type:
+                      id: 2
+                      description: Basketball
+                custom_text_fields:
+                  - identifier: text_field_1
+                    name: Bus Number
+                    value: '106'
+                custom_date_fields:
+                  - identifier: date_field_1
+                    name: Confirmation date
+                    value: '2022-05-31T05:30:00.0000000+00:00'
+                custom_defined_fields:
+                  - identifier: defined_field_1
+                    name: Tee-shirt size
+                    value: X-large
+    delete:
+      tags:
+        - Inquiries
+      summary: Inquiry (Delete)
+      description: "Deletes an inquiry.\n\r\nRequires the following role in the Education Management system:\r\n<ul><li>Admissions Manager</li><li>Admissions Staff</li></ul>"
+      operationId: V1InquiriesByInquiry_idDelete
+      parameters:
+        - name: inquiry_id
+          in: path
+          description: The ID of the inquiry.
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Returns inquiry ID.
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int32
+              example: 0
+  /v1/types/interesttypes:
+    get:
+      tags:
+        - Types
+      summary: Interest type list (Get)
+      description: Returns the types of interests defined for use.
+      operationId: V1TypesInteresttypesGet
+      parameters:
+        - name: category
+          in: query
+          description: The ID of an interest category to limit results to the specified category. Interest categories are returned by Types table values.
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InterestTypeCollection'
+              example:
+                count: 1
+                value:
+                  - id: 528
+                    description: Cross Country Running
+                    is_active: false
+                    is_admissions: false
+                    category:
+                      id: 76
+                      description: Athletics
+  '/v1/checklists/{candidate_id}':
+    get:
+      tags:
+        - Checklists
+      summary: Candidate checklist (Get)
+      description: "Returns a candidate's checklist for a specified year.\n\r\nRequires the following role in the Education Management system:\r\n<ul><li>Admissions Manager</li><li>Admissions Staff</li></ul>"
+      operationId: V1ChecklistsByCandidate_idGet
+      parameters:
+        - name: candidate_id
+          in: path
+          description: The ID of the candidate
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: entering_year
+          in: query
+          description: Set to the ID or label of a school year. Defaults to current admissions year.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CandidateChecklist'
+              example:
+                type:
+                  id: 1
+                  name: Standard Candidate Checklist
+                  is_inactive: false
+                  is_archived: false
+                steps:
+                  - id: 1
+                    type:
+                      id: 1
+                      name: Math recommendation
+                      type: Recommendation
+                      milestone: Application
+                      due_date_default: '2015-08-31T12:00:00.0000000+00:00'
+                      publishing_options:
+                        use_options: true
+                        name: Math Teacher Appraisal
+                        description: Feedback on the maths
+                        link: www.example.com/recs
+                        file: www.example.com/recs/sample.doc
+                    status: Awaiting
+                    due_date: '2025-08-31T12:00:00.0000000+00:00'
+                    date_completed: '2025-08-31T12:00:00.0000000+00:00'
+                    comment: A comment
+  '/v1/checklists/{candidate_id}/steps':
+    patch:
+      tags:
+        - Checklists
+      summary: Candidate checklist step (Edit)
+      description: "Updates a checklist step on a candidate's checklist\n\r\nRequires the following role in the Education Management system:\r\n<ul><li>Admissions Manager</li><li>Admissions Staff</li></ul>"
+      operationId: V1ChecklistsByCandidate_idStepsPatch
+      parameters:
+        - name: candidate_id
+          in: path
+          description: The ID of the candidate
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: entering_year
+          in: query
+          description: The ID or label of the entering year. Defaults to current admissions year.
+          schema:
+            type: string
+      requestBody:
+        description: The update model with a candidate's checklist step values
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CandidateChecklistStepEdit'
+            example:
+              step_type_id: 1
+              status: Waived
+              date_due: '2025-08-31T12:00:00.0000000+00:00'
+              date_completed: '2025-08-31T12:00:00.0000000+00:00'
+              comment: A stependous comment
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int32
+              example: 0
+  /v1/studentchecklists:
+    get:
+      tags:
+        - StudentChecklists
+      summary: Student checklist list (Get)
+      description: "Returns list of student checklists for a school year.\n\r\nRequires the following role in the Education Management system:\r\n<ul><li>Admissions Manager</li><li>Admissions Staff</li></ul>"
+      operationId: V1StudentchecklistsGet
+      parameters:
+        - name: school_year
+          in: query
+          description: The ID or label of a school year. Defaults to current admissions year.
+          schema:
+            type: string
+        - name: student_checklist_type_id
+          in: query
+          description: Provide the ID of the student checklist type to limit results to that checklist.
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentChecklist'
+              example:
+                - id: 17
+                  candidate:
+                    id: 1574394
+                    first_name: Samantha
+                    middle_name: J.
+                    last_name: Hill
+                    email: SamanthH@sis.org
+                  type:
+                    id: 17
+                    name: Re-Enrollment Checklist
+                    is_inactive: true
+                    is_archived: true
+                    school_year:
+                      id: 530
+                      description: 2019 - 2020
+                - id: 17
+                  candidate:
+                    id: 1574551
+                    first_name: Tina
+                    last_name: Young
+                    email: tiny@sisacademy.com
+                  type:
+                    id: 17
+                    name: Re-Enrollment Checklist
+                    is_inactive: true
+                    is_archived: true
+                    school_year:
+                      id: 530
+                      description: 2019 - 2020
+  '/v1/contracts/{user_id}/{contract_id}':
+    get:
+      tags:
+        - Contracts
+      summary: Contract (Get) (PREVIEW)
+      description: "Return information about a contract.\n\r\nRequires the following role in the Education Management system:\r\n<ul><li>Admissions Manager</li><li>Admissions Staff</li><li>Parent, Parent of incoming student, Parent of candidate</li><li>Candidate, Incoming student, Student</li></ul>\n\n***This endpoint is in PREVIEW and may be changed or removed at any time.***"
+      operationId: V1ContractsByUser_idByContract_idGet
+      parameters:
+        - name: user_id
+          in: path
+          description: The user ID of the candidate or student
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: contract_id
+          in: path
+          description: The ID of the candidate or student’s instance of the contract
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserContractRead'
+              example:
+                user:
+                  id: 1
+                  prefix: Mr.
+                  first_name: John
+                  middle_name: Quincy
+                  last_name: Smith
+                  suffix: Jr.
+                  preferred_name: Jack
+                  email: john@example.com
+                contract:
+                  id: 1
+                  name: 2027 Standard Contract
+                  type:
+                    id: 1
+                    description: New contract type
+                  school_year:
+                    id: 1
+                    description: 2025 - 2026
+                  publish_date: '2026-11-01T12:00:00.0000000+00:00'
+                  expire_date: '2027-05-01T12:00:00.0000000+00:00'
+                  is_inactive: false
+                date_generated: '2026-11-01T12:00:00.0000000+00:00'
+                due_date: '2027-05-01T12:00:00.0000000+00:00'
+                date_sent: '2027-05-01T12:00:00.0000000+00:00'
+                date_returned: '2027-05-01T12:00:00.0000000+00:00'
+                date_processed: '2027-05-01T12:00:00.0000000+00:00'
+                tuition: 1000
+                tuition_insurance: false
+                deposits:
+                  - amount_due: 1000
+                    amount_received: 1000
+                    received_date: '2027-05-01T12:00:00.0000000+00:00'
+                    paid_by:
+                      id: 1
+                      prefix: Mr.
+                      first_name: Kianna
+                      middle_name: Mark
+                      last_name: Reed
+                      suffix: Jr.
+                      preferred_name: ''
+                      preferred_last_name: Reed
+                      maiden_name: ''
+                      email: kianna@example.com
+                fees:
+                  - name:
+                      id: 4
+                      description: Enrollment Fees
+                    amount: 100
+                    category: Enrollment Fees
+                signers:
+                  - user:
+                      id: 1
+                      prefix: Mr.
+                      first_name: John
+                      middle_name: Quincy
+                      last_name: Smith
+                      suffix: Jr.
+                      preferred_name: Jack
+                      email: john@example.com
+                    date_signed: '2027-05-01T12:00:00.0000000+00:00'
+                    date_accepted: '2027-05-01T12:00:00.0000000+00:00'
+                hold:
+                  on_hold: false
+                  type: Financial
+                  comment: The hold truth
+                not_returning:
+                  not_returning: false
+                  confirmed_date: '2027-05-01T12:00:00.0000000+00:00'
+                  confirmed_by:
+                    id: 1
+                    prefix: Mr.
+                    first_name: Kianna
+                    middle_name: Mark
+                    last_name: Reed
+                    suffix: Jr.
+                    preferred_name: ''
+                    preferred_last_name: Reed
+                    maiden_name: ''
+                    email: kianna@example.com
+                  reason: The reasonable reason
+                special_text: The special contract text
+                comment: Uncommon comments
+                attachment: …/files/contract.pdf
+                status: Submitted
+                financial_aid_awards:
+                  - type:
+                      id: 5
+                      description: Financial Aid
+                    amount: 100
+                selected_payment_plans:
+                  - payment_plan:
+                      id: 1
+                      name: 4-Pay Plan
+                      number_of_payments: 4
+                      is_inactive: false
+                      insurance_required: false
+                    payers:
+                      - id: 1
+                        prefix: Mr.
+                        first_name: John
+                        middle_name: Quincy
+                        last_name: Smith
+                        suffix: Jr.
+                        preferred_name: Jack
+                        email: john@example.com
+                    payment_remaining: 0
+  '/v1/contracts/{user_id}':
+    get:
+      tags:
+        - Contracts
+      summary: Contract list - single student (Get) (PREVIEW)
+      description: "Return the list of contracts for a candidate or student.\n\r\nRequires the following role in the Education Management system:\r\n<ul><li>Admissions Manager</li><li>Admissions Staff</li><li>Parent, Parent of incoming student, Parent of candidate</li><li>Candidate, Incoming student, Student</li></ul>\n\n***This endpoint is in PREVIEW and may be changed or removed at any time.***"
+      operationId: V1ContractsByUser_idGet
+      parameters:
+        - name: user_id
+          in: path
+          description: The user ID of the candidate or student
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserContractReadCollection'
+              example:
+                count: 1
+                value:
+                  - user:
+                      id: 1
+                      prefix: Mr.
+                      first_name: John
+                      middle_name: Quincy
+                      last_name: Smith
+                      suffix: Jr.
+                      preferred_name: Jack
+                      email: john@example.com
+                    contract:
+                      id: 1
+                      name: 2027 Standard Contract
+                      type:
+                        id: 1
+                        description: New contract type
+                      school_year:
+                        id: 1
+                        description: 2025 - 2026
+                      publish_date: '2026-11-01T12:00:00.0000000+00:00'
+                      expire_date: '2027-05-01T12:00:00.0000000+00:00'
+                      is_inactive: false
+                    date_generated: '2026-11-01T12:00:00.0000000+00:00'
+                    due_date: '2027-05-01T12:00:00.0000000+00:00'
+                    date_sent: '2027-05-01T12:00:00.0000000+00:00'
+                    date_returned: '2027-05-01T12:00:00.0000000+00:00'
+                    date_processed: '2027-05-01T12:00:00.0000000+00:00'
+                    tuition: 10000
+                    tuition_insurance: false
+                    deposits:
+                      - amount_due: 1000
+                        amount_received: 1000
+                        received_date: '2027-05-01T12:00:00.0000000+00:00'
+                        paid_by:
+                          id: 1
+                          prefix: Mr.
+                          first_name: Kianna
+                          middle_name: Mark
+                          last_name: Reed
+                          suffix: Jr.
+                          preferred_name: ''
+                          preferred_last_name: Reed
+                          maiden_name: ''
+                          email: kianna@example.com
+                    fees:
+                      - name:
+                          id: 4
+                          description: Enrollment Fees
+                        amount: 100
+                        category: Enrollment Fees
+                    signers:
+                      - user:
+                          id: 1
+                          prefix: Mr.
+                          first_name: John
+                          middle_name: Quincy
+                          last_name: Smith
+                          suffix: Jr.
+                          preferred_name: Jack
+                          email: john@example.com
+                        date_signed: '2027-05-01T12:00:00.0000000+00:00'
+                        date_accepted: '2027-05-01T12:00:00.0000000+00:00'
+                    hold:
+                      on_hold: false
+                      type: Financial
+                      comment: The hold truth
+                    not_returning:
+                      not_returning: false
+                      confirmed_date: '2027-05-01T12:00:00.0000000+00:00'
+                      confirmed_by:
+                        id: 1
+                        prefix: Mr.
+                        first_name: Kianna
+                        middle_name: Mark
+                        last_name: Reed
+                        suffix: Jr.
+                        preferred_name: ''
+                        preferred_last_name: Reed
+                        maiden_name: ''
+                        email: kianna@example.com
+                      reason: The reasonable reason
+                    special_text: The special contract text
+                    comment: Uncommon comments
+                    attachment: …/files/contract.pdf
+                    status: Submitted
+                    financial_aid_awards:
+                      - type:
+                          id: 5
+                          description: Financial Aid
+                        amount: 100
+                    selected_payment_plans:
+                      - payment_plan:
+                          id: 1
+                          name: 4-Pay Plan
+                          number_of_payments: 4
+                          is_inactive: false
+                          insurance_required: false
+                        payers:
+                          - id: 1
+                            prefix: Mr.
+                            first_name: John
+                            middle_name: Quincy
+                            last_name: Smith
+                            suffix: Jr.
+                            preferred_name: Jack
+                            email: john@example.com
+                        payment_remaining: 0
+components:
+  schemas:
+    Application:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the application
+          format: int32
+          nullable: true
+        form:
+          $ref: '#/components/schemas/TableValueBase'
+        date_submitted:
+          type: string
+          description: The date the application was submitted
+          format: date-time
+          nullable: true
+        date_processed:
+          type: string
+          description: The date the application was processed
+          format: date-time
+          nullable: true
+      additionalProperties: false
+      description: An object for application information
+    CandidateChecklist:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/ChecklistTypeRead'
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/CandidateChecklistStepRead'
+          description: An array of the candidate's checklist steps
+          nullable: true
+      additionalProperties: false
+      description: 'An object with information about the candidate''s instance of a candidate checklist, include checklist type and steps'
+    CandidateChecklistBase:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The checklist id for the candidate that year
+          format: int32
+          nullable: true
+        name:
+          type: string
+          description: The checklist name
+          nullable: true
+      additionalProperties: false
+      description: An object with checklist information
+    CandidateChecklistStepEdit:
+      required:
+        - step_type_id
+      type: object
+      properties:
+        step_type_id:
+          type: integer
+          description: The ID of the checklist type's step
+          format: int32
+        status:
+          type: string
+          description: 'The candidate�s status for the checklist step. Allowed values: Awaiting, Requested, Waived, Completed'
+          nullable: true
+        date_due:
+          type: string
+          description: The due date of the step
+          nullable: true
+        date_completed:
+          type: string
+          description: The date the step was completed
+          nullable: true
+        comment:
+          type: string
+          description: 'The comment for the step. Max length: 4000 characters.'
+          nullable: true
+      additionalProperties: false
+      description: An object with a candidate's checklist step values
+    CandidateChecklistStepRead:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the checklist step for the candidate
+          format: int32
+          nullable: true
+        type:
+          $ref: '#/components/schemas/ChecklistStepRead'
+        status:
+          type: string
+          description: The candidate�s status for this step.
+          nullable: true
+        due_date:
+          type: string
+          description: The due date of the step
+          format: date-time
+          nullable: true
+        date_completed:
+          type: string
+          description: The date the step was completed
+          format: date-time
+          nullable: true
+        comment:
+          type: string
+          description: The comment for this checklist step
+          nullable: true
+      additionalProperties: false
+      description: 'An object with information about the candidate''s instance of a checklist step, including ID, type, status, date due and completed and the comment.'
+    CandidateEventRead:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the candidate event
+          format: int32
+          nullable: true
+        name:
+          type: string
+          description: The name of the event
+          nullable: true
+        type:
+          $ref: '#/components/schemas/TableValueBase'
+        start_time:
+          type: string
+          description: The start time of the event
+          format: date-time
+          nullable: true
+        is_registered:
+          type: boolean
+          description: True if the candidate is registered
+          nullable: true
+        attended:
+          type: boolean
+          description: True if the candidate attended the event
+          nullable: true
+        comment:
+          type: string
+          description: The comment on the candidate event
+          nullable: true
+      additionalProperties: false
+      description: An object with candidate event information
+    CandidateInfo:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The user ID of the user
+          format: int32
+          nullable: true
+        first_name:
+          type: string
+          description: The first name of the user
+          nullable: true
+        last_name:
+          type: string
+          description: The last name of the user
+          nullable: true
+        middle_name:
+          type: string
+          description: The middle name of the user
+          nullable: true
+        preferred_name:
+          type: string
+          description: The preferred name of the user
+          nullable: true
+        prefix:
+          type: string
+          description: The prefix of the user
+          nullable: true
+        suffix:
+          type: string
+          description: The suffix of the user
+          nullable: true
+        email:
+          type: string
+          description: The email of the user
+          nullable: true
+        cc_email:
+          type: string
+          description: The copy email of the user
+          nullable: true
+        gender:
+          $ref: '#/components/schemas/TableValue'
+        pronouns:
+          $ref: '#/components/schemas/TableValueBase'
+        ethnicity:
+          $ref: '#/components/schemas/TableValueBase'
+        is_international:
+          type: boolean
+          description: True if the candidate is international
+          nullable: true
+        boarding_or_day:
+          type: string
+          description: The boarding/day status of the candidate. Returns B if boarding or D if day.
+          nullable: true
+        school_program:
+          $ref: '#/components/schemas/TableValueBase'
+        race:
+          type: array
+          items:
+            $ref: '#/components/schemas/TableValueBase'
+          description: An array of objects for race information
+          nullable: true
+      additionalProperties: false
+      description: Candidate info model
+    CandidateInterviewRead:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the candidate interview
+          format: int32
+          nullable: true
+        type:
+          $ref: '#/components/schemas/TableValueBase'
+        start_time:
+          type: string
+          description: The start time of the interview
+          format: date-time
+          nullable: true
+        end_time:
+          type: string
+          description: The end time of the interview
+          format: date-time
+          nullable: true
+        interviewer:
+          $ref: '#/components/schemas/UserBaseRead'
+        interviewer_other:
+          type: string
+          description: Information for non-user interviewer
+          nullable: true
+        accompanying_adults:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserBaseRead'
+          description: An array of accompanying adult objects
+          nullable: true
+        rating:
+          type: integer
+          description: The rating of the interview
+          format: int32
+          nullable: true
+        is_rescheduled:
+          type: boolean
+          description: True if interview was rescheduled
+          nullable: true
+        did_not_show:
+          type: boolean
+          description: True if candidate did not show for interview
+          nullable: true
+        comment:
+          type: string
+          description: The comment for the interview
+          nullable: true
+      additionalProperties: false
+      description: An object with candidate interview information
+    CandidateRead:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/CandidateInfo'
+        entering_year:
+          $ref: '#/components/schemas/TableValueBase'
+        entering_grade:
+          $ref: '#/components/schemas/TableValue'
+        role:
+          $ref: '#/components/schemas/TableValueBase'
+        candidate_status:
+          type: string
+          description: The candidate status for the entering year
+          nullable: true
+        status:
+          $ref: '#/components/schemas/Status'
+        school_decision:
+          $ref: '#/components/schemas/SchoolDecision'
+        family_photo:
+          $ref: '#/components/schemas/FamilyPhoto'
+        inquiry:
+          $ref: '#/components/schemas/Inquiry'
+        referral:
+          $ref: '#/components/schemas/Referral'
+        has_i20_form:
+          type: boolean
+          description: True if the candidate has an I-20 form
+          nullable: true
+        languages_at_home:
+          type: string
+          description: The language spoken at the candidate�s home
+          nullable: true
+        requested_financial_aid:
+          type: boolean
+          description: True if the candidate requested financial aid
+          nullable: true
+        has_iep:
+          type: boolean
+          description: True if the candidate has an individual education plan
+          nullable: true
+        has_504_plan:
+          type: boolean
+          description: True if the candidate has a 504 plan
+          nullable: true
+        has_private_evaluation:
+          type: boolean
+          description: True if the candidate has a private evaluation
+          nullable: true
+        bbtm_family_id:
+          type: integer
+          description: The BBTM family ID of the candidate
+          format: int32
+          nullable: true
+        created_by:
+          type: string
+          description: Candidate created by
+          nullable: true
+        created:
+          type: string
+          description: Candidate creation date
+          format: date-time
+          nullable: true
+        modified_by:
+          type: string
+          description: User modified candidate information or checklist status or user information
+          nullable: true
+        modified:
+          type: string
+          description: The timestamp of the latest change from candidate information or checklist status or user information
+          format: date-time
+          nullable: true
+        reapply:
+          $ref: '#/components/schemas/Reapply'
+        skipped_grade:
+          $ref: '#/components/schemas/SkippedGrade'
+        withdrawn:
+          $ref: '#/components/schemas/Withdrawn'
+        special_concerns:
+          $ref: '#/components/schemas/SpecialConcerns'
+        educational_support:
+          $ref: '#/components/schemas/EducationalSupport'
+        tutoring:
+          $ref: '#/components/schemas/Tutoring'
+        application:
+          $ref: '#/components/schemas/Application'
+        relationships:
+          type: array
+          items:
+            $ref: '#/components/schemas/Relationship'
+          description: An array of user relationship objects for the candidate
+          nullable: true
+        admissions_staff:
+          $ref: '#/components/schemas/UserBaseRead'
+        consultant:
+          $ref: '#/components/schemas/UserBaseRead'
+        sending_school:
+          $ref: '#/components/schemas/SendingSchool'
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/CandidateEventRead'
+          description: An array of candidate event objects
+          nullable: true
+        interviews:
+          type: array
+          items:
+            $ref: '#/components/schemas/CandidateInterviewRead'
+          description: An array of candidate interview objects
+          nullable: true
+        visits:
+          type: array
+          items:
+            $ref: '#/components/schemas/CandidateVisitRead'
+          description: An array of candidate visit objects
+          nullable: true
+        candidate_checklist:
+          $ref: '#/components/schemas/CandidateChecklistBase'
+        custom_fields_text:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomFieldText'
+          description: An array of custom field objects for text fields
+          nullable: true
+        custom_fields_date:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomFieldDate'
+          description: An array of custom field objects for date fields
+          nullable: true
+        custom_fields_defined:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomFieldDefined'
+          description: An array of custom field objects for defined value fields
+          nullable: true
+      additionalProperties: false
+      description: Candidate read model
+    CandidateReadCollection:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: The number of items in the collection
+          format: int32
+          readOnly: true
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/CandidateRead'
+          description: The set of items included in the response. This may be a subset of the items in the collection
+          nullable: true
+      additionalProperties: false
+      description: A Collection
+    CandidateResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the candidate�s response to the school decision
+          format: int32
+          nullable: true
+        response:
+          $ref: '#/components/schemas/DecisionResponse'
+        date:
+          type: string
+          description: The date of the candidate�s response
+          format: date-time
+          nullable: true
+        decline_reason:
+          $ref: '#/components/schemas/TableValueBase'
+        chosen_school:
+          $ref: '#/components/schemas/TableValueBase'
+      additionalProperties: false
+      description: An object with candidate response information
+    CandidateStatusBase:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the candidate status type
+          format: int32
+          nullable: true
+        description:
+          type: string
+          description: The description of the candidate status type
+          nullable: true
+      additionalProperties: false
+      description: Candidate status type base model
+    CandidateStatusChange:
+      type: object
+      properties:
+        candidate:
+          $ref: '#/components/schemas/UserBaseRead'
+        type:
+          $ref: '#/components/schemas/CandidateStatusBase'
+        date:
+          type: string
+          description: The start date for the candidate�s status
+          format: date-time
+          nullable: true
+      additionalProperties: false
+      description: Candidate status change model
+    CandidateStatusChangeCollection:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: The number of items in the collection
+          format: int32
+          readOnly: true
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/CandidateStatusChange'
+          description: The set of items included in the response. This may be a subset of the items in the collection
+          nullable: true
+      additionalProperties: false
+      description: A Collection
+    CandidateStatusRead:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the candidate status type
+          format: int32
+          nullable: true
+        description:
+          type: string
+          description: The description of the candidate status type
+          nullable: true
+        next_status:
+          $ref: '#/components/schemas/CandidateStatusBase'
+      additionalProperties: false
+      description: Candidate statuses
+    CandidateStatusReadCollection:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: The number of items in the collection
+          format: int32
+          readOnly: true
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/CandidateStatusRead'
+          description: The set of items included in the response. This may be a subset of the items in the collection
+          nullable: true
+      additionalProperties: false
+      description: A Collection
+    CandidateSubTestEdit:
+      required:
+        - type
+      type: object
+      properties:
+        type:
+          type: string
+          description: The name or ID of the subtest type.
+        score:
+          type: number
+          description: The score of the subtest.
+          format: double
+          nullable: true
+        percentile:
+          type: number
+          description: The percentile of the subtest.
+          format: double
+          nullable: true
+        scale:
+          type: number
+          description: The scale of the subtest.
+          format: double
+          nullable: true
+        stanie:
+          type: number
+          description: The stanine of the subtest.
+          format: double
+          nullable: true
+      additionalProperties: false
+      description: An object with sub test information.
+    CandidateSubtestRead:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/TableValueBase'
+        score:
+          type: number
+          description: The score of the subtest.
+          format: float
+          nullable: true
+        percentile:
+          type: number
+          description: The percentile of the subtest.
+          format: float
+          nullable: true
+        scale:
+          type: number
+          description: The scale of the subtest.
+          format: float
+          nullable: true
+        stanine:
+          type: number
+          description: The stanine of the subtest.
+          format: float
+          nullable: true
+      additionalProperties: false
+      description: An object with sub test information.
+    CandidateTestAdd:
+      required:
+        - test_date
+        - type
+      type: object
+      properties:
+        type:
+          type: string
+          description: The name or ID of the test type. Values returned by GET Test and Subtest types.
+        test_date:
+          type: string
+          description: The date and time of the test.
+          format: date-time
+        registered_date:
+          type: string
+          description: The registered date and time of the test.
+          format: date-time
+          nullable: true
+        location:
+          type: string
+          description: The register location of the test.
+          nullable: true
+        proctor_by:
+          type: integer
+          description: The user ID of the proctor.
+          format: int32
+          nullable: true
+        proctor_by_other:
+          type: string
+          description: The proctor’s name when not a user.
+          nullable: true
+        was_rescheduled:
+          type: boolean
+          description: Set to true if the test was rescheduled.
+        did_not_show:
+          type: boolean
+          description: Set to true if the candidate did not show for test.
+        score:
+          type: number
+          description: The overall score for the test.
+          format: double
+          nullable: true
+        comment:
+          type: string
+          description: The comment for the test. Limit is 4000 characters.
+          nullable: true
+        attachment:
+          $ref: '#/components/schemas/NewAttachment'
+        sub_tests:
+          type: array
+          items:
+            $ref: '#/components/schemas/CandidateSubTestEdit'
+          description: List of subtests.
+          nullable: true
+      additionalProperties: false
+      description: An object with candidate test information.
+    CandidateTestRead:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the candidate’s test
+          format: int32
+        user:
+          $ref: '#/components/schemas/UserBaseRead'
+        type:
+          $ref: '#/components/schemas/TableValueBase'
+        test_date:
+          type: string
+          description: The date and time of the test.
+          format: date-time
+          nullable: true
+        registered_date:
+          type: string
+          description: The registered date and time of the test.
+          format: date-time
+          nullable: true
+        location:
+          type: string
+          description: The register location of the test.
+          nullable: true
+        proctor_by:
+          $ref: '#/components/schemas/UserBaseRead'
+        proctor_by_other:
+          type: string
+          description: The proctor’s name when not a user.
+          nullable: true
+        was_rescheduled:
+          type: boolean
+          description: Set to true if the test was rescheduled.
+        did_not_show:
+          type: boolean
+          description: Set to true if the candidate did not show for test.
+        score:
+          type: number
+          description: The overall score for the test.
+          format: double
+          nullable: true
+        comment:
+          type: string
+          description: The comment for the test. Limit is 4000 characters.
+          nullable: true
+        sub_tests:
+          type: array
+          items:
+            $ref: '#/components/schemas/CandidateSubtestRead'
+          description: List of subtests.
+          nullable: true
+        last_modified:
+          type: string
+          description: The date the test was last modified
+          format: date-time
+          nullable: true
+      additionalProperties: false
+      description: An object with candidate test information.
+    CandidateTestReadCollection:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: The number of items in the collection
+          format: int32
+          readOnly: true
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/CandidateTestRead'
+          description: The set of items included in the response. This may be a subset of the items in the collection
+          nullable: true
+      additionalProperties: false
+      description: A Collection
+    CandidateUpdateRequest:
+      type: object
+      properties:
+        entering_year:
+          type: string
+          description: The ID or description of the school year the candidate is entering
+          nullable: true
+        entering_grade:
+          type: string
+          description: The ID or description of the grade level the candidate is entering
+          nullable: true
+        status:
+          type: string
+          description: 'The current status of the candidate. Allowed values: active, inactive. Defaults to active.'
+          nullable: true
+        inactive_status_reason:
+          type: string
+          description: The ID or description of inactive status reason
+          nullable: true
+        staff_id:
+          type: integer
+          description: The user ID of the admissions staff assigned to the candidate.
+          format: int32
+          nullable: true
+        consultants:
+          type: array
+          items:
+            type: integer
+            format: int32
+          description: An array of consultant user IDs.
+          nullable: true
+        has_i20_form:
+          type: boolean
+          description: Set to true if the I-20 form has been received.
+          nullable: true
+        source:
+          type: string
+          description: The ID or description of the source of the inquiry.
+          nullable: true
+        referral:
+          type: string
+          description: The ID or description of the referral type (how hear).
+          nullable: true
+        referral_text:
+          type: string
+          description: The text for the referral (how hear text).
+          nullable: true
+        languages_at_home:
+          type: string
+          description: The languages spoken at home.
+          nullable: true
+        requested_financial_aid:
+          type: boolean
+          description: Set to true if the candidate requested financial aid.
+          nullable: true
+        has_iep:
+          type: boolean
+          description: Set to true if the candidate has an individual education plan
+          nullable: true
+        has504:
+          type: boolean
+          description: Set to true if the candidate has a 504 plan
+          nullable: true
+        has_private_evaluation:
+          type: boolean
+          description: Set to true if the candidate has a private evaluation
+          nullable: true
+        reapply:
+          $ref: '#/components/schemas/Reapply'
+        skipped_grade:
+          $ref: '#/components/schemas/SkippedGrade'
+        withdrawn:
+          $ref: '#/components/schemas/Withdrawn'
+        special_concerns:
+          $ref: '#/components/schemas/SpecialConcerns'
+        tutoring:
+          $ref: '#/components/schemas/Tutoring'
+        custom_fields_text:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomFieldText'
+          description: An array of custom field objects for text fields
+          nullable: true
+        custom_fields_date:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomFieldDate'
+          description: An array of custom field objects for date fields
+          nullable: true
+        custom_fields_defined:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomFieldDefined'
+          description: An array of custom field objects for defined value fields
+          nullable: true
+      additionalProperties: false
+      description: Candidate update model
+    CandidateVisitRead:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the candidate visit
+          format: int32
+          nullable: true
+        type:
+          $ref: '#/components/schemas/TableValueBase'
+        start_time:
+          type: string
+          description: The start time of the visit
+          format: date-time
+          nullable: true
+        end_time:
+          type: string
+          description: The end time of the visit
+          format: date-time
+          nullable: true
+        guide:
+          $ref: '#/components/schemas/UserBaseRead'
+        guide_other:
+          type: string
+          description: Information for non-user guide
+          nullable: true
+        accompanying_adults:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserBaseRead'
+          description: An array of accompanying adult objects
+          nullable: true
+        is_rescheduled:
+          type: boolean
+          description: True if visit was rescheduled
+          nullable: true
+        did_not_show:
+          type: boolean
+          description: True if candidate did not show for visit
+          nullable: true
+        comment:
+          type: string
+          description: The comment for the visit
+          nullable: true
+      additionalProperties: false
+      description: An object with candidate visit information
+    ChecklistStatusRead:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the admissions status
+          format: int32
+          nullable: true
+        description:
+          type: string
+          description: The description of the admissions status
+          nullable: true
+        ordinal:
+          type: integer
+          description: The order number of the checklist
+          format: int32
+          nullable: true
+      additionalProperties: false
+      description: Admissions Checklist Status
+    ChecklistStatusReadCollection:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: The number of items in the collection
+          format: int32
+          readOnly: true
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChecklistStatusRead'
+          description: The set of items included in the response. This may be a subset of the items in the collection
+          nullable: true
+      additionalProperties: false
+      description: A Collection
+    ChecklistStepPublishingOptionsRead:
+      type: object
+      properties:
+        use_options:
+          type: boolean
+          description: True if publishing options are in use
+          nullable: true
+        name:
+          type: string
+          description: The published name of the checklist step
+          nullable: true
+        description:
+          type: string
+          description: The published description of the checklist step
+          nullable: true
+        link:
+          type: string
+          description: The published link of the checklist step
+          nullable: true
+        file:
+          type: string
+          description: The file to publish for the checklist step
+          nullable: true
+      additionalProperties: false
+      description: Admissions Checklist Step Publishing Options
+    ChecklistStepRead:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the Checklist Step
+          format: int32
+          nullable: true
+        name:
+          type: string
+          description: The name of the Checklist Step
+          nullable: true
+        type:
+          type: string
+          description: The type of checklist step
+          nullable: true
+        milestone:
+          type: string
+          description: The milestone the step is part of
+          nullable: true
+        due_date_default:
+          type: string
+          description: The date the checklist step is due by default
+          format: date-time
+          nullable: true
+        is_required:
+          type: boolean
+          description: True if checklist step is required
+          nullable: true
+        publishing_options:
+          $ref: '#/components/schemas/ChecklistStepPublishingOptionsRead'
+      additionalProperties: false
+      description: Admissions Checklist Step
+    ChecklistTypeRead:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the Checklist Type
+          format: int32
+          nullable: true
+        name:
+          type: string
+          description: The name of the Checklist Type
+          nullable: true
+        is_inactive:
+          type: boolean
+          description: True if the Checklist Type is inactive and is no longer assigned to candidates.
+          nullable: true
+        is_archived:
+          type: boolean
+          description: True if the Checklist Type is archived
+          nullable: true
+      additionalProperties: false
+      description: Admissions Checklist Type
+    ChecklistTypeReadCollection:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: The number of items in the collection
+          format: int32
+          readOnly: true
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChecklistTypeRead'
+          description: The set of items included in the response. This may be a subset of the items in the collection
+          nullable: true
+      additionalProperties: false
+      description: A Collection
+    ChecklistTypeWithStepsRead:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the Checklist Type
+          format: int32
+          nullable: true
+        name:
+          type: string
+          description: The name of the Checklist Type
+          nullable: true
+        is_inactive:
+          type: boolean
+          description: True if the Checklist Type is inactive and is no longer assigned to candidates.
+          nullable: true
+        is_archived:
+          type: boolean
+          description: True if the Checklist Type is archived
+          nullable: true
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChecklistStepRead'
+          description: An array of checklist steps
+          nullable: true
+      additionalProperties: false
+      description: Admissions Checklist Type with Steps
+    ContractBase:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the contract form
+          format: int32
+          nullable: true
+        name:
+          type: string
+          description: The name of the contract
+          nullable: true
+        type:
+          $ref: '#/components/schemas/TableValueBase'
+        school_year:
+          $ref: '#/components/schemas/TableValueBase'
+        publish_date:
+          type: string
+          description: The start date of the contract’s published date range
+          format: date-time
+          nullable: true
+        expire_date:
+          type: string
+          description: The end date of the contract’s published date range
+          format: date-time
+          nullable: true
+        is_inactive:
+          type: boolean
+          description: True if the contract form is inactive
+          nullable: true
+      additionalProperties: false
+      description: 'An object with basic contract form information, including name, type, year and publish dates.'
+    ContractDeposit:
+      type: object
+      properties:
+        amount_due:
+          type: number
+          description: The deposit amount due for the contract
+          format: float
+          nullable: true
+        amount_received:
+          type: number
+          description: The deposit amount received
+          format: float
+          nullable: true
+        received_date:
+          type: string
+          description: The date the deposit was received
+          format: date-time
+          nullable: true
+        paid_by:
+          $ref: '#/components/schemas/UserBaseRead'
+      additionalProperties: false
+      description: 'An object with deposit information, inluding amount due, amount received, date paid and paid by'
+    ContractFee:
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/TableValueBase'
+        amount:
+          type: number
+          description: The amount of the fee
+          format: float
+          nullable: true
+        category:
+          type: string
+          description: The category of the fee
+          nullable: true
+      additionalProperties: false
+      description: 'An object with fee information, including type and amount'
+    ContractFinancialAid:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/TableValueBase'
+        amount:
+          type: number
+          description: The amount of the financial aid
+          format: float
+      additionalProperties: false
+      description: 'An object with financial aid award information, including financial aid type and amount'
+    ContractHold:
+      type: object
+      properties:
+        on_hold:
+          type: boolean
+          description: True if contract is on hold
+          nullable: true
+        type:
+          type: string
+          description: The type of hold
+          nullable: true
+        comment:
+          type: string
+          description: The comments for the hold
+          nullable: true
+      additionalProperties: false
+      description: 'An object with contract hold information, including type and comments'
+    ContractNotReturning:
+      type: object
+      properties:
+        not_returning:
+          type: boolean
+          description: True if not returning
+          nullable: true
+        confirmed_date:
+          type: string
+          description: The date confirmed as not returning
+          format: date-time
+          nullable: true
+        confirmed_by:
+          $ref: '#/components/schemas/UserBaseRead'
+        reason:
+          type: string
+          description: The reason for not returning
+          nullable: true
+      additionalProperties: false
+      description: 'An object with information about not returning, including reason and confirmed when and by whom'
+    ContractPaymentPlan:
+      type: object
+      properties:
+        payment_plan:
+          $ref: '#/components/schemas/PaymentPlanBase'
+        payers:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserBaseRead'
+          description: An array of payer objects
+          nullable: true
+        payment_remaining:
+          type: integer
+          description: The number of payments remaining when contract was submitted
+          format: int32
+          nullable: true
+      additionalProperties: false
+      description: 'An object with contract payment plan model information, including Payment plan, Payers adnd Payment remaining'
+    ContractSigner:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/UserBaseRead'
+        date_signed:
+          type: string
+          description: The date the user signed the contract
+          format: date-time
+          nullable: true
+        date_accepted:
+          type: string
+          description: The date the user accepted the contract
+          format: date-time
+          nullable: true
+      additionalProperties: false
+      description: 'An object with contract signer information, including user, date signed and date accepted'
+    CreateCandidateRequest:
+      required:
+        - checklist_type
+        - entering_grade
+        - entering_year
+        - user_id
+      type: object
+      properties:
+        user_id:
+          type: integer
+          description: The ID of the user
+          format: int32
+        entering_year:
+          type: string
+          description: The ID or description of the school year the candidate is entering.
+        entering_grade:
+          type: string
+          description: The ID or description of the grade level the candidate is entering.
+        checklist_type:
+          type: integer
+          description: The ID of the checklist type assigned to the candidate
+          format: int32
+      additionalProperties: false
+      description: create candidate request model
+    CreateInquiryRequest:
+      required:
+        - candidate
+        - entering
+      type: object
+      properties:
+        candidate:
+          $ref: '#/components/schemas/InquiryCandidate'
+        entering:
+          $ref: '#/components/schemas/InquiryEntering'
+        households:
+          type: array
+          items:
+            $ref: '#/components/schemas/Household'
+          description: An array of household objects
+          nullable: true
+        interests:
+          type: array
+          items:
+            $ref: '#/components/schemas/InquiryInterestEdit'
+          description: An array of interest objects
+          nullable: true
+        current_school:
+          $ref: '#/components/schemas/CurrentSchool'
+        referral:
+          $ref: '#/components/schemas/InquiryReferralEdit'
+        requests_financial_aid:
+          type: boolean
+          description: True if the candidate requests financial aid
+          nullable: true
+        custom_fields_text:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomFieldText'
+          description: An array of custom field objects for text fields
+          nullable: true
+        custom_fields_date:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomFieldDate'
+          description: An array of custom field objects for date fields
+          nullable: true
+        custom_fields_defined:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomFieldDefined'
+          description: An array of custom field objects for defined value fields
+          nullable: true
+      additionalProperties: false
+      description: create inquiry request model
+    CurrentSchool:
+      type: object
+      properties:
+        school:
+          type: string
+          description: The ID or name of their current school
+          nullable: true
+        other_name:
+          type: string
+          description: The other name of the current school
+          nullable: true
+        current_grade:
+          type: string
+          description: The ID or description of their current grade at the school
+          nullable: true
+        city:
+          type: string
+          description: The city of the current school
+          nullable: true
+        state:
+          type: string
+          description: The state of the current school
+          nullable: true
+        province:
+          type: string
+          description: The province of the current school
+          nullable: true
+        country:
+          type: string
+          description: The country of the current school
+          nullable: true
+        gpa:
+          type: number
+          description: The GPA at the current school
+          format: double
+      additionalProperties: false
+      description: CurrentSchool object model
+    CustomDateField:
+      type: object
+      properties:
+        identifier:
+          type: string
+          description: The identifier for the custom field
+          nullable: true
+        name:
+          type: string
+          description: The name of the custom field
+          nullable: true
+        value:
+          type: string
+          description: The value of the custom field
+          format: date-time
+          nullable: true
+      additionalProperties: false
+      description: Custom date field model
+    CustomDefinedField:
+      type: object
+      properties:
+        identifier:
+          type: string
+          description: The identifier for the custom field
+          nullable: true
+        name:
+          type: string
+          description: The name of the custom field
+          nullable: true
+        value:
+          type: string
+          description: The value of the custom field
+          nullable: true
+      additionalProperties: false
+      description: Custom user defined field model
+    CustomFieldDate:
+      type: object
+      properties:
+        field_identifier:
+          type: string
+          description: 'Specifies the field. Uses the field identifier format: date_field_# (e.g. date_field_1 or date_field_7).'
+          nullable: true
+        field_name:
+          type: string
+          description: The user-defined name (e.g. Tee shirt size) for the custom field.
+          nullable: true
+        field_value:
+          type: string
+          description: 'The value to store in the specified field. Must be a date. Use ISO-8601 date format: 2025-04-30'
+          nullable: true
+      additionalProperties: false
+      description: An object with custom candidate field information
+    CustomFieldDefined:
+      type: object
+      properties:
+        field_identifier:
+          type: string
+          description: 'Specifies the field. Uses the field identifier format: defined_field_# (e.g. defined_field_1 or defined_field_7).'
+          nullable: true
+        field_name:
+          type: string
+          description: The user-defined name (e.g. Tee shirt size) for the custom field.
+          nullable: true
+        field_value:
+          type: string
+          description: The value to store in the specified field. Use the user-defined value (e.g. Extra-large)
+          nullable: true
+      additionalProperties: false
+      description: An object with custom candidate field information
+    CustomFieldText:
+      type: object
+      properties:
+        field_identifier:
+          type: string
+          description: 'Specifies the field. Uses the field identifier format: field_# (e.g. text_field_1 or text_field_7).'
+          nullable: true
+        field_name:
+          type: string
+          description: The user-defined name (e.g. Tee shirt size) for the custom field.
+          nullable: true
+        field_value:
+          type: string
+          description: The value to store in the specified field.
+          nullable: true
+      additionalProperties: false
+      description: An object with custom candidate field information
+    CustomTextField:
+      type: object
+      properties:
+        identifier:
+          type: string
+          description: The identifier for the custom field
+          nullable: true
+        name:
+          type: string
+          description: The name of the custom field
+          nullable: true
+        value:
+          type: string
+          description: The value of the custom field
+          nullable: true
+      additionalProperties: false
+      description: Custom text field model
+    Decision:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the decision
+          format: int32
+          nullable: true
+        description:
+          type: string
+          description: The description of the decision
+          nullable: true
+        type:
+          $ref: '#/components/schemas/TableValueBase'
+      additionalProperties: false
+      description: An object with decision information
+    DecisionResponse:
+      type: object
+      properties:
+        description:
+          type: string
+          description: The description of the response
+          nullable: true
+        type:
+          $ref: '#/components/schemas/TableValueBase'
+      additionalProperties: false
+      description: An object with decision response information
+    EducationalSupport:
+      type: object
+      properties:
+        has_educational_support:
+          type: boolean
+          description: True if the candidate has educational support
+          nullable: true
+        documentational_url:
+          type: string
+          description: The url of the educational support document file
+          nullable: true
+        school_comment:
+          type: string
+          description: The school’s comment
+          nullable: true
+        candidate_comment:
+          type: string
+          description: The candidate’s comment
+          nullable: true
+      additionalProperties: false
+      description: An object with educational support information
+    FamilyPhoto:
+      type: object
+      properties:
+        url:
+          type: string
+          description: The url of the photo
+          nullable: true
+        keep_private:
+          type: boolean
+          description: True if the photo should be kept private
+          nullable: true
+      additionalProperties: false
+      description: An object with candidate family photo information
+    Household:
+      required:
+        - relationship1
+      type: object
+      properties:
+        address_same_as_student:
+          type: boolean
+          description: Is the address shared with the student.
+        home_address:
+          $ref: '#/components/schemas/UserAddress'
+        home_phone:
+          type: string
+          description: Home phone information.
+          nullable: true
+        resides_with:
+          type: boolean
+          description: True if the candidate lives with the relationship.
+        relationship1:
+          $ref: '#/components/schemas/HouseholdRelationship'
+        relationship2:
+          $ref: '#/components/schemas/HouseholdRelationship'
+      additionalProperties: false
+      description: Household model with household information.
+    HouseholdBusiness:
+      type: object
+      properties:
+        job_title:
+          type: string
+          description: The job title at the business.
+          nullable: true
+        name:
+          type: string
+          description: The name of the business.
+          nullable: true
+        business_phone:
+          type: string
+          description: Business phone information.
+          nullable: true
+        business_fax:
+          type: string
+          description: Business fax information.
+          nullable: true
+        business_address:
+          $ref: '#/components/schemas/UserAddress'
+      additionalProperties: false
+      description: HouseholdBusiness model for household business information.
+    HouseholdReadModel:
+      type: object
+      properties:
+        address_same_as_student:
+          type: boolean
+          description: Is the address shared with the student.
+          nullable: true
+        home_address:
+          $ref: '#/components/schemas/UserAddress'
+        home_phone:
+          type: string
+          description: Home phone information.
+          nullable: true
+        resides_with:
+          type: boolean
+          description: True if the candidate lives with the relationship.
+          nullable: true
+        relationship1:
+          $ref: '#/components/schemas/HouseholdRelationshipReadModel'
+        relationship2:
+          $ref: '#/components/schemas/HouseholdRelationshipReadModel'
+      additionalProperties: false
+      description: Household read model with household information.
+    HouseholdRelationship:
+      required:
+        - relationship_to_student
+        - user
+      type: object
+      properties:
+        relationship_to_student:
+          type: string
+          description: The relationship to the student.
+        is_custodial_parent:
+          type: boolean
+          description: True if this is the primary relationship.
+        user:
+          $ref: '#/components/schemas/HouseholdRelationshipUser'
+      additionalProperties: false
+      description: HouseholdRelationship model for the Inquiry Candidate relationship information.
+    HouseholdRelationshipReadModel:
+      type: object
+      properties:
+        type:
+          type: string
+          description: The relationship to the student.
+          nullable: true
+        is_custodial_parent:
+          type: boolean
+          description: True if this is custodial relationship.
+          nullable: true
+        user:
+          $ref: '#/components/schemas/HouseholdRelationshipUserReadModel'
+      additionalProperties: false
+      description: HouseholdRelationship read model for the Inquiry Candidate relationship information.
+    HouseholdRelationshipUser:
+      required:
+        - first_name
+        - last_name
+      type: object
+      properties:
+        first_name:
+          type: string
+          description: The first name of the user.
+        middle_name:
+          type: string
+          description: The middle name of the user.
+          nullable: true
+        last_name:
+          type: string
+          description: The last name of the user.
+        preferred_name:
+          type: string
+          description: The preferred name of the user.
+          nullable: true
+        email:
+          type: string
+          description: The email of the user.
+          nullable: true
+        prefix:
+          type: string
+          description: The prefix of the user.
+          nullable: true
+        suffix:
+          type: string
+          description: The suffix of the user.
+          nullable: true
+        gender:
+          type: string
+          description: The gender ID or description of the user.
+          nullable: true
+        pronouns:
+          type: string
+          description: The pronouns ID or description of the user.
+          nullable: true
+        living_status:
+          type: string
+          description: The living status ID or description of the user.
+          nullable: true
+        wireless_phone:
+          type: string
+          description: Wireless phone information.
+          nullable: true
+        business:
+          $ref: '#/components/schemas/HouseholdBusiness'
+      additionalProperties: false
+      description: HouseholdRelationshipUser model for a household relationship user in an inquiry household.
+    HouseholdRelationshipUserReadModel:
+      type: object
+      properties:
+        first_name:
+          type: string
+          description: The first name of the user.
+          nullable: true
+        middle_name:
+          type: string
+          description: The middle name of the user.
+          nullable: true
+        last_name:
+          type: string
+          description: The last name of the user.
+          nullable: true
+        preferred_name:
+          type: string
+          description: The preferred name of the user.
+          nullable: true
+        email:
+          type: string
+          description: The email of the user.
+          nullable: true
+        prefix:
+          type: string
+          description: The prefix of the user.
+          nullable: true
+        suffix:
+          type: string
+          description: The suffix of the user.
+          nullable: true
+        gender:
+          $ref: '#/components/schemas/TableValue'
+        pronouns:
+          $ref: '#/components/schemas/TableValueBase'
+        living_status:
+          $ref: '#/components/schemas/TableValueBase'
+        wireless_phone:
+          type: string
+          description: The wireless phone information.
+          nullable: true
+        business:
+          $ref: '#/components/schemas/HouseholdBusiness'
+      additionalProperties: false
+      description: HouseholdRelationshipUser read model for a household relationship user in an inquiry household.
+    Inquiry:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the inquiry
+          format: int32
+          nullable: true
+        form:
+          $ref: '#/components/schemas/TableValueBase'
+        source:
+          $ref: '#/components/schemas/TableValueBase'
+        date_submitted:
+          type: string
+          description: The date the inquiry was submitted
+          format: date-time
+          nullable: true
+        date_processed:
+          type: string
+          description: The date the inquiry was processed
+          format: date-time
+          nullable: true
+      additionalProperties: false
+      description: An object with candidate inquiry information
+    InquiryCandidate:
+      required:
+        - first_name
+        - last_name
+      type: object
+      properties:
+        first_name:
+          type: string
+          description: The first name of the candidate.
+        last_name:
+          type: string
+          description: The last name of the candidate.
+        middle_name:
+          type: string
+          description: The middle name of the candidate.
+          nullable: true
+        preferred_name:
+          type: string
+          description: The preferred name of the candidate.
+          nullable: true
+        prefix:
+          type: string
+          description: The prefix of the candidate.
+          nullable: true
+        suffix:
+          type: string
+          description: The suffix of the candidate.
+          nullable: true
+        gender:
+          type: string
+          description: The gender of the candidate.
+          nullable: true
+        birthdate:
+          type: string
+          description: The birthdate of the candidate.
+          format: date-time
+          nullable: true
+        home_address:
+          $ref: '#/components/schemas/UserAddress'
+        home_number:
+          type: string
+          description: Home phone number
+          nullable: true
+        business_number:
+          type: string
+          description: Business phone number
+          nullable: true
+        email:
+          type: string
+          description: The email of the candidate.
+          nullable: true
+        races:
+          type: array
+          items:
+            type: string
+          description: An array of race IDs or descriptions
+          nullable: true
+        ethnicity:
+          type: string
+          description: The ID or description of the ethnicity of the candidate.
+          nullable: true
+        citizenship:
+          type: string
+          description: The ID or description of the citizenship of the candidate.
+          nullable: true
+        boarding_or_day:
+          type: string
+          description: 'The boarding or day status of the candidate. Allowed values: B, D, Boarding, Day'
+          nullable: true
+        is_international:
+          type: boolean
+          description: True if candidate is international.
+        school_program:
+          type: string
+          description: The ID or description of the school program.
+          nullable: true
+        religion:
+          type: string
+          description: The ID or description of the religion of the candidate.
+          nullable: true
+        languages_at_home:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserLanguage'
+          description: The languages spoken at home
+          nullable: true
+        person_inquiring:
+          $ref: '#/components/schemas/PersonInquiringInfo'
+      additionalProperties: false
+      description: InquiryCandidate object model
+    InquiryCandidateRead:
+      type: object
+      properties:
+        first_name:
+          type: string
+          description: The first name of the candidate.
+          nullable: true
+        last_name:
+          type: string
+          description: The last name of the candidate.
+          nullable: true
+        middle_name:
+          type: string
+          description: The middle name of the candidate.
+          nullable: true
+        preferred_name:
+          type: string
+          description: The preferred name of the candidate.
+          nullable: true
+        prefix:
+          type: string
+          description: The prefix of the candidate.
+          nullable: true
+        suffix:
+          type: string
+          description: The suffix of the candidate.
+          nullable: true
+        gender:
+          $ref: '#/components/schemas/TableValue'
+        pronouns:
+          $ref: '#/components/schemas/TableValueBase'
+        birthdate:
+          type: string
+          description: The birthdate of the candidate.
+          format: date-time
+          nullable: true
+        home_address:
+          $ref: '#/components/schemas/UserAddress'
+        home_number:
+          type: string
+          description: Home phone number
+          nullable: true
+        business_number:
+          type: string
+          description: Business phone number
+          nullable: true
+        email:
+          type: string
+          description: The email of the candidate.
+          nullable: true
+        races:
+          type: array
+          items:
+            $ref: '#/components/schemas/TableValueBase'
+          description: An array of races
+          nullable: true
+        ethnicity:
+          $ref: '#/components/schemas/TableValueBase'
+        citizenship:
+          $ref: '#/components/schemas/TableValueBase'
+        boarding_or_day:
+          type: string
+          description: The boarding or day status of the candidate. Returns “B” for boarding and “D” for Day
+          nullable: true
+        is_international:
+          type: boolean
+          description: True if candidate is international.
+          nullable: true
+        school_program:
+          $ref: '#/components/schemas/TableValueBase'
+        religion:
+          $ref: '#/components/schemas/TableValueBase'
+        languages_at_home:
+          type: array
+          items:
+            $ref: '#/components/schemas/TableValueBase'
+          description: The languages spoken at home
+          nullable: true
+        person_inquiring:
+          $ref: '#/components/schemas/PersonInquiringRead'
+      additionalProperties: false
+      description: InquiryCandidateRead object model
+    InquiryEntering:
+      required:
+        - grade_level
+        - school_year
+      type: object
+      properties:
+        school_year:
+          type: string
+          description: The ID or label of the entering school year
+        grade_level:
+          type: string
+          description: The ID or description of the entering grade level
+        session:
+          type: string
+          description: The ID or description of the school session
+          nullable: true
+      additionalProperties: false
+      description: InquiryEntering object model
+    InquiryEnteringRead:
+      type: object
+      properties:
+        school_year:
+          $ref: '#/components/schemas/TableValueBase'
+        grade_level:
+          $ref: '#/components/schemas/TableValue'
+        school_level:
+          $ref: '#/components/schemas/TableValueBase'
+        session:
+          $ref: '#/components/schemas/TableValueBase'
+      additionalProperties: false
+      description: InquiryEnteringRead object model
+    InquiryInterest:
+      type: object
+      properties:
+        candidate_comments:
+          type: string
+          description: The candidate’s comments about their interest
+          nullable: true
+        importance:
+          type: integer
+          description: The importance of the interest to the candidate
+          format: int32
+          nullable: true
+        proficiency:
+          type: integer
+          description: The candidate’s proficiency at the interest
+          format: int32
+          nullable: true
+        requests_contact:
+          type: boolean
+          description: True if the candidate would like to talk to the coach or director about the interest
+          nullable: true
+        type:
+          $ref: '#/components/schemas/TableValueBase'
+      additionalProperties: false
+      description: An object with interest information
+    InquiryInterestEdit:
+      required:
+        - type
+      type: object
+      properties:
+        type:
+          type: string
+          description: The interest type’s ID or description
+        importance:
+          type: integer
+          description: The importance of the interest to the candidate
+          format: int32
+          nullable: true
+        proficiency:
+          type: integer
+          description: The candidate’s proficiency at the interest
+          format: int32
+          nullable: true
+        requests_contact:
+          type: boolean
+          description: Set to true if the candidate would like to talk to the coach or director about the interest
+          nullable: true
+        candidate_comments:
+          type: string
+          description: The candidate’s comments about their interest
+          nullable: true
+      additionalProperties: false
+      description: Interest information to edit
+    InquiryRead:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the inquiry
+          format: int32
+          nullable: true
+        date_submitted:
+          type: string
+          description: The date and time the inquiry was submitted.
+          format: date-time
+          nullable: true
+        date_processed:
+          type: string
+          description: The date and time the inquiry was processed.
+          format: date-time
+          nullable: true
+        user_id:
+          type: integer
+          description: 'The ID of the candidate, if the inquiry has been processed.'
+          format: int32
+          nullable: true
+        candidate:
+          $ref: '#/components/schemas/InquiryCandidateRead'
+        form:
+          $ref: '#/components/schemas/TableValueBase'
+        entering_year:
+          $ref: '#/components/schemas/InquiryEnteringRead'
+        households:
+          type: array
+          items:
+            $ref: '#/components/schemas/HouseholdReadModel'
+          description: An array of household objects
+          nullable: true
+        current_school:
+          $ref: '#/components/schemas/InquirySchoolRead'
+        referral:
+          $ref: '#/components/schemas/InquiryReferralRead'
+        requests_financial_aid:
+          type: boolean
+          description: True if the candidate requests financial aid
+        interests:
+          type: array
+          items:
+            $ref: '#/components/schemas/InquiryInterest'
+          description: An array of interest objects
+          nullable: true
+        custom_text_fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomTextField'
+          description: An array of custom text fields
+          nullable: true
+        custom_date_fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomDateField'
+          description: An array of custom date fields
+          nullable: true
+        custom_defined_fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomDefinedField'
+          description: An array of custom user-defined fields
+          nullable: true
+      additionalProperties: false
+      description: Inquiry read model
+    InquiryReferralEdit:
+      type: object
+      properties:
+        type:
+          type: string
+          description: The ID or description of the referral type (how hear).
+          nullable: true
+        text:
+          type: string
+          description: The text for the referral (how hear text).
+          nullable: true
+        referrers:
+          type: array
+          items:
+            $ref: '#/components/schemas/InquiryReferrerEdit'
+          description: An array of referrer objects.
+          nullable: true
+      additionalProperties: false
+      description: An object with referral information.
+    InquiryReferralRead:
+      type: object
+      properties:
+        type:
+          type: string
+          description: The ID or description of the referral type (how hear).
+          nullable: true
+        text:
+          type: string
+          description: The text for the referral (how hear text).
+          nullable: true
+        referrers:
+          type: array
+          items:
+            $ref: '#/components/schemas/InquiryReferrerRead'
+          description: An array of referrer objects.
+          nullable: true
+      additionalProperties: false
+      description: An object with referral information.
+    InquiryReferrerEdit:
+      type: object
+      properties:
+        is_existing_family:
+          type: boolean
+          description: True if the referral was by existing family.
+        family_name:
+          type: string
+          description: The name of the referring family.
+          nullable: true
+        notes:
+          type: string
+          description: The additional referral notes.
+          nullable: true
+      additionalProperties: false
+      description: An object with referred by information.
+    InquiryReferrerRead:
+      type: object
+      properties:
+        is_existing_family:
+          type: boolean
+          description: True if the referral was by existing family.
+        family_name:
+          type: string
+          description: The name of the referring family.
+          nullable: true
+        notes:
+          type: string
+          description: The additional referral notes.
+          nullable: true
+      additionalProperties: false
+      description: An object with referred by information.
+    InquirySchoolRead:
+      type: object
+      properties:
+        school:
+          $ref: '#/components/schemas/TableValueBase'
+        other_name:
+          type: string
+          description: The other name of the current school
+          nullable: true
+        current_grade:
+          $ref: '#/components/schemas/TableValue'
+        city:
+          type: string
+          description: The city of the current school
+          nullable: true
+        state:
+          type: string
+          description: The state of the current school
+          nullable: true
+        province:
+          type: string
+          description: The province of the current school
+          nullable: true
+        country:
+          type: string
+          description: The country of the current school
+          nullable: true
+        gpa:
+          type: number
+          description: The GPA at the current school
+          format: double
+          nullable: true
+      additionalProperties: false
+      description: An object with current school information
+    InterestType:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the interest type table value.
+          format: int32
+          nullable: true
+        description:
+          type: string
+          description: The description of the type.
+          nullable: true
+        is_active:
+          type: boolean
+          description: True if interest is active and can be assigned to a candidate.
+        is_admissions:
+          type: boolean
+          description: True if interest is used in admissions.
+        category:
+          $ref: '#/components/schemas/TableValueBase'
+      additionalProperties: false
+      description: An object with interest information
+    InterestTypeCollection:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: The number of items in the collection
+          format: int32
+          readOnly: true
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/InterestType'
+          description: The set of items included in the response. This may be a subset of the items in the collection
+          nullable: true
+      additionalProperties: false
+      description: A Collection
+    NewAttachment:
+      type: object
+      properties:
+        temp_name:
+          type: string
+          description: The temporary file location provided by the Attachment (Create) process.
+          nullable: true
+        original_name:
+          type: string
+          description: The original name of the file that may be shown in the UI.
+          nullable: true
+      additionalProperties: false
+      description: "An object with attachment file name information, including the reference name for the attachment’s temporary storage location. and the original file name. The file's reference information is produced using the upload process that begins with the Attachment (Create) endpoint. See also Creating physical attachments.\r\nThis field is in Preview."
+    PaymentPlanBase:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The id of The id of the payment planthe payment plan
+          format: int32
+          nullable: true
+        name:
+          type: string
+          description: The name of the payment plan
+          nullable: true
+        number_of_payments:
+          type: integer
+          description: The number of payments for the plan
+          format: int32
+          nullable: true
+        is_inactive:
+          type: boolean
+          description: True if payment plan is inactive
+          nullable: true
+        insurance_required:
+          type: boolean
+          description: True if tuition insurance is required for the payment plan
+          nullable: true
+      additionalProperties: false
+      description: 'An object with payment plan information, including ID, name and number of payments.'
+    PersonInquiringInfo:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the person inquiring
+          nullable: true
+        relationship_type:
+          type: string
+          description: The ID or description of the relationship type of the person inquiring
+          nullable: true
+      additionalProperties: false
+      description: An object with information on the person inquiring
+    PersonInquiringRead:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the person inquiring
+          nullable: true
+        relationship_type:
+          $ref: '#/components/schemas/TableValueBase'
+      additionalProperties: false
+      description: An object with information on the person inquiring
+    Reapply:
+      type: object
+      properties:
+        has_previously_applied:
+          type: boolean
+          description: True if the candidate has previously applied
+          nullable: true
+        school_comment:
+          type: string
+          description: The school’s comment
+          nullable: true
+        candidate_comment:
+          type: string
+          description: The candidate’s comment
+          nullable: true
+      additionalProperties: false
+      description: An object with candidate reapply information
+    Referral:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the referral table value
+          format: int32
+          nullable: true
+        description:
+          type: string
+          description: The description of the referral
+          nullable: true
+        comment:
+          type: string
+          description: The comment for the referral
+          nullable: true
+      additionalProperties: false
+      description: An object with candidate referral information
+    Relationship:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the user relationship
+          format: int32
+          nullable: true
+        type:
+          type: string
+          description: The relationship type
+          nullable: true
+        user:
+          $ref: '#/components/schemas/UserBaseRead'
+      additionalProperties: false
+      description: User relationship information
+    SchoolDecision:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the school�s decision for the candidate
+          format: int32
+          nullable: true
+        decision:
+          $ref: '#/components/schemas/Decision'
+        date:
+          type: string
+          description: The date of the school decision
+          format: date-time
+          nullable: true
+        publish_date:
+          type: string
+          description: The publish date of the school decision
+          format: date-time
+          nullable: true
+        expire_date:
+          type: string
+          description: The expiry date of the school decision
+          format: date-time
+          nullable: true
+        comment:
+          type: string
+          description: The comment on the school�s decision
+          nullable: true
+        candidate_response:
+          $ref: '#/components/schemas/CandidateResponse'
+      additionalProperties: false
+      description: An object with candidate school decision information
+    SchoolInformation:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the school
+          format: int32
+          nullable: true
+        name:
+          type: string
+          description: The name of the school
+          nullable: true
+      additionalProperties: false
+      description: School informatoin
+    SendingSchool:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The id of the candidate�s sending school
+          format: int32
+          nullable: true
+        school:
+          $ref: '#/components/schemas/SchoolInformation'
+        type:
+          $ref: '#/components/schemas/TableValueBase'
+        grade_level:
+          $ref: '#/components/schemas/TableValue'
+        date_from:
+          type: string
+          description: The date the candidate started at the school
+          format: date-time
+          nullable: true
+        date_to:
+          type: string
+          description: The date the candidate left the school
+          format: date-time
+          nullable: true
+      additionalProperties: false
+      description: Candidate sending school information
+    SkippedGrade:
+      type: object
+      properties:
+        has_skipped_grade:
+          type: boolean
+          description: True if the candidate has skipped a grade
+          nullable: true
+        school_comment:
+          type: string
+          description: The school’s comment
+          nullable: true
+        candidate_comment:
+          type: string
+          description: The candidate’s comment
+          nullable: true
+      additionalProperties: false
+      description: An object with candidate skipped grade information
+    SpecialConcerns:
+      type: object
+      properties:
+        has_special_concerns:
+          type: boolean
+          description: True if the candidate has special concerns
+          nullable: true
+        school_comment:
+          type: string
+          description: The school’s comment
+          nullable: true
+        candidate_comment:
+          type: string
+          description: The candidate’s comment
+          nullable: true
+      additionalProperties: false
+      description: An object with candidate special concern information
+    Status:
+      type: object
+      properties:
+        date:
+          type: string
+          description: The date changed of the current admissions status
+          format: date-time
+          nullable: true
+        id:
+          type: integer
+          description: The ID of the admissions status
+          format: int32
+          nullable: true
+        description:
+          type: string
+          description: The description of the admissions status
+          nullable: true
+      additionalProperties: false
+      description: Admissions Status
+    StudentChecklist:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the student�s student checklist
+          format: int32
+          nullable: true
+        candidate:
+          $ref: '#/components/schemas/UserBaseRead'
+        type:
+          $ref: '#/components/schemas/StudentChecklistType'
+      additionalProperties: false
+      description: Student Checklist type
+    StudentChecklistStep:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the checklist step for the candidate
+          format: int32
+          nullable: true
+        type:
+          $ref: '#/components/schemas/StudentChecklistStepType'
+        status:
+          type: string
+          description: The student's status for this step.
+          nullable: true
+        date_completed:
+          type: string
+          description: The date the step was completed
+          format: date-time
+          nullable: true
+        file:
+          type: string
+          description: The file submitted for the step
+          nullable: true
+        comment:
+          type: string
+          description: The comment for the step
+          nullable: true
+      additionalProperties: false
+      description: Student checklist step
+    StudentChecklistStepType:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the checklist step
+          format: int32
+          nullable: true
+        name:
+          type: string
+          description: The name of the checklist step
+          nullable: true
+        type:
+          type: string
+          description: The type of the checklist step
+          nullable: true
+        description:
+          type: string
+          description: The description of the checklist step
+          nullable: true
+        due_date:
+          type: string
+          description: The date the checklist step is due by default
+          format: date-time
+          nullable: true
+        is_inactive:
+          type: boolean
+          description: True if checklist step is inactive
+          nullable: true
+        is_required:
+          type: boolean
+          description: True if checklist step is required
+          nullable: true
+        link:
+          type: string
+          description: The link of the checklist step
+          nullable: true
+        link_text:
+          type: string
+          description: The text for the link
+          nullable: true
+        file:
+          type: string
+          description: The file to publish for the checklist step
+          nullable: true
+      additionalProperties: false
+      description: Student Checklist type step
+    StudentChecklistStepUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          description: 'The student''s status for this step. Allowed values: Awaiting, Requested, Waived, Submitted, Completed, Hidden'
+          nullable: true
+        date_completed:
+          type: string
+          description: The date the step was completed
+          format: date-time
+          nullable: true
+        comment:
+          type: string
+          description: The comment for the step
+          nullable: true
+      additionalProperties: false
+      description: Student checklist step update model
+    StudentChecklistType:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the checklist
+          format: int32
+          nullable: true
+        name:
+          type: string
+          description: The name of the checklist
+          nullable: true
+        is_inactive:
+          type: boolean
+          description: True if checklist is inactive
+          nullable: true
+        is_archived:
+          type: boolean
+          description: True if checklist is archived
+          nullable: true
+        school_year:
+          $ref: '#/components/schemas/TableValueBase'
+      additionalProperties: false
+      description: Student Checklist type
+    StudentChecklistTypeWithSteps:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the checklist
+          format: int32
+          nullable: true
+        name:
+          type: string
+          description: The name of the checklist
+          nullable: true
+        is_inactive:
+          type: boolean
+          description: True if checklist is inactive
+          nullable: true
+        is_archived:
+          type: boolean
+          description: True if checklist is archived
+          nullable: true
+        school_year:
+          $ref: '#/components/schemas/TableValueBase'
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentChecklistStepType'
+          description: list of student checklist type step
+          nullable: true
+      additionalProperties: false
+      description: Student Checklist type with steps
+    StudentChecklistTypeWithStepsCollection:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: The number of items in the collection
+          format: int32
+          readOnly: true
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentChecklistTypeWithSteps'
+          description: The set of items included in the response. This may be a subset of the items in the collection
+          nullable: true
+      additionalProperties: false
+      description: A Collection
+    StudentChecklistsResponse:
+      type: object
+      properties:
+        checklist:
+          $ref: '#/components/schemas/StudentChecklist'
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentChecklistStep'
+          description: list of student checklist step
+          nullable: true
+      additionalProperties: false
+      description: Student Checklist with steps
+    TableValue:
+      type: object
+      properties:
+        abbreviation:
+          type: string
+          description: The abbreviation of the table value
+          nullable: true
+        id:
+          type: integer
+          description: The ID of the table value
+          format: int32
+          nullable: true
+        description:
+          type: string
+          description: The description of the table value
+          nullable: true
+      additionalProperties: false
+      description: 'Table value model. Used for table entry fields (i.e. dropdown controls) to provide both ID and Description information for the selected value. General system tables can be retrieved by School API endpoints: GET Types table types and GET Types table values.'
+    TableValueBase:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the table value
+          format: int32
+          nullable: true
+        description:
+          type: string
+          description: The description of the table value
+          nullable: true
+      additionalProperties: false
+      description: 'Table value base model. Used for table entry fields (i.e. dropdown controls) to provide both ID and Description information for the selected value. General system tables can be retrieved by School API endpoints: GET Types table types and GET Types table values.'
+    Tutoring:
+      type: object
+      properties:
+        requires_tutoring:
+          type: boolean
+          description: True if the candidate requires tutoring
+          nullable: true
+        reason:
+          type: string
+          description: The reason the candidate requires tutoring
+          nullable: true
+      additionalProperties: false
+      description: An object with candidate tutoring information
+    UserAddress:
+      type: object
+      properties:
+        addressline1:
+          type: string
+          description: The first line of the address.
+          nullable: true
+        addressline2:
+          type: string
+          description: The second line of the address.
+          nullable: true
+        addressline3:
+          type: string
+          description: The third line of the address.
+          nullable: true
+        city:
+          type: string
+          description: The city of the address.
+          nullable: true
+        state:
+          type: string
+          description: The state of the address.
+          nullable: true
+        province:
+          type: string
+          description: The province of the address.
+          nullable: true
+        zipcode:
+          type: string
+          description: The zipcode of the address.
+          nullable: true
+        region:
+          type: string
+          description: The region of the address.
+          nullable: true
+        country:
+          type: string
+          description: The country of the address.
+          nullable: true
+      additionalProperties: false
+      description: 'Represents an address with multiple lines, city, state, province, zipcode, region, and country.'
+    UserBaseRead:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The user ID of the user
+          format: int32
+          nullable: true
+        prefix:
+          type: string
+          description: The prefix of the user
+          nullable: true
+        first_name:
+          type: string
+          description: The first name of the user
+          nullable: true
+        middle_name:
+          type: string
+          description: The middle name of the user
+          nullable: true
+        last_name:
+          type: string
+          description: The last name of the user
+          nullable: true
+        suffix:
+          type: string
+          description: The suffix of the user
+          nullable: true
+        preferred_name:
+          type: string
+          description: The preferred first name of the user
+          nullable: true
+        preferred_last_name:
+          type: string
+          description: The preferred last name of the user
+          nullable: true
+        maiden_name:
+          type: string
+          description: The former or maiden name of the user
+          nullable: true
+        email:
+          type: string
+          description: The email of the user
+          nullable: true
+      additionalProperties: false
+      description: User base model
+    UserContractRead:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the user’s contract
+          format: int32
+          nullable: true
+        user:
+          $ref: '#/components/schemas/UserBaseRead'
+        contract:
+          $ref: '#/components/schemas/ContractBase'
+        date_generated:
+          type: string
+          description: The date the contract was generated
+          format: date-time
+          nullable: true
+        due_date:
+          type: string
+          description: The date the contract was generated
+          format: date-time
+          nullable: true
+        date_sent:
+          type: string
+          description: The date the contract was sent to signers
+          format: date-time
+          nullable: true
+        date_returned:
+          type: string
+          description: The date the contract was returned from signers
+          format: date-time
+          nullable: true
+        date_processed:
+          type: string
+          description: The date the contract was processed
+          format: date-time
+          nullable: true
+        tuition:
+          type: number
+          description: The tuition amount expected to be paid
+          format: float
+          nullable: true
+        tuition_insurance:
+          type: boolean
+          description: True if tuition insurance is desired
+          nullable: true
+        deposits:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContractDeposit'
+          description: An array of contract deposits
+          nullable: true
+        fees:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContractFee'
+          description: An array of contract fees
+          nullable: true
+        signers:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContractSigner'
+          description: An array of contract signers
+          nullable: true
+        hold:
+          $ref: '#/components/schemas/ContractHold'
+        not_returning:
+          $ref: '#/components/schemas/ContractNotReturning'
+        special_text:
+          type: string
+          description: The special contract text
+          nullable: true
+        comment:
+          type: string
+          description: The contract comments
+          nullable: true
+        attachment:
+          type: string
+          description: The URL for the contract’s file attachemnt
+          nullable: true
+        status:
+          type: string
+          description: The status of the user’s contract
+          nullable: true
+        financial_aid_awards:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContractFinancialAid'
+          description: An array of financial aid awards
+          nullable: true
+        selected_payment_plans:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContractPaymentPlan'
+          description: An array of contract payment plans
+          nullable: true
+      additionalProperties: false
+      description: 'An object with information about a candidate or student’s contract, including user information, contract details, tuition, fees, dates and signers.'
+    UserContractReadCollection:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: The number of items in the collection
+          format: int32
+          readOnly: true
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserContractRead'
+          description: The set of items included in the response. This may be a subset of the items in the collection
+          nullable: true
+      additionalProperties: false
+      description: A Collection
+    UserLanguage:
+      type: object
+      properties:
+        language:
+          type: string
+          description: The language id or description
+          nullable: true
+      additionalProperties: false
+      description: User language model
+    Withdrawn:
+      type: object
+      properties:
+        has_withdrawn:
+          type: boolean
+          description: True if the candidate has withdrawn
+          nullable: true
+        school_comment:
+          type: string
+          description: The school’s comment
+          nullable: true
+        candidate_comment:
+          type: string
+          description: The candidate’s comment
+          nullable: true
+      additionalProperties: false
+      description: An object with candidate withdrawal information
+  securitySchemes:
+    apiKeyHeader:
+      type: apiKey
+      name: Bb-Api-Subscription-Key
+      in: header
+    apiKeyQuery:
+      type: apiKey
+      name: subscription-key
+      in: query
+security:
+  - apiKeyHeader: [ ]
+  - apiKeyQuery: [ ]
