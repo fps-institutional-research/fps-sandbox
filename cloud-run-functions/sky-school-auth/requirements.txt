@@ -1,3 +1,0 @@
-requests>=2.32.4
-google-cloud-secret-manager>=2.16.0
-functions-framework>=3.0.0
