@@ -6,9 +6,9 @@ import time
 from google.cloud import secretmanager
 
 # Configuration
-GCP_PROJECT_ID = "amazing-hub-484421-v9"
-ACCESS_TOKEN_SECRET_ID = "blackbaud-api-access-token"
-SUBSCRIPTION_KEY_SECRET_ID = "blackbaud-api-subscription-key"
+GCP_PROJECT_ID = "institutional-sandbox"
+BLACKBAUD_SKY_ACCESS_TOKEN = "blackbaud-sky-access-token"
+BLACKBAUD_SKY_SUBSCRIPTION_KEY = "blackbaud-sky-subscription-key"
 
 def access_secret_version(secret_id, version_id="latest"):
     """
@@ -41,11 +41,11 @@ def get_with_retry(url, headers):
         response.raise_for_status()
         return response
 
-def get_institutional_research_lists(headers):
+def get_list_of_advanced_lists(headers, category="Academics"):
     """
     Fetches all lists and filters for those in the named category.
     """
-    print("Fetching list of all available lists...")
+    print(f"Fetching list of all available lists for category: {category}...")
     url = "https://api.sky.blackbaud.com/school/v1/lists"
     response = get_with_retry(url, headers)
     data = response.json()
@@ -54,18 +54,17 @@ def get_institutional_research_lists(headers):
     all_lists = data.get("value", data) if isinstance(data, dict) else data
     
     # Filtering for category
-    category = "Institutional Research - Test"
     ir_lists = []
     for l in all_lists:
         l_category = l.get("category_name", l.get("category", ""))
-        if l_category == category:
+        if l_category == category or l_category == f"Institutional Research - {category}" or l_category.strip().lower() == category.strip().lower():
             ir_lists.append(l)
             #print(l.get("id"))
     
     print(f"Found {len(ir_lists)} list(s) in '{category}' category.")
     return ir_lists
 
-def export_list(list_id, list_name, headers):
+def export_list(list_id, list_name, headers, category="Academics"):
     """
     Fetches a single advanced list with pagination and saves to Desktop.
     """
@@ -107,10 +106,12 @@ def export_list(list_id, list_name, headers):
 
     # Export data to Desktop in CSV
     # Clean list name for filename
-    clean_name = "".join([c if c.isalnum() else "_" for c in list_name])
-    #desktop_path = os.path.expanduser(f"~/Desktop/Data/Advanced Lists/Academic/{list_id}_{clean_name}.csv")
-    desktop_path = os.path.expanduser(f"~/Desktop/Data/Advanced Lists/academic/{clean_name}.csv")
-    
+    # clean_name = "".join([c if c.isalnum() else "_" for c in list_name])
+    # category_folder = "".join([c if c.isalnum() else "_" for c in category.lower()])
+    # desktop_path = os.path.expanduser(f"~/Desktop/Data/Advanced Lists/{category_folder}/{clean_name}.csv")
+    desktop_path = os.path.expanduser(f"~/Desktop/Data/Advanced Lists/{category}/{list_name}.csv")
+
+
     print(f"  Exporting {len(all_rows)} rows to {desktop_path}...")
     fieldnames = list({key: None for row in all_rows for key in row.keys()}.keys())
     
@@ -124,8 +125,8 @@ def export_list(list_id, list_name, headers):
 def main():
     # 1. Fetch Credentials
     print("Fetching credentials...")
-    access_token = access_secret_version(ACCESS_TOKEN_SECRET_ID)
-    subscription_key = access_secret_version(SUBSCRIPTION_KEY_SECRET_ID)
+    access_token = access_secret_version(BLACKBAUD_SKY_ACCESS_TOKEN)
+    subscription_key = access_secret_version(BLACKBAUD_SKY_SUBSCRIPTION_KEY)
     
     if not access_token or not subscription_key:
         print("FAILED: Missing credentials.")
@@ -137,17 +138,24 @@ def main():
         "Content-Type": "application/json"
     }
 
-    # 2. Get list of Institutional Research IDs
-    ir_lists = get_institutional_research_lists(headers)
+    # 2. Categories to process
+    categories = [
+        "Institutional Research - School",
+        "Institutional Research - Platform"
+    ]
     
-    # OPTIONAL: Filter for a single list ID (uncomment the line below to use)
-    #ir_lists = [l for l in ir_lists if str(l.get("id")) == "152690"]
-    
-    # 3. Iterate and Export
-    for l in ir_lists:
-        list_id = l.get("id")
-        list_name = l.get("name", f"list_{list_id}")
-        export_list(list_id, list_name, headers)
+    # 3. Iterate through categories and export lists
+    for category in categories:
+        print(f"\n==========================================")
+        print(f"Processing Category: {category}")
+        print(f"==========================================")
+        list_of_advanced_lists = get_list_of_advanced_lists(headers, category=category)
+        
+        # OPTIONAL: Filter for a single list ID (uncomment the line below to use)
+        # list_of_advanced_lists = [l for l in list_of_advanced_lists if str(l.get("id")) == "152690"]
+        
+        for advanced_list in list_of_advanced_lists:
+            export_list(advanced_list.get("id"), advanced_list.get("name", f"list_{advanced_list.get('id')}"), headers, category=category)
 
     print("\nAll tasks completed.")
 
