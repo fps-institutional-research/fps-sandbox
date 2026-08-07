@@ -3,10 +3,13 @@ import json
 import csv
 import os
 import time
+import io
 from google.cloud import secretmanager
+from google.cloud import storage
 
 # Configuration
 GCP_PROJECT_ID = "institutional-sandbox"
+GCS_STAGING_BUCKET = "495616-bemdam-staging-sandbox"
 BLACKBAUD_SKY_ACCESS_TOKEN = "blackbaud-sky-access-token"
 BLACKBAUD_SKY_SUBSCRIPTION_KEY = "blackbaud-sky-subscription-key"
 
@@ -104,23 +107,34 @@ def export_list(list_id, list_name, headers, category="Academics"):
         print(f"  No data found for list {list_id}. Skipping export.")
         return
 
-    # Export data to Desktop in CSV
-    # Clean list name for filename
-    # clean_name = "".join([c if c.isalnum() else "_" for c in list_name])
-    # category_folder = "".join([c if c.isalnum() else "_" for c in category.lower()])
-    # desktop_path = os.path.expanduser(f"~/Desktop/Data/Advanced Lists/{category_folder}/{clean_name}.csv")
-    desktop_path = os.path.expanduser(f"~/Desktop/Data/Advanced Lists/{category}/{list_name}.csv")
-
-
-    print(f"  Exporting {len(all_rows)} rows to {desktop_path}...")
+    # 1. Generate CSV content
     fieldnames = list({key: None for row in all_rows for key in row.keys()}.keys())
-    
+    output_buffer = io.StringIO()
+    writer = csv.DictWriter(output_buffer, fieldnames=fieldnames)
+    writer.writeheader()
+    writer.writerows(all_rows)
+    csv_text = output_buffer.getvalue()
+
+    # 2. Export data to Desktop in CSV
+    desktop_path = os.path.expanduser(f"~/Desktop/Data/Advanced Lists/{category}/{list_name}.csv")
+    print(f"  Exporting {len(all_rows)} rows to Desktop: {desktop_path}...")
     os.makedirs(os.path.dirname(desktop_path), exist_ok=True)
-    with open(desktop_path, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(all_rows)
-    print(f"  Successfully exported {list_name}.")
+    with open(desktop_path, "w", encoding="utf-8") as f:
+        f.write(csv_text)
+    print(f"  Successfully exported to Desktop.")
+
+    # 3. Publish CSV to Google Cloud Storage
+    clean_category = category.replace("Institutional Research - ", "").strip().lower()
+    gcs_blob_path = f"{clean_category}/{list_name.lower()}.csv"
+    print(f"  Publishing to GCS (gs://{GCS_STAGING_BUCKET}/{gcs_blob_path})...")
+    try:
+        storage_client = storage.Client(project=GCP_PROJECT_ID)
+        bucket = storage_client.bucket(GCS_STAGING_BUCKET)
+        blob = bucket.blob(gcs_blob_path)
+        blob.upload_from_string(data=csv_text, content_type="text/csv")
+        print(f"  Successfully published to GCS.")
+    except Exception as e:
+        print(f"  Error uploading to GCS: {e}")
 
 def main():
     # 1. Fetch Credentials
@@ -140,20 +154,16 @@ def main():
 
     # 2. Categories to process
     categories = [
-        "Institutional Research - School",
-        "Institutional Research - Platform"
+        "Institutional Research - School"
+        ,"Institutional Research - Platform"
     ]
     
     # 3. Iterate through categories and export lists
     for category in categories:
-        print(f"\n==========================================")
+        print(f"\n====================")
         print(f"Processing Category: {category}")
-        print(f"==========================================")
+        print(f"====================")
         list_of_advanced_lists = get_list_of_advanced_lists(headers, category=category)
-        
-        # OPTIONAL: Filter for a single list ID (uncomment the line below to use)
-        # list_of_advanced_lists = [l for l in list_of_advanced_lists if str(l.get("id")) == "152690"]
-        
         for advanced_list in list_of_advanced_lists:
             export_list(advanced_list.get("id"), advanced_list.get("name", f"list_{advanced_list.get('id')}"), headers, category=category)
 
