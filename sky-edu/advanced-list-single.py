@@ -2,14 +2,16 @@
 
 import requests
 import json
+import csv
 import os
 import time
 from google.cloud import secretmanager
 
 # Configuration
-GCP_PROJECT_ID = "amazing-hub-484421-v9"
-ACCESS_TOKEN_SECRET_ID = "blackbaud-api-access-token"
-SUBSCRIPTION_KEY_SECRET_ID = "blackbaud-api-subscription-key"
+GCP_PROJECT_ID = "institutional-sandbox"
+BLACKBAUD_SKY_ACCESS_TOKEN = "blackbaud-sky-access-token"
+BLACKBAUD_SKY_SUBSCRIPTION_KEY = "blackbaud-sky-subscription-key"
+LIST_ID = "155155"
 
 def access_secret_version(secret_id, version_id="latest"):
     """
@@ -17,7 +19,7 @@ def access_secret_version(secret_id, version_id="latest"):
     """
     try:
         client = secretmanager.SecretManagerServiceClient()
-        name = f"projects/{GCP_PROJECT_ID}/secrets/{secret_id}/versions/{version_id}"
+        name = client.secret_version_path(GCP_PROJECT_ID, secret_id, version_id)
         response = client.access_secret_version(request={"name": name})
         return response.payload.data.decode("UTF-8")
     except Exception as e:
@@ -45,8 +47,8 @@ def get_with_retry(url, headers):
 def export_advanced_list():
     # 1. Fetch Credentials
     print("Fetching credentials...")
-    access_token = access_secret_version(ACCESS_TOKEN_SECRET_ID)
-    subscription_key = access_secret_version(SUBSCRIPTION_KEY_SECRET_ID)
+    access_token = access_secret_version(BLACKBAUD_SKY_ACCESS_TOKEN)
+    subscription_key = access_secret_version(BLACKBAUD_SKY_SUBSCRIPTION_KEY)
     
     if not access_token or not subscription_key:
         print("FAILED: Missing credentials.")
@@ -59,10 +61,10 @@ def export_advanced_list():
     }
 
     # 2. Fetch the advanced list with pagination
-    list_id = "152656"
-    print(f"Fetching advanced list (List ID: {list_id})...")
+    
+    print(f"Fetching advanced list (List ID: {LIST_ID})...")
 
-    base_url = f"https://api.sky.blackbaud.com/school/v1/lists/advanced/{list_id}"
+    base_url = f"https://api.sky.blackbaud.com/school/v1/lists/advanced/{LIST_ID}"
     all_rows = []
     page = 1
 
@@ -88,14 +90,18 @@ def export_advanced_list():
 
         page += 1
 
-    print(f"Total rows fetched: {len(all_rows)}")
+    if not all_rows:
+        print(f"No data found for list {LIST_ID}. Skipping export.")
+        return
 
-    # 3. Export data to Desktop in NDJSON
-    desktop_path = os.path.expanduser(f"~/Desktop/advanced_list_{list_id}.ndjson")
+    # 3. Export data to Desktop in CSV
+    desktop_path = os.path.expanduser(f"~/Desktop/advanced_list_{LIST_ID}.csv")
     print(f"Exporting data to {desktop_path}...")
-    with open(desktop_path, "w", encoding="utf-8") as f:
-        for row in all_rows:
-            f.write(json.dumps(row) + "\n")
+    fieldnames = list({key: None for row in all_rows for key in row.keys()}.keys())
+    with open(desktop_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(all_rows)
     print(f"Successfully exported {len(all_rows)} rows.")
 
 if __name__ == "__main__":
