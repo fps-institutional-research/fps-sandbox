@@ -1,3 +1,9 @@
+"""
+This program downloads a specific Advanced List from the Blackbaud SKY API.
+It downloads the list sequentially, one page at a time.
+There is no resource contention, but the script takes a long time to run.
+"""
+
 import requests
 import json
 import csv

@@ -1,9 +1,21 @@
+"""
+This program downloads a specific Advanced List from the Blackbaud SKY API.
+It uses speculative pagination to download the list in parallel.
+Unfortunately, the database timeout is only 1 minute, so resource contention
+will likely occur when downloading large lists ( > 1000 rows).
+
+DO NOT USE.
+"""
+
 import requests
 import json
 import csv
 import os
 import time
 import io
+import threading
+import concurrent.futures
+from collections import deque
 from google.cloud import secretmanager
 from google.cloud import storage
 
@@ -16,15 +28,51 @@ GCP_PROJECT_ID = "institutional-sandbox"
 GCS_STAGING_BUCKET = "495616-bemdam-staging-sandbox"
 BLACKBAUD_SKY_ACCESS_TOKEN = "blackbaud-sky-access-token"
 BLACKBAUD_SKY_SUBSCRIPTION_KEY = "blackbaud-sky-subscription-key"
-LIST_ID = 155596
-#155716 # vw_da_enrollment_grade_2026 - 13s per 1000 records
-#155665 # vw_da_gradebook_assignment_grade_2026
+LIST_ID = 155665
+MAX_CALLS_PER_SECOND = 9
 
 # Terminal text colors
 RED = '\033[31m'
 GREEN = '\033[32m'
 YELLOW = '\033[33m'
 RESET = '\033[0m'  # Crucial to reset color back to default
+
+# ------------------------
+# --- Rate Limiter -------
+# ------------------------
+class RateLimiter:
+    """
+    Thread-safe rate limiter enforcing max_calls within period_seconds across all threads.
+    Uses timestamp reservation so threads sleep independently without holding the lock.
+    """
+    def __init__(self, max_calls=9, period_seconds=1.0):
+        self.max_calls = max_calls
+        self.period_seconds = period_seconds
+        self.lock = threading.Lock()
+        self.timestamps = deque()
+
+    def wait(self):
+        with self.lock:
+            now = time.time()
+            # Remove timestamps outside the rolling window relative to now
+            while self.timestamps and now - self.timestamps[0] >= self.period_seconds:
+                self.timestamps.popleft()
+
+            if len(self.timestamps) >= self.max_calls:
+                scheduled = max(now, self.timestamps[-self.max_calls] + self.period_seconds)
+            else:
+                scheduled = now
+
+            sleep_time = scheduled - now
+            self.timestamps.append(scheduled)
+
+        if sleep_time > 0:
+            time.sleep(sleep_time)
+
+
+# Global rate limiter instance
+rate_limiter = RateLimiter(max_calls=MAX_CALLS_PER_SECOND, period_seconds=1.0)
+AUTH_LOCK = threading.Lock()
 
 # ------------------------
 # --- Helper Functions ---
@@ -60,34 +108,62 @@ def authenticate():
     }
     return headers
 
-def get_with_retry(url, headers):
+
+def get_with_retry(url, headers, max_retries=3, timeout=59, report_name="", category=""):
     """
-    Performs a GET request with retry logic for:
+    Performs a GET request with rate limiting and retry logic for:
       - 429 Too Many Requests: waits Retry-After seconds and retries.
-      - 401 Unauthorized: re-authenticates (token may have expired) and retries once.
+      - 401 Unauthorized: re-authenticates safely using AUTH_LOCK.
+      - 5xx Server Errors & Timeouts: retries up to max_retries with backoff.
     """
+    thread_name = threading.current_thread().name
+    cat_label = category.replace("Institutional Research - ", "").strip() if category else ""
+    cat_tag = f" [{cat_label}]" if cat_label else ""
+    rep_tag = f" '{report_name}'" if report_name else ""
+    prefix = f"[{thread_name}]{cat_tag}{rep_tag}"
     auth_retried = False
+    retries = 0
     while True:
-        response = requests.get(url, headers=headers)
+        rate_limiter.wait()
+        try:
+            response = requests.get(url, headers=headers, timeout=timeout)
+        except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as e:
+            retries += 1
+            if retries <= max_retries:
+                wait_sec = retries * 5
+                print(f"{YELLOW}{prefix} get_with_retry - Connection/Timeout error ({e}). Retrying ({retries}/{max_retries}) in {wait_sec}s...{RESET}")
+                time.sleep(wait_sec)
+                continue
+            else:
+                raise
 
         if response.status_code == 429:
             retry_after = int(response.headers.get("Retry-After", 5))
-            print(f"{YELLOW}\t get_with_retry - Rate limited (429). Waiting {retry_after}s...{RESET}")
+            print(f"{YELLOW}{prefix} get_with_retry - Rate limited (429). Waiting {retry_after}s...{RESET}")
             time.sleep(retry_after)
             continue
 
         if response.status_code == 401 and not auth_retried:
-            print(f"{YELLOW}\t get_with_retry - Unauthorized (401). Token may have expired — re-authenticating...{RESET}")
-            new_headers = authenticate()
-            if new_headers:
-                headers.update(new_headers)  # mutate in-place so callers see the refresh
-                auth_retried = True
+            print(f"{YELLOW}{prefix} get_with_retry - Unauthorized (401). Re-authenticating across threads...{RESET}")
+            with AUTH_LOCK:
+                new_headers = authenticate()
+                if new_headers:
+                    headers.update(new_headers)
+                    auth_retried = True
+                    continue
+                else:
+                    print(f"{RED}{prefix} get_with_retry - Re-authentication failed. Aborting request.{RESET}")
+
+        if response.status_code >= 500:
+            retries += 1
+            if retries <= max_retries:
+                wait_sec = retries * 5
+                print(f"{YELLOW}{prefix} get_with_retry - Server Error {response.status_code} ({response.text[:100]}). Retrying ({retries}/{max_retries}) in {wait_sec}s...{RESET}")
+                time.sleep(wait_sec)
                 continue
-            else:
-                print(f"{RED}\t get_with_retry - Re-authentication failed. Aborting request.{RESET}")
 
         if not response.ok:
-            print(f"{RED}\t get_with_retry - Error {response.status_code}: {response.text}{RESET}")
+            print(f"{RED}{prefix} get_with_retry - Error {response.status_code}: {response.text}{RESET}")
 
         response.raise_for_status()
         return response
@@ -113,46 +189,76 @@ def get_list_of_advanced_lists(headers, category="Academics"):
         l_category = l.get("category_name", l.get("category", ""))
         if l_category == category or l_category == f"Institutional Research - {category}" or l_category.strip().lower() == category.strip().lower():
             ir_lists.append(l)
-            #print(l.get("id"))
     
     print(f"\t get_list_of_advanced_lists - Found {len(ir_lists)} list(s) in '{category}'")
     return ir_lists
 
+def _fetch_page(page, base_url, headers):
+    """Worker function to fetch a single page of an advanced list."""
+    url = f"{base_url}?page={page}"
+    try:
+        response = get_with_retry(url, headers)
+        data = response.json()
+        rows = data.get("results", {}).get("rows", [])
+        count = data.get("count", 0)
+        flat_rows = [{col["name"]: col.get("value") for col in row.get("columns", [])} for row in rows]
+        return page, count, flat_rows
+    except Exception as e:
+        print(f"\t\t _fetch_page - Failed to fetch page {page}: {e}")
+        return page, 0, []
+
 def export_list(list_id, list_name, headers, category="Academics"):
     """
-    Fetches a single advanced list with pagination and exports to destination.
+    Fetches a single advanced list with threaded pagination and exports to destination.
     """
     print(f"\n\t\t export_list - Processing List: {list_name} (ID: {list_id})")
 
     base_url = f"https://api.sky.blackbaud.com/school/v1/lists/advanced/{list_id}"
-    all_rows = []
+    page_results = {}
+    
+    # We will speculatively fetch up to MAX_WORKERS pages at a time
+    MAX_WORKERS = 5
     page = 1
+    eof_reached = False
 
-    while True:
-        url = f"{base_url}?page={page}"
-        print(f"\t\t export_list - Fetching page {page}...")
-        try:
-            response = get_with_retry(url, headers)
-            data = response.json()
-        except Exception as e:
-            print(f"\t\t export_list - Failed to fetch page {page}: {e}")
-            break
+    print(f"\t\t export_list - Starting speculative pagination with {MAX_WORKERS} workers...")
+    with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+        futures = {}
+        
+        # Dispatch initial batch of pages
+        for _ in range(MAX_WORKERS):
+            futures[executor.submit(_fetch_page, page, base_url, headers)] = page
+            page += 1
+            
+        while futures:
+            # Wait for the first future(s) to complete
+            done, _ = concurrent.futures.wait(futures.keys(), return_when=concurrent.futures.FIRST_COMPLETED)
+            
+            for future in done:
+                p_returned = futures.pop(future)
+                try:
+                    p, count, flat_rows = future.result()
+                    page_results[p] = flat_rows
+                    print(f"\t\t export_list - Page {p}: {count} record(s) returned")
+                    
+                    # If a page returns less than 1000 items, we know it's the last valid page
+                    if count < 1000:
+                        eof_reached = True
+                except Exception as e:
+                    print(f"\t\t export_list - Error processing future for page {p_returned}: {e}")
+                    eof_reached = True
+                
+                # If we haven't hit the end of the list, dispatch the next page
+                if not eof_reached:
+                    futures[executor.submit(_fetch_page, page, base_url, headers)] = page
+                    page += 1
 
-        # Response shape: {"count": N, "page": N, "results": {"rows": [...]}}
-        rows = data.get("results", {}).get("rows", [])
-        count = data.get("count", 0)
-
-        # Flatten each row's columns list [{"name":..., "value":...}] into a plain dict
-        flat_rows = [{col["name"]: col.get("value") for col in row.get("columns", [])} for row in rows]
-        all_rows.extend(flat_rows)
-
-        print(f"\t\t export_list - Page {page}: {count} record(s) returned (running total: {len(all_rows)})")
-
-        # Stop when the page returns no records or fewer than a full page
-        if count == 0 or not rows or count < 1000:
-            break
-
-        page += 1
+    # Reassemble pages in order
+    all_rows = []
+    for p in sorted(page_results.keys()):
+        all_rows.extend(page_results[p])
+        
+    print(f"\t\t export_list - Finished pagination. Total records fetched: {len(all_rows)}")
 
     if not all_rows:
         print(f"\t\t export_list - No data found for list {list_id}. Skipping export.")
@@ -165,16 +271,7 @@ def export_list(list_id, list_name, headers, category="Academics"):
     writer.writeheader()
     writer.writerows(all_rows)
     csv_text = output_buffer.getvalue()
-
-    # 2. Export data to Desktop in CSV
-    # desktop_path = os.path.expanduser(f"~/Desktop/Data/{category}/{list_name}.csv")
-    # print(f"\tExporting {len(all_rows)} rows to Desktop: {desktop_path}...")
-    # os.makedirs(os.path.dirname(desktop_path), exist_ok=True)
-    # with open(desktop_path, "w", encoding="utf-8") as f:
-    #     f.write(csv_text)
-    # print(f"\tSuccessfully exported to Desktop.")
-
-    # 3. Publish CSV to Google Cloud Storage
+    # 2. Publish CSV to Google Cloud Storage
     clean_category = category.replace("Institutional Research - ", "").strip().lower()
     gcs_blob_path = f"{clean_category}/{list_name.lower()}.csv"
     print(f"\t\t export_list - Publishing to GCS... (gs://{GCS_STAGING_BUCKET}/{gcs_blob_path})")

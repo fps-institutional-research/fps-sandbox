@@ -1,3 +1,13 @@
+"""
+This program downloads all Advanced Lists from the Blackbaud SKY API for the "Institutional Research - " categories.
+It uses threading to download lists in parallel.
+It uses a rate limiter to ensure that we do not exceed the Blackbaud SKY API rate limit.
+It uses Google Cloud Storage to store the downloaded lists.
+
+Last Modified: 08/17/2026
+Author: Jacob Shwisberg
+"""
+
 import requests
 import json
 import csv
@@ -253,40 +263,29 @@ def export_list(list_id, list_name, headers, category="Academics"):
         bucket = storage_client.bucket(GCS_STAGING_BUCKET)
         blob = bucket.blob(gcs_blob_path)
         blob.upload_from_string(data=csv_text, content_type="text/csv")
-        print(f"{GREEN}{tag}\tPublished '{list_name}' ({len(all_rows)} rows across {page} pages) -> gs://{GCS_STAGING_BUCKET}/{gcs_blob_path}{RESET}")
+        print(f"{GREEN}{tag} Published '{list_name}' ({len(all_rows)} rows across {page} pages) -> gs://{GCS_STAGING_BUCKET}/{gcs_blob_path}{RESET}")
     except Exception as e:
-        print(f"{RED}{tag}\tError uploading '{list_name}' to GCS: {e}{RESET}")
+        print(f"{RED}{tag} Error uploading '{list_name}' to GCS: {e}{RESET}")
 
 # ----------------------
 # --- Orchestration ----
 # ----------------------
 
-def process_category(category, headers):
-    """
-    Worker function that fetches catalog and exports all lists within a single category sequentially.
-    """
-    thread_name = threading.current_thread().name
-    print(f"[{thread_name}] Fetching list catalog for '{category}'...")
-    
-    list_of_advanced_lists = get_list_of_advanced_lists(headers, category=category)
-    print(f"[{thread_name}] Discovered {len(list_of_advanced_lists)} list(s) in '{category}'. Exporting sequentially...")
-
-    for advanced_list in list_of_advanced_lists:
-        list_id = advanced_list.get("id")
-        list_name = advanced_list.get("name", f"list_{list_id}")
-        export_list(
-            list_id=list_id,
-            list_name=list_name,
-            headers=headers,
-            category=category
-        )
-
-    print(f"{GREEN}[{thread_name}] Category Completed: '{category}'{RESET}")
-
 def run_lists_pipeline(max_workers=MAX_WORKER_THREADS):
 
     # Categories to process
     categories = [
+         # "Institutional Research - Absence"
+        # ,"Institutional Research - Academic"
+        # ,"Institutional Research - Activity"
+        # ,"Institutional Research - Advisory"
+        # ,"Institutional Research - Assessment"
+        # ,"Institutional Research - Athletic"
+        # ,"Institutional Research - Comment"
+        # ,"Institutional Research - Community Group"
+        # ,"Institutional Research - Constituent"
+        # ,"Institutional Research - Employee"
+        # ,"Institutional Research - Grade Average"
         "Institutional Research - Gradebook"
         ,"Institutional Research - Grading"
         ,"Institutional Research - Graduation Class"
@@ -300,23 +299,48 @@ def run_lists_pipeline(max_workers=MAX_WORKER_THREADS):
     print(f"run_lists_pipeline - Fetching credentials...")
     headers = authenticate()
     if not headers:
-        print(f"{RED}\trun_lists_pipeline - Authentication failed. Exiting.{RESET}")
+        print(f"{RED}run_lists_pipeline - Authentication failed. Exiting.{RESET}")
         return
 
-    num_workers = min(max_workers, len(categories)) if max_workers else len(categories)
-    print(f"run_lists_pipeline - Launching pipeline for {len(categories)} categories using {num_workers} category worker threads...")
-    # Note: Categories run concurrently; reports run sequentially to avoid SQL table contention
+    # First, fetch all lists for all categories
+    all_lists_to_export = []
+    print("run_lists_pipeline - Fetching catalogs for all categories...")
+    for category in categories:
+        try:
+            lists = get_list_of_advanced_lists(headers, category=category)
+            for l in lists:
+                all_lists_to_export.append((l, category))
+            print(f"  - Discovered {len(lists)} list(s) in '{category}'")
+        except Exception as e:
+            print(f"{RED}run_lists_pipeline - Error fetching catalog for '{category}': {e}{RESET}")
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=num_workers) as executor:
-        futures = {executor.submit(process_category, category, headers): category for category in categories}
+    total_lists = len(all_lists_to_export)
+    if total_lists == 0:
+        print(f"{YELLOW}run_lists_pipeline - No lists found across any categories. Exiting.{RESET}")
+        return
+
+    print(f"run_lists_pipeline - Launching pipeline for {total_lists} total lists using up to {max_workers} worker threads...")
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {
+            executor.submit(
+                export_list,
+                list_id=l.get("id"),
+                list_name=l.get("name", f"list_{l.get('id')}"),
+                headers=headers,
+                category=category
+            ): (l, category) for l, category in all_lists_to_export
+        }
+        
         for future in concurrent.futures.as_completed(futures):
-            category = futures[future]
+            l, category = futures[future]
+            list_name = l.get("name", f"list_{l.get('id')}")
             try:
                 future.result()
             except Exception as e:
-                print(f"{RED}run_lists_pipeline - Error processing category '{category}': {e}{RESET}")
+                print(f"{RED}run_lists_pipeline - Error processing list '{list_name}' in category '{category}': {e}{RESET}")
 
-    print(f"{GREEN}run_lists_pipeline - All category pipelines completed successfully.{RESET}")
+    print(f"{GREEN}run_lists_pipeline - All pipelines completed successfully.{RESET}")
 
 def http_entry_point(request: object = None) -> tuple:
     try:
