@@ -287,7 +287,7 @@ def run_lists_pipeline(max_workers=MAX_WORKER_THREADS):
 
     # Categories to process
     categories = [
-         "Institutional Research - Absence"
+        "Institutional Research - Absence"
         ,"Institutional Research - Academic"
         ,"Institutional Research - Activity"
         ,"Institutional Research - Advisory"
@@ -297,14 +297,14 @@ def run_lists_pipeline(max_workers=MAX_WORKER_THREADS):
         ,"Institutional Research - Community Group"
         ,"Institutional Research - Constituent"
         ,"Institutional Research - Employee"
-        # ,"Institutional Research - Grade Average"
-        # ,"Institutional Research - Gradebook"
-        # ,"Institutional Research - Grading"
-        # ,"Institutional Research - Graduation Class"
-        # ,"Institutional Research - Honor Roll"
-        # ,"Institutional Research - Platform"
-        # ,"Institutional Research - Reportcard Definition"
-        # ,"Institutional Research - School"
+        ,"Institutional Research - Grade Average"
+        ,"Institutional Research - Gradebook"
+        ,"Institutional Research - Grading"
+        ,"Institutional Research - Graduation Class"
+        ,"Institutional Research - Honor Roll"
+        ,"Institutional Research - Platform"
+        ,"Institutional Research - Reportcard Definition"
+        ,"Institutional Research - School"
     ]
     
     # Fetch credentials only once as they are valid for 1 hour
