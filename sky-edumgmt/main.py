@@ -30,8 +30,10 @@ GCS_STAGING_BUCKET = "495616-bemdam-staging-sandbox"
 BLACKBAUD_SKY_ACCESS_TOKEN = "blackbaud-sky-access-token"
 BLACKBAUD_SKY_SUBSCRIPTION_KEY = "blackbaud-sky-subscription-key"
 
-# Set to True to force GCP Structured JSON logging when running locally
-USE_GCP_LOGGING = False
+# Logging mode configuration:
+# Set to True for GCP Structured JSON logging, False for standard console/stdout logging,
+# or None to auto-detect based on GCP runtime environment variables.
+USE_GCP_LOGGING = True
 
 # Concurrency & Rate Limiting Configuration
 # Blackbaud SKY API limit: 10 calls per second. 9 calls per second is a safe threshold.
@@ -47,19 +49,23 @@ logger = logging.getLogger(__name__)
 def setup_logging() -> None:
     """
     Initializes logging handler with Python's standard logging.
-    Uses human-readable StreamHandler when running locally in terminal (unless USE_GCP_LOGGING = True),
-    and StructuredLogHandler when deployed in Google Cloud.
+    If USE_GCP_LOGGING is explicitly set (True or False), respects that setting directly.
+    If USE_GCP_LOGGING is None, auto-detects GCP runtime environment (Cloud Run Services/Jobs, Cloud Functions, GAE).
     """
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.INFO)
     
-    is_gcp_runtime = any(env in os.environ for env in ["K_SERVICE", "FUNCTION_TARGET", "FUNCTION_NAME", "GAE_INSTANCE"])
-    is_gcp = USE_GCP_LOGGING or is_gcp_runtime
+    # Check for GCP runtime environments (including Cloud Run Jobs and Cloud Run Services)
+    gcp_env_vars = ["K_SERVICE", "CLOUD_RUN_JOB", "CLOUD_RUN_EXECUTION", "FUNCTION_TARGET", "FUNCTION_NAME", "GAE_INSTANCE"]
+    is_gcp_runtime = any(env in os.environ for env in gcp_env_vars)
+    
+    # Direct manual variable control if USE_GCP_LOGGING is explicitly set (True or False); fallback to auto-detection if None
+    is_gcp = USE_GCP_LOGGING if USE_GCP_LOGGING is not None else is_gcp_runtime
     
     root_logger.handlers.clear()
     
     if is_gcp:
-        root_logger.addHandler(StructuredLogHandler())
+        root_logger.addHandler(StructuredLogHandler(stream=sys.stdout))
     else:
         handler = logging.StreamHandler(sys.stdout)
         formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
