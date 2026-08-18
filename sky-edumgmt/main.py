@@ -33,7 +33,7 @@ BLACKBAUD_SKY_SUBSCRIPTION_KEY = "blackbaud-sky-subscription-key"
 # Logging mode configuration:
 # Set to True for GCP Structured JSON logging, False for standard console/stdout logging,
 # or None to auto-detect based on GCP runtime environment variables.
-USE_GCP_LOGGING = True
+USE_GCP_LOGGING = None
 
 # Concurrency & Rate Limiting Configuration
 # Blackbaud SKY API limit: 10 calls per second. 9 calls per second is a safe threshold.
