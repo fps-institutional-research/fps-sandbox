@@ -1,20 +1,24 @@
 """
 Queries the Blackabud SKY API for a list of advanced lists per category.
 Sequentially runs lists by category on threaded orchestration.
-Publishes to a GCS bucket.
+Publishes to a , also pushing to a GCS bucket.
 """
 
 import requests
 import json
 import csv
 import os
+import sys
 import time
 import io
 import threading
+import logging
 import concurrent.futures
 from collections import deque
 from google.cloud import secretmanager
 from google.cloud import storage
+import google.cloud.logging
+from google.cloud.logging.handlers import StructuredLogHandler
 
 # ---------------------
 # --- Configuration ---
@@ -26,6 +30,9 @@ GCS_STAGING_BUCKET = "495616-bemdam-staging-sandbox"
 BLACKBAUD_SKY_ACCESS_TOKEN = "blackbaud-sky-access-token"
 BLACKBAUD_SKY_SUBSCRIPTION_KEY = "blackbaud-sky-subscription-key"
 
+# Set to True to force GCP Structured JSON logging when running locally
+USE_GCP_LOGGING = False
+
 # Concurrency & Rate Limiting Configuration
 # Blackbaud SKY API limit: 10 calls per second. 9 calls per second is a safe threshold.
 MAX_CALLS_PER_SECOND = 9
@@ -34,11 +41,30 @@ MAX_WORKER_THREADS = 5
 # Threading Lock
 AUTH_LOCK = threading.Lock()
 
-# Terminal text colors
-RED = '\033[31m'
-GREEN = '\033[32m'
-YELLOW = '\033[33m'
-RESET = '\033[0m'  # Crucial to reset color back to default
+# Logger
+logger = logging.getLogger(__name__)
+
+def setup_logging() -> None:
+    """
+    Initializes logging handler with Python's standard logging.
+    Uses human-readable StreamHandler when running locally in terminal (unless USE_GCP_LOGGING = True),
+    and StructuredLogHandler when deployed in Google Cloud.
+    """
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.INFO)
+    
+    is_gcp_runtime = any(env in os.environ for env in ["K_SERVICE", "FUNCTION_TARGET", "FUNCTION_NAME", "GAE_INSTANCE"])
+    is_gcp = USE_GCP_LOGGING or is_gcp_runtime
+    
+    root_logger.handlers.clear()
+    
+    if is_gcp:
+        root_logger.addHandler(StructuredLogHandler())
+    else:
+        handler = logging.StreamHandler(sys.stdout)
+        formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+        handler.setFormatter(formatter)
+        root_logger.addHandler(handler)
 
 # ------------------------
 # --- Rate Limiter -------
@@ -90,7 +116,7 @@ def access_secret_version(secret_id, version_id="latest"):
         response = client.access_secret_version(request={"name": name})
         return response.payload.data.decode("UTF-8")
     except Exception as e:
-        print(f"{RED}Error accessing secret {secret_id}: {str(e)}{RESET}")
+        logger.error(f"Error accessing secret {secret_id}: {str(e)}")
         return None
 
 def authenticate():
@@ -101,7 +127,7 @@ def authenticate():
     subscription_key = access_secret_version(BLACKBAUD_SKY_SUBSCRIPTION_KEY)
 
     if not access_token or not subscription_key:
-        print(f"{RED}authenticate - FAILED: Missing credentials.{RESET}")
+        logger.error("authenticate - FAILED: Missing credentials.")
         return None
 
     headers = {
@@ -133,7 +159,7 @@ def get_with_retry(url, headers, max_retries=3, timeout=59, report_name="", cate
             retries += 1
             if retries <= max_retries:
                 wait_sec = retries * 5
-                print(f"{YELLOW}{prefix} get_with_retry - Connection/Timeout error ({e}). Retrying ({retries}/{max_retries}) in {wait_sec}s...{RESET}")
+                logger.warning(f"{prefix} get_with_retry - Connection/Timeout error ({e}). Retrying ({retries}/{max_retries}) in {wait_sec}s...")
                 time.sleep(wait_sec)
                 continue
             else:
@@ -141,12 +167,12 @@ def get_with_retry(url, headers, max_retries=3, timeout=59, report_name="", cate
 
         if response.status_code == 429:
             retry_after = int(response.headers.get("Retry-After", 5))
-            print(f"{YELLOW}{prefix} get_with_retry - Rate limited (429). Waiting {retry_after}s...{RESET}")
+            logger.warning(f"{prefix} get_with_retry - Rate limited (429). Waiting {retry_after}s...")
             time.sleep(retry_after)
             continue
 
         if response.status_code == 401 and not auth_retried:
-            print(f"{YELLOW}{prefix} get_with_retry - Unauthorized (401). Re-authenticating across threads...{RESET}")
+            logger.warning(f"{prefix} get_with_retry - Unauthorized (401). Re-authenticating across threads...")
             with AUTH_LOCK:
                 new_headers = authenticate()
                 if new_headers:
@@ -154,18 +180,18 @@ def get_with_retry(url, headers, max_retries=3, timeout=59, report_name="", cate
                     auth_retried = True
                     continue
                 else:
-                    print(f"{RED}{prefix} get_with_retry - Re-authentication failed. Aborting request.{RESET}")
+                    logger.error(f"{prefix} get_with_retry - Re-authentication failed. Aborting request.")
 
         if response.status_code >= 500:
             retries += 1
             if retries <= max_retries:
                 wait_sec = retries * 5
-                print(f"{YELLOW}{prefix} get_with_retry - Server Error {response.status_code} ({response.text[:100]}). Retrying ({retries}/{max_retries}) in {wait_sec}s...{RESET}")
+                logger.warning(f"{prefix} get_with_retry - Server Error {response.status_code} ({response.text[:100]}). Retrying ({retries}/{max_retries}) in {wait_sec}s...")
                 time.sleep(wait_sec)
                 continue
 
         if not response.ok:
-            print(f"{RED}{prefix} get_with_retry - Error {response.status_code}: {response.text}{RESET}")
+            logger.error(f"{prefix} get_with_retry - Error {response.status_code}: {response.text}")
 
         response.raise_for_status()
         return response
@@ -200,7 +226,7 @@ def export_list(list_id, list_name, headers, category="Academics"):
     thread_name = threading.current_thread().name
     cat_label = category.replace("Institutional Research - ", "").strip()
     tag = f"[{thread_name}] [{cat_label}]"
-    print(f"{tag} Starting report '{list_name}' (ID: {list_id})")
+    logger.info(f"{tag} Starting report '{list_name}' (ID: {list_id})")
 
     base_url = f"https://api.sky.blackbaud.com/school/v1/lists/advanced/{list_id}"
     all_rows = []
@@ -213,7 +239,7 @@ def export_list(list_id, list_name, headers, category="Academics"):
             response = get_with_retry(url, headers, report_name=list_name, category=category)
             data = response.json()
         except Exception as e:
-            print(f"{RED}{tag} Failed to fetch page {page} for '{list_name}': {e}{RESET}")
+            logger.error(f"{tag} Failed to fetch page {page} for '{list_name}': {e}")
             failed_page = True
             break
 
@@ -227,7 +253,7 @@ def export_list(list_id, list_name, headers, category="Academics"):
 
         # Log active page progress (including final partial page)
         if count > 0:
-            print(f"{tag} '{list_name}' - Page {page} complete (+{count} rows | {len(all_rows)} total)")
+            logger.info(f"{tag} '{list_name}' - Page {page} complete (+{count} rows | {len(all_rows)} total)")
 
         # Stop when the page returns no records or fewer than a full page (1000)
         if count == 0 or not rows or count < 1000:
@@ -236,11 +262,11 @@ def export_list(list_id, list_name, headers, category="Academics"):
         page += 1
 
     if failed_page:
-        print(f"{RED}{tag} Aborting GCS publish for '{list_name}' due to failed page fetch. Incomplete data was NOT uploaded.{RESET}")
+        logger.error(f"{tag} Aborting GCS publish for '{list_name}' due to failed page fetch. Incomplete data was NOT uploaded.")
         return
 
     if not all_rows:
-        print(f"{YELLOW}{tag} No data found for '{list_name}' (ID: {list_id}). Skipping export.{RESET}")
+        logger.warning(f"{tag} No data found for '{list_name}' (ID: {list_id}). Skipping export.")
         return
 
     # 1. Generate CSV content
@@ -259,9 +285,9 @@ def export_list(list_id, list_name, headers, category="Academics"):
         bucket = storage_client.bucket(GCS_STAGING_BUCKET)
         blob = bucket.blob(gcs_blob_path)
         blob.upload_from_string(data=csv_text, content_type="text/csv")
-        print(f"{GREEN}{tag} Published '{list_name}' ({len(all_rows)} rows across {page} pages) -> gs://{GCS_STAGING_BUCKET}/{gcs_blob_path}{RESET}")
+        logger.info(f"{tag} Published '{list_name}' ({len(all_rows)} rows across {page} pages) -> gs://{GCS_STAGING_BUCKET}/{gcs_blob_path}")
     except Exception as e:
-        print(f"{RED}{tag} Error uploading '{list_name}' to GCS: {e}{RESET}")
+        logger.error(f"{tag} Error uploading '{list_name}' to GCS: {e}")
 
 # ----------------------
 # --- Orchestration ----
@@ -272,10 +298,10 @@ def process_category(category, headers):
     Worker function that fetches catalog and exports all lists within a single category sequentially.
     """
     thread_name = threading.current_thread().name
-    print(f"[{thread_name}] Fetching list catalog for '{category}'...")
+    logger.info(f"[{thread_name}] Fetching list catalog for '{category}'...")
     
     list_of_advanced_lists = get_list_of_advanced_lists(headers, category=category)
-    print(f"[{thread_name}] Discovered {len(list_of_advanced_lists)} list(s) in '{category}'. Exporting sequentially...")
+    logger.info(f"[{thread_name}] Discovered {len(list_of_advanced_lists)} list(s) in '{category}'. Exporting sequentially...")
 
     for advanced_list in list_of_advanced_lists:
         list_id = advanced_list.get("id")
@@ -287,9 +313,10 @@ def process_category(category, headers):
             category=category
         )
 
-    print(f"{GREEN}[{thread_name}] Category Completed: '{category}'{RESET}")
+    logger.info(f"[{thread_name}] Category Completed: '{category}'")
 
 def run_lists_pipeline(max_workers=MAX_WORKER_THREADS):
+    setup_logging()
 
     # Categories to process
     categories = [
@@ -314,14 +341,14 @@ def run_lists_pipeline(max_workers=MAX_WORKER_THREADS):
     ]
     
     # Fetch credentials only once as they are valid for 1 hour
-    print(f"run_lists_pipeline - Fetching credentials...")
+    logger.info("run_lists_pipeline - Fetching credentials...")
     headers = authenticate()
     if not headers:
-        print(f"{RED}run_lists_pipeline - Authentication failed. Exiting.{RESET}")
+        logger.error("run_lists_pipeline - Authentication failed. Exiting.")
         return
 
     num_workers = min(max_workers, len(categories)) if max_workers else len(categories)
-    print(f"run_lists_pipeline - Launching pipeline for {len(categories)} categories using {num_workers} category worker threads...")
+    logger.info(f"run_lists_pipeline - Launching pipeline for {len(categories)} categories using {num_workers} category worker threads...")
     # Note: Categories run concurrently; reports run sequentially to avoid SQL table contention
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=num_workers) as executor:
@@ -331,9 +358,9 @@ def run_lists_pipeline(max_workers=MAX_WORKER_THREADS):
             try:
                 future.result()
             except Exception as e:
-                print(f"{RED}run_lists_pipeline - Error processing category '{category}': {e}{RESET}")
+                logger.error(f"run_lists_pipeline - Error processing category '{category}': {e}")
 
-    print(f"{GREEN}run_lists_pipeline - All category pipelines completed successfully.{RESET}")
+    logger.info("run_lists_pipeline - All category pipelines completed successfully.")
 
 # ------------
 # --- Main ---

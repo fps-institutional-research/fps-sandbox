@@ -1,27 +1,30 @@
 steps:
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/sky-edumgmt', '.']
+    args: ['build', '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/sky-edumgmt:latest', '.']
     dir: 'sky-edumgmt'
 
   # Push the container image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/sky-edumgmt']
+    args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/sky-edumgmt:latest']
 
-  # Deploy to Cloud Run
+  # Update the Cloud Run Job with the new image
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
       - 'run'
       - 'jobs'
-      - 'deploy'
+      - 'update'
       - 'sky-edumgmt'
       - '--image'
-      - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/sky-edumgmt'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/sky-edumgmt:latest'
       - '--region'
       - 'us-central1'
       - '--task-timeout'
-      - '21600s' # 6 hours
+      - '21600s'
+
+images:
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/sky-edumgmt:latest'
 
 options:
   logging: CLOUD_LOGGING_ONLY
