@@ -1,3 +1,9 @@
+"""
+Queries the Blackabud SKY API for a list of advanced lists per category.
+Sequentially runs lists by category on threaded orchestration.
+Publishes to a GCS bucket.
+"""
+
 import requests
 import json
 import csv
