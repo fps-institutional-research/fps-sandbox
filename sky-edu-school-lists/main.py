@@ -43,9 +43,12 @@ MAX_WORKER_THREADS = 5
 # Threading Lock
 AUTH_LOCK = threading.Lock()
 
-# Logger
-logger = logging.getLogger(__name__)
+# LOGGER
+LOGGER = logging.getLogger(__name__)
 
+# ---------------
+# --- Logging ---
+# ---------------
 def setup_logging() -> None:
     """
     Initializes logging handler with Python's standard logging.
@@ -56,7 +59,7 @@ def setup_logging() -> None:
     root_logger.setLevel(logging.INFO)
     
     # Check for GCP runtime environments (including Cloud Run Jobs and Cloud Run Services)
-    gcp_env_vars = ["K_SERVICE", "CLOUD_RUN_JOB", "CLOUD_RUN_EXECUTION", "FUNCTION_TARGET", "FUNCTION_NAME", "GAE_INSTANCE"]
+    gcp_env_vars = ["CLOUD_RUN_JOB", "CLOUD_RUN_EXECUTION"]
     is_gcp_runtime = any(env in os.environ for env in gcp_env_vars)
     
     # Direct manual variable control if USE_GCP_LOGGING is explicitly set (True or False); fallback to auto-detection if None
@@ -104,14 +107,11 @@ class RateLimiter:
         if sleep_time > 0:
             time.sleep(sleep_time)
 
-
-# Global rate limiter instance
 rate_limiter = RateLimiter(max_calls=MAX_CALLS_PER_SECOND, period_seconds=1.0)
 
-
-# ------------------------
-# --- Helper Functions ---
-# ------------------------
+# ----------------------
+# --- Authentication ---
+# ----------------------
 def access_secret_version(secret_id, version_id="latest"):
     """
     Accesses the payload for the given secret version from GCP Secret Manager.
@@ -122,7 +122,7 @@ def access_secret_version(secret_id, version_id="latest"):
         response = client.access_secret_version(request={"name": name})
         return response.payload.data.decode("UTF-8")
     except Exception as e:
-        logger.error(f"Error accessing secret {secret_id}: {str(e)}")
+        LOGGER.error(f"Error accessing secret {secret_id}: {str(e)}")
         return None
 
 def authenticate():
@@ -133,7 +133,7 @@ def authenticate():
     subscription_key = access_secret_version(BLACKBAUD_SKY_SUBSCRIPTION_KEY)
 
     if not access_token or not subscription_key:
-        logger.error("authenticate - FAILED: Missing credentials.")
+        LOGGER.error("authenticate - FAILED: Missing credentials.")
         return None
 
     headers = {
@@ -143,6 +143,9 @@ def authenticate():
     }
     return headers
 
+# ----------------------
+# --- Core Functions ---
+# ----------------------
 def get_with_retry(url, headers, max_retries=3, timeout=59, report_name="", category=""):
     """
     Performs a GET request with rate limiting and retry logic for:
@@ -151,7 +154,7 @@ def get_with_retry(url, headers, max_retries=3, timeout=59, report_name="", cate
       - 5xx Server Errors & Timeouts: retries up to max_retries with backoff.
     """
     thread_name = threading.current_thread().name
-    cat_label = category.replace("Institutional Research - ", "").strip() if category else ""
+    cat_label = category.split(" - ", 1)[-1].strip() if category else ""
     cat_tag = f" [{cat_label}]" if cat_label else ""
     rep_tag = f" '{report_name}'" if report_name else ""
     prefix = f"[{thread_name}]{cat_tag}{rep_tag}"
@@ -165,7 +168,7 @@ def get_with_retry(url, headers, max_retries=3, timeout=59, report_name="", cate
             retries += 1
             if retries <= max_retries:
                 wait_sec = retries * 5
-                logger.warning(f"{prefix} get_with_retry - Connection/Timeout error ({e}). Retrying ({retries}/{max_retries}) in {wait_sec}s...")
+                LOGGER.warning(f"{prefix} get_with_retry - Connection/Timeout error ({e}). Retrying ({retries}/{max_retries}) in {wait_sec}s...")
                 time.sleep(wait_sec)
                 continue
             else:
@@ -173,12 +176,12 @@ def get_with_retry(url, headers, max_retries=3, timeout=59, report_name="", cate
 
         if response.status_code == 429:
             retry_after = int(response.headers.get("Retry-After", 5))
-            logger.warning(f"{prefix} get_with_retry - Rate limited (429). Waiting {retry_after}s...")
+            LOGGER.warning(f"{prefix} get_with_retry - Rate limited (429). Waiting {retry_after}s...")
             time.sleep(retry_after)
             continue
 
         if response.status_code == 401 and not auth_retried:
-            logger.warning(f"{prefix} get_with_retry - Unauthorized (401). Re-authenticating across threads...")
+            LOGGER.warning(f"{prefix} get_with_retry - Unauthorized (401). Re-authenticating across threads...")
             with AUTH_LOCK:
                 new_headers = authenticate()
                 if new_headers:
@@ -186,25 +189,22 @@ def get_with_retry(url, headers, max_retries=3, timeout=59, report_name="", cate
                     auth_retried = True
                     continue
                 else:
-                    logger.error(f"{prefix} get_with_retry - Re-authentication failed. Aborting request.")
+                    LOGGER.error(f"{prefix} get_with_retry - Re-authentication failed. Aborting request.")
 
         if response.status_code >= 500:
             retries += 1
             if retries <= max_retries:
                 wait_sec = retries * 5
-                logger.warning(f"{prefix} get_with_retry - Server Error {response.status_code} ({response.text[:100]}). Retrying ({retries}/{max_retries}) in {wait_sec}s...")
+                LOGGER.warning(f"{prefix} get_with_retry - Server Error {response.status_code} ({response.text[:100]}). Retrying ({retries}/{max_retries}) in {wait_sec}s...")
                 time.sleep(wait_sec)
                 continue
 
         if not response.ok:
-            logger.error(f"{prefix} get_with_retry - Error {response.status_code}: {response.text}")
+            LOGGER.error(f"{prefix} get_with_retry - Error {response.status_code}: {response.text}")
 
         response.raise_for_status()
         return response
-
-# ----------------------
-# --- Core Functions ---
-# ----------------------
+        
 def get_list_of_advanced_lists(headers, category="Academics"):
     """
     Fetches all lists and filters for those in the named category.
@@ -225,14 +225,14 @@ def get_list_of_advanced_lists(headers, category="Academics"):
     
     return ir_lists
 
-def export_list(list_id, list_name, headers, category="Academics"):
+def export_advanced_list(list_id, list_name, headers, category="Academics"):
     """
     Fetches a single advanced list with pagination and exports to GCS.
     """
     thread_name = threading.current_thread().name
-    cat_label = category.replace("Institutional Research - ", "").strip()
+    cat_label = category.split(" - ", 1)[-1].strip()
     tag = f"[{thread_name}] [{cat_label}]"
-    logger.info(f"{tag} Starting report '{list_name}' (ID: {list_id})")
+    LOGGER.info(f"{tag} Starting report '{list_name}' (ID: {list_id})")
 
     base_url = f"https://api.sky.blackbaud.com/school/v1/lists/advanced/{list_id}"
     all_rows = []
@@ -245,7 +245,7 @@ def export_list(list_id, list_name, headers, category="Academics"):
             response = get_with_retry(url, headers, report_name=list_name, category=category)
             data = response.json()
         except Exception as e:
-            logger.error(f"{tag} Failed to fetch page {page} for '{list_name}': {e}")
+            LOGGER.error(f"{tag} Failed to fetch page {page} for '{list_name}': {e}")
             failed_page = True
             break
 
@@ -259,7 +259,7 @@ def export_list(list_id, list_name, headers, category="Academics"):
 
         # Log active page progress (including final partial page)
         if count > 0:
-            logger.info(f"{tag} '{list_name}' - Page {page} complete (+{count} rows | {len(all_rows)} total)")
+            LOGGER.info(f"{tag} '{list_name}' - Page {page} complete (+{count} rows | {len(all_rows)} total)")
 
         # Stop when the page returns no records or fewer than a full page (1000)
         if count == 0 or not rows or count < 1000:
@@ -268,14 +268,14 @@ def export_list(list_id, list_name, headers, category="Academics"):
         page += 1
 
     if failed_page:
-        logger.error(f"{tag} Aborting GCS publish for '{list_name}' due to failed page fetch. Incomplete data was NOT uploaded.")
+        LOGGER.error(f"{tag} Aborting GCS publish for '{list_name}' due to failed page fetch. Incomplete data was NOT uploaded.")
         return
 
     if not all_rows:
-        logger.warning(f"{tag} No data found for '{list_name}' (ID: {list_id}). Skipping export.")
+        LOGGER.warning(f"{tag} No data found for '{list_name}' (ID: {list_id}). Skipping export.")
         return
 
-    # 1. Generate CSV content
+    # Generate CSV content
     fieldnames = list({key: None for row in all_rows for key in row.keys()}.keys())
     output_buffer = io.StringIO()
     writer = csv.DictWriter(output_buffer, fieldnames=fieldnames)
@@ -283,90 +283,93 @@ def export_list(list_id, list_name, headers, category="Academics"):
     writer.writerows(all_rows)
     csv_text = output_buffer.getvalue()
 
-    # 2. Publish CSV to Google Cloud Storage
-    clean_category = category.replace("Institutional Research - ", "").strip().lower()
+    # Publish CSV to Google Cloud Storage
+    clean_category = category.split(" - ", 1)[-1].strip().lower()
     gcs_blob_path = f"{clean_category}/{list_name.lower()}.csv"
     try:
         storage_client = storage.Client(project=GCP_PROJECT_ID)
         bucket = storage_client.bucket(GCS_STAGING_BUCKET)
         blob = bucket.blob(gcs_blob_path)
         blob.upload_from_string(data=csv_text, content_type="text/csv")
-        logger.info(f"{tag} Published '{list_name}' ({len(all_rows)} rows across {page} pages) -> gs://{GCS_STAGING_BUCKET}/{gcs_blob_path}")
+        LOGGER.info(f"{tag} Published '{list_name}' ({len(all_rows)} rows across {page} pages) -> gs://{GCS_STAGING_BUCKET}/{gcs_blob_path}")
     except Exception as e:
-        logger.error(f"{tag} Error uploading '{list_name}' to GCS: {e}")
+        LOGGER.error(f"{tag} Error uploading '{list_name}' to GCS: {e}")
 
 # ----------------------
 # --- Orchestration ----
 # ----------------------
-
-def process_category(category, headers):
+def sequentially_process_category(category, headers):
     """
     Worker function that fetches catalog and exports all lists within a single category sequentially.
     """
     thread_name = threading.current_thread().name
-    logger.info(f"[{thread_name}] Fetching list catalog for '{category}'...")
+    LOGGER.info(f"[{thread_name}] Fetching list catalog for '{category}'...")
     
     list_of_advanced_lists = get_list_of_advanced_lists(headers, category=category)
-    logger.info(f"[{thread_name}] Discovered {len(list_of_advanced_lists)} list(s) in '{category}'. Exporting sequentially...")
+    LOGGER.info(f"[{thread_name}] Discovered {len(list_of_advanced_lists)} list(s) in '{category}'. Exporting sequentially...")
 
     for advanced_list in list_of_advanced_lists:
         list_id = advanced_list.get("id")
         list_name = advanced_list.get("name", f"list_{list_id}")
-        export_list(
+        export_advanced_list(
             list_id=list_id,
             list_name=list_name,
             headers=headers,
             category=category
         )
 
-    logger.info(f"[{thread_name}] Category Completed: '{category}'")
+    LOGGER.info(f"[{thread_name}] Category Completed: '{category}'")
 
 def run_lists_pipeline(max_workers=MAX_WORKER_THREADS):
     setup_logging()
 
     # Categories to process
     categories = [
-        "Institutional Research - Absence"
-        ,"Institutional Research - Academic"
-        ,"Institutional Research - Activity"
-        ,"Institutional Research - Advisory"
-        ,"Institutional Research - Assessment"
-        ,"Institutional Research - Athletic"
-        ,"Institutional Research - Comment"
-        ,"Institutional Research - Community Group"
-        ,"Institutional Research - Constituent"
-        ,"Institutional Research - Employee"
-        ,"Institutional Research - Grade Average"
-        ,"Institutional Research - Gradebook"
-        ,"Institutional Research - Grading"
-        ,"Institutional Research - Graduation Class"
-        ,"Institutional Research - Honor Roll"
-        ,"Institutional Research - Platform"
-        ,"Institutional Research - Reportcard Definition"
-        ,"Institutional Research - School"
+        # "Institutional Research - Absence"
+        # ,"Institutional Research - Academic"
+        # ,"Institutional Research - Activity"
+        # ,"Institutional Research - Advisory"
+        # ,"Institutional Research - Assessment"
+        # ,"Institutional Research - Athletic"
+        # ,"Institutional Research - Comment"
+        # ,"Institutional Research - Community Group"
+        # ,"Institutional Research - Constituent"
+        # ,"Institutional Research - Employee"
+        # ,"Institutional Research - Grade Average"
+        # ,"Institutional Research - Gradebook"
+        # ,"Institutional Research - Grading"
+        # ,"Institutional Research - Graduation Class"
+        # ,"Institutional Research - Honor Roll"
+        # ,"Institutional Research - Platform"
+        # ,"Institutional Research - Reportcard Definition"
+        # ,"Institutional Research - School"
+        "Historical - Absence",
+        "Historical - Academic",
+        "Historical - Gradebook",
+        "Historical - Grading"
     ]
     
     # Fetch credentials only once as they are valid for 1 hour
-    logger.info("run_lists_pipeline - Fetching credentials...")
+    LOGGER.info("run_lists_pipeline - Fetching credentials...")
     headers = authenticate()
     if not headers:
-        logger.error("run_lists_pipeline - Authentication failed. Exiting.")
+        LOGGER.error("run_lists_pipeline - Authentication failed. Exiting.")
         return
 
     num_workers = min(max_workers, len(categories)) if max_workers else len(categories)
-    logger.info(f"run_lists_pipeline - Launching pipeline for {len(categories)} categories using {num_workers} category worker threads...")
+    LOGGER.info(f"run_lists_pipeline - Launching pipeline for {len(categories)} categories using {num_workers} category worker threads...")
     # Note: Categories run concurrently; reports run sequentially to avoid SQL table contention
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=num_workers) as executor:
-        futures = {executor.submit(process_category, category, headers): category for category in categories}
+        futures = {executor.submit(sequentially_process_category, category, headers): category for category in categories}
         for future in concurrent.futures.as_completed(futures):
             category = futures[future]
             try:
                 future.result()
             except Exception as e:
-                logger.error(f"run_lists_pipeline - Error processing category '{category}': {e}")
+                LOGGER.error(f"run_lists_pipeline - Error processing category '{category}': {e}")
 
-    logger.info("run_lists_pipeline - All category pipelines completed successfully.")
+    LOGGER.info("run_lists_pipeline - All category pipelines completed successfully.")
 
 # ------------
 # --- Main ---

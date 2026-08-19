@@ -1,5 +1,5 @@
 """
-advanced-list-dataflow.py
+NOTES: FOR FUTURE DEVELOPMENT.
 
 Apache Beam pipeline that:
   1. Authenticates with Blackbaud SKY API via GCP Secret Manager once per worker bundle (in setup()).
@@ -46,7 +46,7 @@ CATEGORIES = [
     "Institutional Research - School",
 ]
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Rate Limiter
@@ -95,7 +95,7 @@ def access_secret_version(secret_id: str, project_id: str = GCP_PROJECT_ID, vers
         response = client.access_secret_version(request={"name": name})
         return response.payload.data.decode("UTF-8")
     except Exception as e:
-        logger.error(f"Error accessing secret {secret_id}: {e}")
+        LOGGER.error(f"Error accessing secret {secret_id}: {e}")
         return None
 
 
@@ -105,7 +105,7 @@ def authenticate(project_id: str = GCP_PROJECT_ID) -> Dict[str, str] | None:
     subscription_key = access_secret_version(BLACKBAUD_SKY_SUBSCRIPTION_KEY, project_id=project_id)
 
     if not access_token or not subscription_key:
-        logger.error("Authentication failed: missing credentials in Secret Manager.")
+        LOGGER.error("Authentication failed: missing credentials in Secret Manager.")
         return None
 
     return {
@@ -126,19 +126,19 @@ def get_with_retry(url: str, headers: Dict[str, str], project_id: str = GCP_PROJ
 
         if response.status_code == 429:
             retry_after = int(response.headers.get("Retry-After", 5))
-            logger.warning(f"Rate limited (429). Retrying after {retry_after}s...")
+            LOGGER.warning(f"Rate limited (429). Retrying after {retry_after}s...")
             time.sleep(retry_after)
             continue
 
         if response.status_code == 401 and not auth_retried:
-            logger.warning("Unauthorized (401). Refreshing token...")
+            LOGGER.warning("Unauthorized (401). Refreshing token...")
             new_headers = authenticate(project_id=project_id)
             if new_headers:
                 headers.update(new_headers)
                 auth_retried = True
                 continue
             else:
-                logger.error("Re-authentication failed.")
+                LOGGER.error("Re-authentication failed.")
 
         response.raise_for_status()
         return response
@@ -166,7 +166,7 @@ class FetchAdvancedListsFn(beam.DoFn):
             yield beam.pvalue.TaggedOutput("dead_letter", {"category": category, "error": "Failed to authenticate"})
             return
 
-        logger.info(f"Fetching list catalog for category: '{category}'")
+        LOGGER.info(f"Fetching list catalog for category: '{category}'")
         url = "https://api.sky.blackbaud.com/school/v1/lists"
 
         try:
@@ -191,10 +191,10 @@ class FetchAdvancedListsFn(beam.DoFn):
                         "list_name": list_name,
                     }
 
-            logger.info(f"Found {matched_count} list(s) in category '{category}'")
+            LOGGER.info(f"Found {matched_count} list(s) in category '{category}'")
 
         except Exception as e:
-            logger.exception(f"Error fetching catalog for category '{category}'")
+            LOGGER.exception(f"Error fetching catalog for category '{category}'")
             yield beam.pvalue.TaggedOutput("dead_letter", {"category": category, "error": str(e)})
 
 
@@ -221,7 +221,7 @@ class FetchListPagesFn(beam.DoFn):
         list_name = list_info["list_name"]
         clean_category = category.replace("Institutional Research - ", "").strip().lower()
 
-        logger.info(f"Processing Advanced List: {list_name} (ID: {list_id})")
+        LOGGER.info(f"Processing Advanced List: {list_name} (ID: {list_id})")
 
         base_url = f"https://api.sky.blackbaud.com/school/v1/lists/advanced/{list_id}"
         page = 1
@@ -233,7 +233,7 @@ class FetchListPagesFn(beam.DoFn):
                 response = get_with_retry(url, self.headers, project_id=self.project_id)
                 data = response.json()
             except Exception as e:
-                logger.error(f"[{list_name}] Error on page {page}: {e}")
+                LOGGER.error(f"[{list_name}] Error on page {page}: {e}")
                 yield beam.pvalue.TaggedOutput(
                     "dead_letter",
                     {"category": category, "list_id": list_id, "list_name": list_name, "page": page, "error": str(e)},
@@ -259,7 +259,7 @@ class FetchListPagesFn(beam.DoFn):
 
             page += 1
 
-        logger.info(f"Completed fetching {list_name}: {total_rows} row(s) across {page} page(s)")
+        LOGGER.info(f"Completed fetching {list_name}: {total_rows} row(s) across {page} page(s)")
 
 
 class GroupAndExportToGCSFn(beam.DoFn):
@@ -281,7 +281,7 @@ class GroupAndExportToGCSFn(beam.DoFn):
         rows_list = list(rows)
 
         if not rows_list:
-            logger.warning(f"No rows to export for {clean_category}/{list_name}")
+            LOGGER.warning(f"No rows to export for {clean_category}/{list_name}")
             return
 
         gcs_blob_path = f"{clean_category}/{list_name.lower()}.csv"
@@ -300,7 +300,7 @@ class GroupAndExportToGCSFn(beam.DoFn):
             blob = bucket.blob(gcs_blob_path)
             blob.upload_from_string(data=csv_text, content_type="text/csv")
 
-            logger.info(
+            LOGGER.info(
                 f"Successfully published gs://{self.bucket_name}/{gcs_blob_path} ({len(rows_list)} rows)"
             )
             yield {
@@ -312,7 +312,7 @@ class GroupAndExportToGCSFn(beam.DoFn):
             }
 
         except Exception as e:
-            logger.exception(f"Error uploading {gcs_blob_path} to GCS")
+            LOGGER.exception(f"Error uploading {gcs_blob_path} to GCS")
             yield beam.pvalue.TaggedOutput(
                 "dead_letter",
                 {"category": clean_category, "list_name": list_name, "error": str(e)},
@@ -327,7 +327,7 @@ def run_pipeline(beam_args: List[str] | None = None) -> None:
     pipeline_options = PipelineOptions(beam_args)
     pipeline_options.view_as(SetupOptions).save_main_session = True
 
-    logger.info("Starting Apache Beam Advanced List Pipeline...")
+    LOGGER.info("Starting Apache Beam Advanced List Pipeline...")
 
     with beam.Pipeline(options=pipeline_options) as p:
         # Step 1: Create initial categories PCollection
@@ -369,10 +369,10 @@ def run_pipeline(beam_args: List[str] | None = None) -> None:
         _ = (
             (catalog_dlq, pages_dlq, export_dlq)
             | "Flatten DLQ Records" >> beam.Flatten()
-            | "Log DLQ Exceptions" >> beam.Map(lambda record: logger.error(f"DLQ Exception: {record}"))
+            | "Log DLQ Exceptions" >> beam.Map(lambda record: LOGGER.error(f"DLQ Exception: {record}"))
         )
 
-    logger.info("Apache Beam Advanced List Pipeline finished successfully.")
+    LOGGER.info("Apache Beam Advanced List Pipeline finished successfully.")
 
 
 def http_entry_point(request: object = None) -> tuple:
@@ -381,7 +381,7 @@ def http_entry_point(request: object = None) -> tuple:
         run_pipeline()
         return "http_entry_point - Beam pipeline completed successfully", 200
     except Exception as e:
-        logger.exception("Error executing Beam pipeline HTTP entry point")
+        LOGGER.exception("Error executing Beam pipeline HTTP entry point")
         return f"http_entry_point - Error during Beam pipeline execution: {e}", 500
 
 

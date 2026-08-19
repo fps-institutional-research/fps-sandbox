@@ -1,11 +1,10 @@
 """
+NOTES: DO NOT USE. This script causes resource contention on the database.
+
 This program downloads all Advanced Lists from the Blackbaud SKY API for the "Institutional Research - " categories.
 It uses threading to download lists in parallel.
 It uses a rate limiter to ensure that we do not exceed the Blackbaud SKY API rate limit.
 It uses Google Cloud Storage to store the downloaded lists.
-
-Last Modified: 08/17/2026
-Author: Jacob Shwisberg
 """
 
 import requests

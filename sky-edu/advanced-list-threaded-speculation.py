@@ -1,10 +1,10 @@
 """
+NOTES: DO NOT USE. This script causes intense resource contention on the database. 
+
 This program downloads a specific Advanced List from the Blackbaud SKY API.
 It uses speculative pagination to download the list in parallel.
 Unfortunately, the database timeout is only 1 minute, so resource contention
 will likely occur when downloading large lists ( > 1000 rows).
-
-DO NOT USE.
 """
 
 import requests

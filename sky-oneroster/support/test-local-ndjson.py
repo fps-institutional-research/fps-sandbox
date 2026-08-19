@@ -38,7 +38,7 @@ logging.basicConfig(
         logging.StreamHandler()
     ]
 )
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 # =============================================================================
 # PHASE 0: CONFIGURATION
@@ -80,7 +80,7 @@ def discover_endpoints(endpoints: list[str], session: OAuth2Session) -> list[str
         endpoint_name = base_url.strip('/').split('/')[-1]
         discovery_url = f"{base_url}?limit=1&offset=0"
 
-        logger.info(f"[Discover] Probing {endpoint_name}: {discovery_url}")
+        LOGGER.info(f"[Discover] Probing {endpoint_name}: {discovery_url}")
 
         try:
             time.sleep(random.uniform(0.5,1.5))
@@ -88,7 +88,7 @@ def discover_endpoints(endpoints: list[str], session: OAuth2Session) -> list[str
             response = session.get(discovery_url, headers=headers)
 
             if response.status_code != 200:
-                logger.warning(f"[Discover] {endpoint_name} returned HTTP {response.status_code}. Skipping.")
+                LOGGER.warning(f"[Discover] {endpoint_name} returned HTTP {response.status_code}. Skipping.")
                 continue
 
             # --- Extract total count ---
@@ -128,17 +128,17 @@ def discover_endpoints(endpoints: list[str], session: OAuth2Session) -> list[str
                             page_items = data[list_keys[0]]
 
                 if not page_items:
-                    logger.info(f"[Discover] {endpoint_name}: 0 records. Skipping.")
+                    LOGGER.info(f"[Discover] {endpoint_name}: 0 records. Skipping.")
                     continue
                 elif total_count is None:
                     # Can't determine total —- fall back to single URL without offset
-                    logger.warning(f"[Discover] {endpoint_name}: total count unknown. Fetching with single-page fallback.")
+                    LOGGER.warning(f"[Discover] {endpoint_name}: total count unknown. Fetching with single-page fallback.")
                     all_page_urls.append(base_url)
                     continue
 
             # --- Generate all page URLs ---
             num_pages = math.ceil(total_count / PAGE_SIZE)
-            logger.info(f"[Discover] {endpoint_name}: {total_count} records → {num_pages} pages ({num_pages} API calls)")
+            LOGGER.info(f"[Discover] {endpoint_name}: {total_count} records → {num_pages} pages ({num_pages} API calls)")
 
             for page_idx in range(num_pages):
                 offset = page_idx * PAGE_SIZE
@@ -146,12 +146,12 @@ def discover_endpoints(endpoints: list[str], session: OAuth2Session) -> list[str
                 all_page_urls.append(page_url)
 
         except Exception as e:
-            logger.error(f"[Discover] Error probing {endpoint_name}: {e}")
+            LOGGER.error(f"[Discover] Error probing {endpoint_name}: {e}")
             continue
 
         time.sleep(0.3)  # Brief delay between discovery probes
 
-    logger.info(f"[Discover] Complete: {len(all_page_urls)} total page URLs to fetch across {len(endpoints)} endpoints")
+    LOGGER.info(f"[Discover] Complete: {len(all_page_urls)} total page URLs to fetch across {len(endpoints)} endpoints")
     return all_page_urls
 
 
@@ -174,7 +174,7 @@ class OneRosterPageCaller(Caller):
         Fetch a single page and return (base_endpoint_name, json_string_of_items).
         """
         try:
-            logger.info(f"[Fetch] {page_url}")
+            LOGGER.info(f"[Fetch] {page_url}")
             # Use OAuth2Session with the provided token dict
             oauth = OAuth2Session(token=self.token_dict)
             response = oauth.get(
@@ -189,7 +189,7 @@ class OneRosterPageCaller(Caller):
             elif response.status_code == 403:
                 raise UserCodeExecutionException(f"Forbidden. Check API subscription key: {response.text}")
             elif response.status_code == 404:
-                logger.warning(f"[Fetch] {page_url} not found (404). Returning empty.")
+                LOGGER.warning(f"[Fetch] {page_url} not found (404). Returning empty.")
                 return page_url, json.dumps([])
             elif response.status_code >= 500:
                 raise UserCodeExecutionException(f"Server error: {response.status_code} - {response.text}")
@@ -222,7 +222,7 @@ class OneRosterPageCaller(Caller):
                             items = v
                             break
 
-            logger.info(f"[Response] {page_url} → {len(items)} items")
+            LOGGER.info(f"[Response] {page_url} → {len(items)} items")
             return page_url, json.dumps(items)
 
         except requests.exceptions.RequestException as e:
@@ -254,13 +254,13 @@ def write_ndjson_file(element):
             all_items.extend(page_items)
 
     if not all_items:
-        logger.info(f"[Write] {endpoint_name}: 0 items. Skipping file creation.")
+        LOGGER.info(f"[Write] {endpoint_name}: 0 items. Skipping file creation.")
         return element
 
     output_dir = os.path.join(os.path.expanduser("~"), "Desktop")
     os.makedirs(output_dir, exist_ok=True)
     filename = os.path.join(output_dir, f"{endpoint_name}.ndjson")
-    logger.info(f"[Write] {endpoint_name}: writing {len(all_items)} items to {filename}")
+    LOGGER.info(f"[Write] {endpoint_name}: writing {len(all_items)} items to {filename}")
 
     with open(filename, 'w') as f:
         for item in all_items:
@@ -281,7 +281,7 @@ def run_pipeline():
     """
     # --- CONFIGURATION ---
     if not ONEROSTER_ACCESS_TOKEN_DICT.get('access_token'):
-        logger.error("Failed to obtain access token from Secret Manager. Exiting.")
+        LOGGER.error("Failed to obtain access token from Secret Manager. Exiting.")
         return
 
     # Use a dummy session for the discovery phase (Discovery just needs the token)
@@ -370,22 +370,22 @@ def run_pipeline():
     # =========================================================================
     # PHASE 1: DISCOVER — probe each endpoint for total count, generate page URLs
     # =========================================================================
-    logger.info("=" * 70)
-    logger.info("PHASE 1: DISCOVER")
-    logger.info("=" * 70)
+    LOGGER.info("=" * 70)
+    LOGGER.info("PHASE 1: DISCOVER")
+    LOGGER.info("=" * 70)
 
     page_urls = discover_endpoints(endpoints, discovery_session)
 
     if not page_urls:
-        logger.warning("No page URLs generated. Nothing to fetch.")
+        LOGGER.warning("No page URLs generated. Nothing to fetch.")
         return
 
     # =========================================================================
     # PHASE 2: FETCH — fan out all page URLs in parallel
     # =========================================================================
-    logger.info("=" * 70)
-    logger.info(f"PHASE 2: FETCH — {len(page_urls)} page URLs across parallel workers")
-    logger.info("=" * 70)
+    LOGGER.info("=" * 70)
+    LOGGER.info(f"PHASE 2: FETCH — {len(page_urls)} page URLs across parallel workers")
+    LOGGER.info("=" * 70)
 
     options = PipelineOptions(flags=[
         "--runner=DirectRunner",
