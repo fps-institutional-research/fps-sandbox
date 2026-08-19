@@ -14,7 +14,7 @@ steps:
     args:
       - 'run'
       - 'jobs'
-      - 'update'
+      - 'update' # Use 'deploy' for job creation, then use 'update' for CI/CD
       - 'sky-edu-school-lists'
       - '--image'
       - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/sky-edu-school-lists:latest'
