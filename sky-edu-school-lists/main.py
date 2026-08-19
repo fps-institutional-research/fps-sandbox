@@ -1,7 +1,16 @@
 """
-Queries the Blackabud SKY API for a list of advanced lists per category.
-Sequentially runs lists by category on threaded orchestration.
-Publishes to a , also pushing to a GCS bucket.
+Summary:
+    1. For each category, pulls the list of advanced lists from the Blackbaud SKY API.
+    2. For each list of advanced list, sequentially exports each advanced list to a CSV file in a GCS bucket.
+
+Design Notes:
+    Threading by advanced list category is used to optimize run time.
+        - Each thread pulls a list of advanced lists, and then sequentially runs the lists using fault-tolerant page-pull orchestration.
+        - Each advanced list is published as a CSV file to a GCS bucket.
+    Other extraction techniques were explored.
+        - Sequential exports without threading worked, but took many hours to complete.
+        - Threading across all categories caused mild resource contention.
+        - Speculative, threaded page pulling caused intense resource contention.
 """
 
 import requests
@@ -20,31 +29,50 @@ from google.cloud import storage
 import google.cloud.logging
 from google.cloud.logging.handlers import StructuredLogHandler
 
-# ---------------------
-# --- Configuration ---
-# ---------------------
+# ------------------
+# --- Variables ---
+# ------------------
 
 # Google Cloud resources
-GCP_PROJECT_ID = "institutional-sandbox"
-GCS_STAGING_BUCKET = "495616-bemdam-staging-sandbox"
+GCP_PROJECT_ID = "institutional-research-495616"
+GCS_STAGING_BUCKET = "495616-bemdam-staging"
 BLACKBAUD_SKY_ACCESS_TOKEN = "blackbaud-sky-access-token"
 BLACKBAUD_SKY_SUBSCRIPTION_KEY = "blackbaud-sky-subscription-key"
 
-# Logging mode configuration:
-# Set to True for GCP Structured JSON logging, False for standard console/stdout logging,
-# or None to auto-detect based on GCP runtime environment variables.
+# Advanced list categories
+CATEGORIES = [
+        "Institutional Research - Absence"
+        ,"Institutional Research - Academic"
+        ,"Institutional Research - Activity"
+        ,"Institutional Research - Advisory"
+        ,"Institutional Research - Assessment"
+        ,"Institutional Research - Athletic"
+        ,"Institutional Research - Comment"
+        ,"Institutional Research - Community Group"
+        ,"Institutional Research - Constituent"
+        ,"Institutional Research - Employee"
+        ,"Institutional Research - Grade Average"
+        ,"Institutional Research - Gradebook"
+        ,"Institutional Research - Grading"
+        ,"Institutional Research - Graduation Class"
+        ,"Institutional Research - Honor Roll"
+        ,"Institutional Research - Platform"
+        ,"Institutional Research - Reportcard Definition"
+        ,"Institutional Research - School"
+        #"Historical - Absence",
+        #"Historical - Academic",
+        #"Historical - Gradebook",
+        #"Historical - Grading"
+    ]
+
+# Log type and initialization (True = GCP JSON, False = stdout, None = auto-detect)
 USE_GCP_LOGGING = None
-
-# Concurrency & Rate Limiting Configuration
-# Blackbaud SKY API limit: 10 calls per second. 9 calls per second is a safe threshold.
-MAX_CALLS_PER_SECOND = 9
-MAX_WORKER_THREADS = 5
-
-# Threading Lock
-AUTH_LOCK = threading.Lock()
-
-# LOGGER
 LOGGER = logging.getLogger(__name__)
+
+# Rate limiting, threading, and initialization (Blackbaud SKY API limit is 10 calls per second)
+MAX_CALLS_PER_SECOND = 9
+MAX_WORKER_THREADS = 7
+AUTH_LOCK = threading.Lock()
 
 # ---------------
 # --- Logging ---
@@ -75,9 +103,9 @@ def setup_logging() -> None:
         handler.setFormatter(formatter)
         root_logger.addHandler(handler)
 
-# ------------------------
-# --- Rate Limiter -------
-# ------------------------
+# --------------------
+# --- Rate Limiter ---
+# --------------------
 class RateLimiter:
     """
     Thread-safe rate limiter enforcing max_calls within period_seconds across all threads.
@@ -295,9 +323,9 @@ def export_advanced_list(list_id, list_name, headers, category="Academics"):
     except Exception as e:
         LOGGER.error(f"{tag} Error uploading '{list_name}' to GCS: {e}")
 
-# ----------------------
-# --- Orchestration ----
-# ----------------------
+# ---------------------
+# --- Orchestration ---
+# ---------------------
 def sequentially_process_category(category, headers):
     """
     Worker function that fetches catalog and exports all lists within a single category sequentially.
@@ -324,30 +352,7 @@ def run_lists_pipeline(max_workers=MAX_WORKER_THREADS):
     setup_logging()
 
     # Categories to process
-    categories = [
-        # "Institutional Research - Absence"
-        # ,"Institutional Research - Academic"
-        # ,"Institutional Research - Activity"
-        # ,"Institutional Research - Advisory"
-        # ,"Institutional Research - Assessment"
-        # ,"Institutional Research - Athletic"
-        # ,"Institutional Research - Comment"
-        # ,"Institutional Research - Community Group"
-        # ,"Institutional Research - Constituent"
-        # ,"Institutional Research - Employee"
-        # ,"Institutional Research - Grade Average"
-        # ,"Institutional Research - Gradebook"
-        # ,"Institutional Research - Grading"
-        # ,"Institutional Research - Graduation Class"
-        # ,"Institutional Research - Honor Roll"
-        # ,"Institutional Research - Platform"
-        # ,"Institutional Research - Reportcard Definition"
-        # ,"Institutional Research - School"
-        "Historical - Absence",
-        "Historical - Academic",
-        "Historical - Gradebook",
-        "Historical - Grading"
-    ]
+    categories = CATEGORIES
     
     # Fetch credentials only once as they are valid for 1 hour
     LOGGER.info("run_lists_pipeline - Fetching credentials...")
