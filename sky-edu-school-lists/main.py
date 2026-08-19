@@ -61,7 +61,7 @@ CATEGORIES = [
         ,"Institutional Research - School"
         #"Historical - Absence",
         #"Historical - Academic",
-        #"Historical - Gradebook",
+        "Historical - Gradebook",
         #"Historical - Grading"
     ]
 
