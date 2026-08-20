@@ -34,31 +34,31 @@ from google.cloud.logging.handlers import StructuredLogHandler
 # ------------------
 
 # Google Cloud resources
-GCP_PROJECT_ID = "institutional-research-495616"
-GCS_STAGING_BUCKET = "495616-bemdam-staging"
+GCP_PROJECT_ID = "institutional-sandbox" #"institutional-research-495616"
+GCS_STAGING_BUCKET = "institutional-sandbox-bemdam-staging" #"495616-bemdam-staging"
 BLACKBAUD_SKY_ACCESS_TOKEN = "blackbaud-sky-access-token"
 BLACKBAUD_SKY_SUBSCRIPTION_KEY = "blackbaud-sky-subscription-key"
 
 # Advanced list categories
 CATEGORIES = [
-        "Institutional Research - Absence"
-        ,"Institutional Research - Academic"
-        ,"Institutional Research - Activity"
-        ,"Institutional Research - Advisory"
-        ,"Institutional Research - Assessment"
-        ,"Institutional Research - Athletic"
-        ,"Institutional Research - Comment"
-        ,"Institutional Research - Community Group"
-        ,"Institutional Research - Constituent"
-        ,"Institutional Research - Employee"
-        ,"Institutional Research - Grade Average"
-        ,"Institutional Research - Gradebook"
-        ,"Institutional Research - Grading"
-        ,"Institutional Research - Graduation Class"
-        ,"Institutional Research - Honor Roll"
-        ,"Institutional Research - Platform"
-        ,"Institutional Research - Reportcard Definition"
-        ,"Institutional Research - School"
+        # "Institutional Research - Absence"
+        # ,"Institutional Research - Academic"
+        # ,"Institutional Research - Activity"
+        # ,"Institutional Research - Advisory"
+        # ,"Institutional Research - Assessment"
+        # ,"Institutional Research - Athletic"
+        # ,"Institutional Research - Comment"
+        # ,"Institutional Research - Community Group"
+        # ,"Institutional Research - Constituent"
+        # ,"Institutional Research - Employee"
+        # ,"Institutional Research - Grade Average"
+        #,"Institutional Research - Gradebook"
+        #,"Institutional Research - Grading"
+        #,"Institutional Research - Graduation Class"
+        #,"Institutional Research - Honor Roll"
+        #,"Institutional Research - Platform"
+        #,"Institutional Research - Reportcard Definition"
+        #,"Institutional Research - School"
         #"Historical - Absence",
         #"Historical - Academic",
         "Historical - Gradebook",
