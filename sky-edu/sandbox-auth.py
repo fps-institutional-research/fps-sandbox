@@ -28,12 +28,12 @@ from google.cloud.logging.handlers import StructuredLogHandler
 
 # --- Configurations ---
 # Google Cloud Project
-GCP_PROJECT_ID = os.environ.get("GCP_PROJECT", "institutional-research-495616")
+GCP_PROJECT_ID = "institutional-sandbox" # "institutional-research-495616"
 
 # Logging mode configuration:
 # Set to True for GCP Structured JSON logging, False for standard console/stdout logging,
 # or None to auto-detect based on GCP runtime environment variables.
-USE_GCP_LOGGING = False
+USE_GCP_LOGGING = None
 
 # Google Cloud Secret Manager Names
 BLACKBAUD_APPLICATION_CLIENT_ID = "blackbaud-application-client-id"
